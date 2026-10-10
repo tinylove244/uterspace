@@ -1,3 +1,21 @@
+# CHANGELOG — Cloud: sửa hiển thị media Cloudinary, xóa file theo bài, bỏ mật khẩu khỏi code
+> Session ngày 10/10/2026 — migration mới **100_cloudinary_seed_media** (cuối `db/all_migrations_cloud.sql`, đã chạy trên DB cloud).
+> **Mỗi máy phải tạo `<Tomcat>/conf/uterspace-cloud.properties`** (mẫu `db/uterspace-cloud.properties.example`) — thiếu thì web không khởi động.
+
+| Thay đổi | File chính |
+|:--|:--|
+| **Sửa:** ảnh / video upload lên Cloudinary không hiển thị (JSP nối `${ctx}` + URL tuyệt đối → `/uterspacehttps://...`). URL Cloudinary đổi thành `/cdn/...`, servlet chuyển hướng 301 sang `res.cloudinary.com` (chỉ host này, trình duyệt cache) | `MediaUrl`, `CloudMediaController` (mới) |
+| **Sửa:** Cloudinary từ chối file (quá giới hạn gói Free, file hỏng, mất mạng) → trước trả trang lỗi 500, nay trả thông báo tiếng Việt, không tạo bài rác | `UploadUtil.uploadToCloudinary` |
+| **Sửa:** WEBM quay từ trình duyệt / ghi màn hình hiện "Infinity:NaN" và mất thời lượng — tua tới cuối để trình duyệt tự tính | `post-modal.jsp` |
+| **Mới:** xóa bài / đổi ảnh đại diện / ảnh bìa / xóa tin / giải tán nhóm → xóa luôn file trên Cloudinary (luồng nền `cloudinary-cleaner`). Chỉ xóa file người dùng upload (`uterspace_uploads/<thư mục>/...`), không bao giờ xóa ảnh / video mẫu ở gốc `uterspace_uploads/` | `UploadUtil.delete`, `AppContextListener` |
+| **Bảo mật:** mật khẩu DB và API secret Cloudinary không còn trong code; đọc từ `conf/uterspace-cloud.properties` hoặc biến môi trường `UTERSPACE_DB_*`, `CLOUDINARY_URL`. `docs/CLOUD_CREDENTIALS.md` vào `.gitignore` | `CloudConfig` (mới), `JPAUtil`, `persistence.xml`, `UploadUtil` |
+| **Dữ liệu mẫu:** 54 ảnh / video minh họa đã có sẵn trên Cloudinary được gắn vào DB — ảnh chỉ vào cột ảnh, video chỉ vào cột video: avatar user 1–15, bìa nhóm 1–11, ảnh 16 bài viết, file video cho 6 bài video mẫu (10 giây). Chạy lại nhiều lần không sao, không đè ảnh người dùng tự upload | `db/all_migrations_cloud.sql` (mục 100) |
+| Dừng ứng dụng: mỗi bước dọn dẹp bọc riêng — trước đây `AiService.shutdown()` lỗi khi redeploy nóng làm bỏ qua bước đóng pool kết nối DB cloud | `AppContextListener` |
+
+**Kiểm thử:** đăng video MP4 0,8 MB / WEBM 35 MB / WEBM không có thời lượng, ảnh PNG → hiển thị và tua được ở Video, Bảng tin, Trang cá nhân; file hỏng → báo lỗi 400; đổi avatar 2 lần → avatar cũ bị xóa trên Cloudinary; xóa bài video + bài ảnh → file bị xóa, file mẫu còn nguyên; thiếu file cấu hình → log ghi rõ cần tạo file nào. Dữ liệu test đã xóa.
+
+---
+
 # CHANGELOG — Hoàn thiện Danh tính số (DID) & giao diện Quản trị mới
 > Session ngày 10/10/2026 — không cần migration mới (dùng bảng `user_dids` của 090).
 

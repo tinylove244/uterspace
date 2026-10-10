@@ -29,11 +29,10 @@
         <class>com.uterspace.model.MessageHidden</class>
 
         <properties>
-            <!-- Database Connection -->
+            <!-- Database Connection. Tài khoản + mật khẩu KHÔNG ghi ở đây: JPAUtil đọc từ
+                 <thư mục Tomcat>/conf/uterspace-cloud.properties (mẫu: db/uterspace-cloud.properties.example) -->
             <property name="javax.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://sql5113.site4now.net:1433;databaseName=db_acf87d_uterspace;encrypt=true;trustServerCertificate=true;"/>
-            <property name="javax.persistence.jdbc.user" value="db_acf87d_uterspace_admin"/>
-            <property name="javax.persistence.jdbc.password" value="UterSpace@2026"/>
 
             <!-- Hibernate Settings -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2012Dialect"/>

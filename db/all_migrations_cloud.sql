@@ -1960,3 +1960,99 @@ GO
 
 PRINT N'090: story reactions, AI sentiment, cá nhân hóa, passkey, DID OK';
 GO
+
+PRINT '------------------------------------------------';
+PRINT 'Executing 100_cloudinary_seed_media.sql ...';
+PRINT '------------------------------------------------';
+GO
+-- ============================================================
+-- 100: Gắn ảnh / video mẫu trên Cloudinary cho dữ liệu seed
+--   - File nằm ở gốc uterspace_uploads/ (avatar_N, group_cover_N, post_img_N, post_video_N) là ảnh / video
+--     minh họa. UploadUtil.delete KHÔNG bao giờ xóa các file này (chỉ xóa file người dùng upload, nằm trong
+--     uterspace_uploads/<thư mục>/), nên chạy lại script dựng DB vẫn còn đủ ảnh.
+--   - Ảnh chỉ gắn vào cột ảnh (avatar, cover_image, image_path), video chỉ gắn vào cột video (video_path).
+--   - Chạy lại nhiều lần không sao: chỉ thay giá trị seed (tên file trong assets/images hoặc NULL),
+--     không đụng tới ảnh / video người dùng tự upload (URL http... hoặc uploads/...).
+-- ============================================================
+SET QUOTED_IDENTIFIER ON;
+GO
+
+-- Ảnh đại diện user 1..15
+UPDATE u SET avatar = m.url
+FROM users u JOIN (VALUES
+    (1, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617040/uterspace_uploads/avatar_1.jpg'),
+    (2, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617046/uterspace_uploads/avatar_2.jpg'),
+    (3, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617047/uterspace_uploads/avatar_3.jpg'),
+    (4, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617048/uterspace_uploads/avatar_4.jpg'),
+    (5, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617048/uterspace_uploads/avatar_5.jpg'),
+    (6, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617049/uterspace_uploads/avatar_6.jpg'),
+    (7, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617050/uterspace_uploads/avatar_7.jpg'),
+    (8, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617051/uterspace_uploads/avatar_8.jpg'),
+    (9, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617051/uterspace_uploads/avatar_9.jpg'),
+    (10, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617042/uterspace_uploads/avatar_10.jpg'),
+    (11, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617043/uterspace_uploads/avatar_11.jpg'),
+    (12, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617044/uterspace_uploads/avatar_12.jpg'),
+    (13, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617044/uterspace_uploads/avatar_13.jpg'),
+    (14, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617045/uterspace_uploads/avatar_14.jpg'),
+    (15, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617046/uterspace_uploads/avatar_15.jpg')
+) m(id, url) ON u.user_id = m.id
+WHERE u.avatar IS NULL OR (u.avatar NOT LIKE 'http%' AND u.avatar NOT LIKE 'uploads/%');
+GO
+
+-- Ảnh bìa nhóm 1..11 (trước đó dùng nền gradient + biểu tượng)
+UPDATE g SET cover_image = m.url
+FROM groups_tbl g JOIN (VALUES
+    (1, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617052/uterspace_uploads/group_cover_1.jpg'),
+    (2, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617055/uterspace_uploads/group_cover_2.jpg'),
+    (3, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617056/uterspace_uploads/group_cover_3.jpg'),
+    (4, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617056/uterspace_uploads/group_cover_4.jpg'),
+    (5, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617057/uterspace_uploads/group_cover_5.jpg'),
+    (6, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617059/uterspace_uploads/group_cover_6.jpg'),
+    (7, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617059/uterspace_uploads/group_cover_7.jpg'),
+    (8, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617061/uterspace_uploads/group_cover_8.jpg'),
+    (9, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617061/uterspace_uploads/group_cover_9.jpg'),
+    (10, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617053/uterspace_uploads/group_cover_10.jpg'),
+    (11, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617053/uterspace_uploads/group_cover_11.jpg')
+) m(id, url) ON g.group_id = m.id
+WHERE g.cover_image IS NULL OR (g.cover_image NOT LIKE 'http%' AND g.cover_image NOT LIKE 'uploads/%');
+GO
+
+-- Ảnh của 16 bài viết có ảnh (không đụng ảnh bìa của bài video)
+UPDATE p SET image_path = m.url
+FROM posts p JOIN (VALUES
+    (1, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617063/uterspace_uploads/post_img_1.jpg'),
+    (2, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617068/uterspace_uploads/post_img_2.jpg'),
+    (3, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617069/uterspace_uploads/post_img_3.jpg'),
+    (4, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617069/uterspace_uploads/post_img_4.jpg'),
+    (5, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617071/uterspace_uploads/post_img_5.jpg'),
+    (6, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617072/uterspace_uploads/post_img_6.jpg'),
+    (16, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617073/uterspace_uploads/post_img_7.jpg'),
+    (18, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617073/uterspace_uploads/post_img_8.jpg'),
+    (21, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617075/uterspace_uploads/post_img_9.jpg'),
+    (22, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617063/uterspace_uploads/post_img_10.jpg'),
+    (24, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617065/uterspace_uploads/post_img_11.jpg'),
+    (25, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617066/uterspace_uploads/post_img_12.jpg'),
+    (27, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617066/uterspace_uploads/post_img_13.jpg'),
+    (30, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617067/uterspace_uploads/post_img_14.jpg'),
+    (33, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617067/uterspace_uploads/post_img_15.jpg'),
+    (36, N'https://res.cloudinary.com/yjjoybu5/image/upload/v1791617054/uterspace_uploads/group_cover_12.jpg')
+) m(id, url) ON p.post_id = m.id
+WHERE p.image_path IS NOT NULL AND p.image_path NOT LIKE 'http%' AND p.image_path NOT LIKE 'uploads/%'
+  AND (p.media_type IS NULL OR p.media_type <> 'VIDEO');
+GO
+
+-- File video cho 6 bài video mẫu (trước đó "Video mẫu — chưa có file video"); clip mẫu dài 10 giây
+UPDATE p SET video_path = m.url, video_duration_sec = 10
+FROM posts p JOIN (VALUES
+    (38, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617076/uterspace_uploads/post_video_1.mp4'),
+    (39, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617080/uterspace_uploads/post_video_2.mp4'),
+    (40, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617081/uterspace_uploads/post_video_3.mp4'),
+    (41, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617082/uterspace_uploads/post_video_4.mp4'),
+    (42, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617083/uterspace_uploads/post_video_5.mp4'),
+    (43, N'https://res.cloudinary.com/yjjoybu5/video/upload/v1791617084/uterspace_uploads/post_video_6.mp4')
+) m(id, url) ON p.post_id = m.id
+WHERE p.media_type = 'VIDEO' AND p.video_path IS NULL;
+GO
+
+PRINT N'100: ảnh / video mẫu trên Cloudinary OK';
+GO

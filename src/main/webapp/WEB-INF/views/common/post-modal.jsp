@@ -252,17 +252,31 @@ function previewVideo(input) {
   var meta  = document.getElementById('video-preview-meta');
   postVideoDuration = 0;
   postVideoPlayable = false;
+  video.ondurationchange = null;   // bỏ trình đọc thời lượng của file chọn trước đó
   if (video.src) URL.revokeObjectURL(video.src);
   meta.textContent = 'Đang đọc video…';
 
-  // Không upload file mà trình duyệt không phát được (vd: MP4 H.265/HEVC) — báo lỗi rõ trước khi gửi
-  video.onloadedmetadata = function () {
-    postVideoDuration = video.duration || 0;
-    postVideoPlayable = video.videoWidth > 0;
+  function showVideoMeta() {
+    postVideoDuration = isFinite(video.duration) ? video.duration : 0;
     meta.textContent = postVideoPlayable
-      ? file.name + ' · ' + formatBytes(file.size) + ' · ' + formatDuration(postVideoDuration)
+      ? file.name + ' · ' + formatBytes(file.size) + (postVideoDuration > 0 ? ' · ' + formatDuration(postVideoDuration) : '')
       : 'Không đọc được hình ảnh của video này. Hãy xuất lại thành MP4 (H.264 + AAC).';
     meta.classList.toggle('is-error', !postVideoPlayable);
+  }
+  // Không upload file mà trình duyệt không phát được (vd: MP4 H.265/HEVC) — báo lỗi rõ trước khi gửi
+  video.onloadedmetadata = function () {
+    postVideoPlayable = video.videoWidth > 0;
+    showVideoMeta();
+    if (!postVideoPlayable || isFinite(video.duration)) return;
+    // WEBM quay từ trình duyệt / ghi màn hình không ghi thời lượng vào header (duration = Infinity):
+    // tua tới cuối để trình duyệt tự tính thời lượng, rồi quay lại đầu
+    video.ondurationchange = function () {
+      if (!isFinite(video.duration)) return;
+      video.ondurationchange = null;
+      video.currentTime = 0;
+      showVideoMeta();
+    };
+    video.currentTime = 1e101;
   };
   video.onerror = function () {
     postVideoPlayable = false;

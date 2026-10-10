@@ -1,6 +1,6 @@
 # Thông tin Hệ thống Cloud (UTErSpace)
 
-> **LƯU Ý BẢO MẬT:** File này chứa thông tin kết nối tới hệ thống Cloud của toàn bộ nhóm. TUYỆT ĐỐI không public file này ra ngoài hoặc đẩy lên các repository public trên GitHub. (Đảm bảo repo của nhóm là Private).
+> **LƯU Ý BẢO MẬT:** File này chứa thông tin kết nối tới hệ thống Cloud của toàn bộ nhóm. File đã nằm trong `.gitignore` — KHÔNG commit, chỉ gửi riêng cho thành viên (Zalo / Drive). Code không còn chứa mật khẩu: mỗi máy khai báo trong file cấu hình của Tomcat (mục 3).
 
 ### 1. CLOUD DATABASE (SmarterASP.NET)
 *Dùng để lưu trữ dữ liệu có cấu trúc (User, Post, Comment,...). Thay thế cho SQL Server Local.*
@@ -24,3 +24,19 @@
 - **API Secret:** `0dfgTCjQyl7hsip2Bv_7NMkpiVU`
 
 *Trang chủ quản trị:* [Cloudinary Console](https://console.cloudinary.com/)
+
+---
+
+### 3. KHAI BÁO CHO WEB CHẠY (mỗi máy làm 1 lần)
+Tạo file `<thư mục Tomcat>/conf/uterspace-cloud.properties` (vd: `C:\ApacheTomcat\conf\uterspace-cloud.properties`),
+mẫu ở `db/uterspace-cloud.properties.example`, điền theo mục 1 và 2 rồi khởi động lại Tomcat:
+
+```properties
+db.user=<Username ở mục 1>
+db.password=<Password ở mục 1>
+cloudinary.cloudName=<Cloud name ở mục 2>
+cloudinary.apiKey=<API Key ở mục 2>
+cloudinary.apiSecret=<API Secret ở mục 2>
+```
+
+Đổi mật khẩu DB / API secret (trên trang SmarterASP / Cloudinary Console) thì chỉ cần sửa file này và mục 1, 2 — không phải sửa code.

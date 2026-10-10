@@ -9,10 +9,20 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
 public final class UploadUtil {
+
+    private static final Logger LOG = Logger.getLogger(UploadUtil.class.getName());
 
     public static final String STORED_PREFIX = "uploads/";
     public static final String DIR_AVATARS     = "avatars";
@@ -24,18 +34,59 @@ public final class UploadUtil {
     public static final String DIR_MODELS      = "models";
     public static final long   MAX_MODEL_BYTES = 1024L * 1024 * 20;
 
-    // Cloudinary setup
-    private static final Cloudinary cloudinary;
-    static {
-        cloudinary = new Cloudinary(ObjectUtils.asMap(
-            "cloud_name", "yjjoybu5",
-            "api_key", "121991863298958",
-            "api_secret", "0dfgTCjQyl7hsip2Bv_7NMkpiVU",
-            "secure", true
-        ));
-    }
+    /** Thư mục gốc trên Cloudinary; file do app upload nằm ở uterspace_uploads/<thư mục>/<id ngẫu nhiên> */
+    public static final String CLOUD_FOLDER = "uterspace_uploads";
+
+    /**
+     * URL file do app upload: https://res.cloudinary.com/<cloud>/<image|video|raw>/upload/v123/uterspace_uploads/<thư mục>/<tên>.
+     * File dữ liệu mẫu nằm thẳng ở gốc (uterspace_uploads/avatar_1.jpg, db/all_migrations_cloud.sql mục 100)
+     * KHÔNG khớp → không bao giờ bị xóa, chạy lại script dựng DB vẫn còn ảnh.
+     */
+    private static final Pattern CLOUD_UPLOAD_URL = Pattern.compile(
+        "https://res\\.cloudinary\\.com/([^/]+)/(image|video|raw)/upload/v\\d+/(" + CLOUD_FOLDER + "/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+)");
+
+    // Tài khoản đọc từ CloudConfig (conf/uterspace-cloud.properties hoặc biến môi trường) — không ghi trong code
+    private static volatile Cloudinary cloudinary;
+
+    /** Xóa file trên Cloudinary chạy nền: không bắt người dùng chờ, xóa nhóm nhiều ảnh không làm chậm request */
+    private static final ExecutorService CLOUD_CLEANER = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "cloudinary-cleaner");
+        t.setDaemon(true);
+        return t;
+    });
 
     private UploadUtil() { }
+
+    /** null nếu chưa cấu hình (thiếu cloud name / API key / API secret) */
+    private static Cloudinary cloudinary() {
+        Cloudinary c = cloudinary;
+        if (c != null) return c;
+        synchronized (UploadUtil.class) {
+            if (cloudinary != null) return cloudinary;
+            String url = CloudConfig.get("cloudinary.url");
+            String name = CloudConfig.get("cloudinary.cloudName");
+            String key = CloudConfig.get("cloudinary.apiKey");
+            String secret = CloudConfig.get("cloudinary.apiSecret");
+            if (!url.isEmpty()) {
+                c = new Cloudinary(url);
+            } else if (!name.isEmpty() && !key.isEmpty() && !secret.isEmpty()) {
+                c = new Cloudinary(ObjectUtils.asMap("cloud_name", name, "api_key", key, "api_secret", secret));
+            } else {
+                LOG.severe("[Cloudinary] Chưa cấu hình: điền cloudinary.cloudName / apiKey / apiSecret vào " + CloudConfig.location()
+                         + " (mẫu: db/uterspace-cloud.properties.example) hoặc đặt biến môi trường CLOUDINARY_URL, rồi khởi động lại Tomcat.");
+                return null;
+            }
+            c.config.secure = true;
+            cloudinary = c;
+            return c;
+        }
+    }
+
+    /** Dừng luồng xóa file nền (AppContextListener.contextDestroyed) */
+    public static void shutdown() {
+        CLOUD_CLEANER.shutdown();
+        try { CLOUD_CLEANER.awaitTermination(5, TimeUnit.SECONDS); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+    }
 
     public static class UploadException extends Exception {
         public UploadException(String message) { super(message); }
@@ -50,18 +101,37 @@ public final class UploadUtil {
         return root;
     }
 
-    private static String uploadToCloudinary(Part part, String subdir) throws IOException {
+    private static String uploadToCloudinary(Part part, String subdir) throws UploadException, IOException {
         File temp = File.createTempFile("upl_", ".tmp");
         try {
             try (InputStream in = part.getInputStream()) {
                 Files.copy(in, temp.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
             Map params = ObjectUtils.asMap(
-                "folder", "uterspace_uploads/" + subdir,
+                "folder", CLOUD_FOLDER + "/" + subdir,
                 "resource_type", "auto"
             );
-            Map result = cloudinary.uploader().upload(temp, params);
-            return (String) result.get("secure_url");
+            Cloudinary c = cloudinary();
+            if (c == null) throw new UploadException("Máy chủ chưa cấu hình kho lưu trữ đám mây, vui lòng báo quản trị viên.");
+            Map result;
+            try {
+                result = c.uploader().upload(temp, params);
+            } catch (IOException | RuntimeException e) {
+                // SDK ném RuntimeException khi Cloudinary trả lỗi (vượt giới hạn gói, sai định dạng...),
+                // IOException khi mất mạng → đổi thành thông báo cho người dùng thay vì trang lỗi 500
+                LOG.log(Level.WARNING, "[Cloudinary] Upload thất bại (" + subdir + ", " + part.getSize() + " bytes)", e);
+                String msg = String.valueOf(e.getMessage());
+                if (msg.contains("File size too large")) {
+                    throw new UploadException("File vượt giới hạn dung lượng của kho lưu trữ (ảnh tối đa 10 MB, video tối đa 100 MB).");
+                }
+                if (msg.contains("Unsupported") || msg.contains("Invalid image file")) {
+                    throw new UploadException("File bị hỏng hoặc không đúng định dạng — hãy chọn ảnh JPG/PNG hoặc video MP4 (H.264) / WEBM khác.");
+                }
+                throw new UploadException("Không tải được file lên kho lưu trữ đám mây, vui lòng thử lại sau.");
+            }
+            String url = (String) result.get("secure_url");
+            if (url == null) throw new UploadException("Kho lưu trữ đám mây không trả về đường dẫn file, vui lòng thử lại.");
+            return url;
         } finally {
             Files.deleteIfExists(temp.toPath());
         }
@@ -99,11 +169,15 @@ public final class UploadUtil {
         return part != null && part.getSize() > 0 && detectVideoExtension(part) != null;
     }
 
+    /**
+     * Xóa file của bản ghi vừa xóa / vừa thay (bài viết, ảnh đại diện, ảnh bìa, tin...). Gọi SAU khi đã cập nhật DB.
+     * File Cloudinary: xóa nền qua Admin API; file local cũ (uploads/...): xóa trên đĩa.
+     */
     public static void delete(ServletContext ctx, String stored) {
         if (stored == null) return;
         if (stored.startsWith("http://") || stored.startsWith("https://")) {
-            // Ignore Cloudinary deletion for simplicity/safety in this project
-            return; 
+            deleteFromCloudinary(stored.trim());
+            return;
         }
         if (!stored.startsWith(STORED_PREFIX)) return;
         File root = uploadRoot(ctx);
@@ -113,6 +187,40 @@ public final class UploadUtil {
                 Files.deleteIfExists(file.toPath());
             }
         } catch (IOException ignored) { }
+    }
+
+    /**
+     * {resource_type, public_id} của file do app upload lên tài khoản Cloudinary đang cấu hình; null nếu không phải
+     * (file mẫu ở gốc uterspace_uploads/, file của tài khoản khác, URL lạ). public_id của image/video không có đuôi, raw thì có.
+     */
+    static String[] cloudinaryAsset(String url, String cloudName) {
+        Matcher m = CLOUD_UPLOAD_URL.matcher(url);
+        if (!m.matches() || !m.group(1).equals(cloudName)) return null;
+        String type = m.group(2);
+        String publicId = m.group(3);
+        int dot = publicId.lastIndexOf('.');
+        if (!"raw".equals(type) && dot > publicId.lastIndexOf('/')) publicId = publicId.substring(0, dot);
+        return new String[] { type, publicId };
+    }
+
+    private static void deleteFromCloudinary(String url) {
+        Cloudinary c = cloudinary();
+        if (c == null) return;
+        String[] asset = cloudinaryAsset(url, c.config.cloudName);
+        if (asset == null) return;
+        try {
+            CLOUD_CLEANER.execute(() -> {
+                try {
+                    Map result = c.uploader().destroy(asset[1], ObjectUtils.asMap("resource_type", asset[0], "invalidate", true));
+                    Object status = result.get("result");
+                    if (!"ok".equals(status)) LOG.warning("[Cloudinary] Xóa " + asset[1] + ": " + status);
+                } catch (Exception e) {
+                    LOG.log(Level.WARNING, "[Cloudinary] Không xóa được " + asset[1] + " (" + asset[0] + ")", e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            LOG.warning("[Cloudinary] Ứng dụng đang dừng, bỏ qua xóa " + asset[1]);
+        }
     }
 
     private static String write(ServletContext ctx, Part part, String subdir, String ext) throws IOException {

@@ -56,12 +56,24 @@ public class AppContextListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        // Mỗi bước bọc riêng: khi redeploy nóng (WAR bị thay giữa chừng), một bước nạp class lỗi không được
+        // làm bỏ qua các bước sau — nhất là đóng pool kết nối DB cloud (SmarterASP giới hạn số kết nối)
         if (storyCleaner != null) storyCleaner.shutdownNow();
-        com.uterspace.ai.AiService.shutdown();
+        stop("AiService", () -> com.uterspace.ai.AiService.shutdown());
+        // Chờ các lệnh xóa file Cloudinary đang xếp hàng chạy xong rồi dừng luồng nền
+        stop("UploadUtil", () -> UploadUtil.shutdown());
         // Dừng các luồng gửi sự kiện WebSocket — không để luồng "mồ côi" sau mỗi lần redeploy
-        com.uterspace.realtime.RealtimeHub.shutdown();
+        stop("RealtimeHub", () -> com.uterspace.realtime.RealtimeHub.shutdown());
         // Đóng Hibernate an toàn để giải phóng resources
-        JPAUtil.shutdown();
+        stop("JPAUtil", () -> JPAUtil.shutdown());
         System.out.println("JPA EntityManagerFactory closed.");
+    }
+
+    private static void stop(String name, Runnable step) {
+        try {
+            step.run();
+        } catch (RuntimeException | LinkageError e) {
+            System.err.println("Shutdown " + name + " error: " + e);
+        }
     }
 }

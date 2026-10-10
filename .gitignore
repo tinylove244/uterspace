@@ -20,6 +20,10 @@ buildNumber.properties
 src/main/resources/db.properties
 *.env
 .env
+# Mật khẩu DB cloud + API secret Cloudinary: gửi riêng cho thành viên, mỗi máy khai báo trong
+# <Tomcat>/conf/uterspace-cloud.properties (mẫu: db/uterspace-cloud.properties.example)
+docs/CLOUD_CREDENTIALS.md
+uterspace-cloud.properties
 
 # ===== IDE: VS Code =====
 .vscode/
