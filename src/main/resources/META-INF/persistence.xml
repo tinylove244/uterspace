@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+
+    <persistence-unit name="uterspacePU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <class>com.uterspace.model.User</class>
+        <class>com.uterspace.model.Post</class>
+        <class>com.uterspace.model.Comment</class>
+        <class>com.uterspace.model.Like</class>
+        <class>com.uterspace.model.Friendship</class>
+        <class>com.uterspace.model.Group</class>
+        <class>com.uterspace.model.GroupMember</class>
+        <class>com.uterspace.model.Notification</class>
+        <class>com.uterspace.model.Conversation</class>
+        <class>com.uterspace.model.ChatMessage</class>
+        <class>com.uterspace.model.SavedPost</class>
+        <class>com.uterspace.model.Report</class>
+        <class>com.uterspace.model.AdminLog</class>
+        <class>com.uterspace.model.Story</class>
+        <class>com.uterspace.model.UserBlock</class>
+        <class>com.uterspace.model.UserSettings</class>
+        <class>com.uterspace.model.ConversationMember</class>
+        <class>com.uterspace.model.MessageReaction</class>
+        <class>com.uterspace.model.MessageHidden</class>
+
+        <properties>
+            <!-- Database Connection -->
+            <property name="javax.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://sql5113.site4now.net:1433;databaseName=db_acf87d_uterspace;encrypt=true;trustServerCertificate=true;"/>
+            <property name="javax.persistence.jdbc.user" value="db_acf87d_uterspace_admin"/>
+            <property name="javax.persistence.jdbc.password" value="UterSpace@2026"/>
+
+            <!-- Hibernate Settings -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2012Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="none"/>
+            <!-- Má»i cá»™t chá»¯ trong schema lÃ  NVARCHAR (tiáº¿ng Viá»‡t). Thiáº¿u dÃ²ng nÃ y thÃ¬ khi Ä‘á»•i
+                 hbm2ddl.auto sang "validate", Hibernate bÃ¡o lá»‡ch kiá»ƒu á»Ÿ Má»ŒI cá»™t chá»¯ (nÃ³ máº·c Ä‘á»‹nh coi String lÃ  varchar). -->
+            <property name="hibernate.use_nationalized_character_data" value="true"/>
+            <property name="hibernate.show_sql" value="false"/> 
+            <property name="hibernate.format_sql" value="false"/> <!-- Set to true to format SQL statements in the console for easier debugging -->
+        </properties>
+    </persistence-unit>
+</persistence>
+

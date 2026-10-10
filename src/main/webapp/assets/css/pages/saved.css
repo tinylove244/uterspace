@@ -1,0 +1,46 @@
+/* ============================================================
+   UTErSpace — Trang Đã lưu
+   Dùng lại .post-card của app-shell.css, xếp theo masonry 2 cột
+   ============================================================ */
+
+.saved-grid {
+  column-count: 2;
+  column-gap: 20px;
+}
+
+.saved-grid .post-card {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 20px;
+}
+
+/* Nút dấu trang ở góc phải đang ở trạng thái "đã lưu" */
+.saved-grid .post-more { color: var(--violet); }
+.saved-grid .post-more:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* Chân thẻ: thời gian + liên kết về Bảng tin */
+.saved-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 17px 15px;
+}
+.saved-foot .post-time { padding: 0; }
+
+.saved-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--violet);
+  white-space: nowrap;
+}
+.saved-link .icon { width: 14px; height: 14px; }
+.saved-link:hover { text-decoration: underline; }
+
+@media (max-width: 1080px) {
+  .saved-grid { column-count: 1; }
+}

@@ -1,0 +1,20 @@
+# ============================================================
+# UTErSpace — cấu hình email gửi mã OTP (Quên mật khẩu)
+#
+# CÁCH DÙNG: chép file này thành  <thư mục Tomcat>/conf/uterspace-mail.properties
+#            (vd: C:\ApacheTomcat\conf\uterspace-mail.properties), điền 2 dòng dưới rồi khởi động lại Tomcat.
+# File thật nằm NGOÀI project → không bị commit / gửi kèm mã nguồn. KHÔNG ghi mật khẩu vào code.
+#
+# Gmail: bật Xác minh 2 bước → https://myaccount.google.com/apppasswords → tạo "Mật khẩu ứng dụng"
+#        (16 ký tự, dán nguyên cả khoảng trắng cũng được). KHÔNG dùng mật khẩu đăng nhập Gmail thật.
+#
+# Thay thế: đặt biến môi trường UTERSPACE_MAIL_USERNAME / UTERSPACE_MAIL_PASSWORD.
+# Để trống / không có file → chế độ phát triển: mã OTP được in ra log (cửa sổ console) của Tomcat.
+# ============================================================
+mail.username=
+mail.password=
+
+# Tùy chọn (mặc định dùng Gmail)
+# mail.host=smtp.gmail.com
+# mail.port=587
+# mail.fromName=UTErSpace

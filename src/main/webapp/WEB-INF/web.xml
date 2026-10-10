@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                             http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+  <display-name>UTErSpace</display-name>
+
+  <!-- ============================================================
+       Encoding filter — đảm bảo UTF-8 cho mọi request
+       ============================================================ -->
+  <filter>
+    <filter-name>EncodingFilter</filter-name>
+    <filter-class>com.uterspace.filter.EncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>EncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- ============================================================
+       Phân quyền — khai báo ở đây (không dùng @WebFilter) để cố định THỨ TỰ chạy:
+         AuthFilter  (đã đăng nhập? tài khoản bị khóa?)  →
+         AdminFilter (/admin/*: có phải admin? — đọc role từ DB)  →
+         CsrfFilter  (POST /admin/*, /report/*: token hợp lệ?)
+       Thứ tự filter-mapping trong web.xml = thứ tự chạy.
+       ============================================================ -->
+  <filter>
+    <filter-name>AuthFilter</filter-name>
+    <filter-class>com.uterspace.filter.AuthFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>AdminFilter</filter-name>
+    <filter-class>com.uterspace.filter.AdminFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>CsrfFilter</filter-name>
+    <filter-class>com.uterspace.filter.CsrfFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>AuthFilter</filter-name>
+    <url-pattern>/feed</url-pattern>
+    <url-pattern>/feed/*</url-pattern>
+    <url-pattern>/hashtag</url-pattern>
+    <url-pattern>/profile</url-pattern>
+    <url-pattern>/profile/*</url-pattern>
+    <url-pattern>/saved</url-pattern>
+    <url-pattern>/saved/*</url-pattern>
+    <url-pattern>/chat</url-pattern>
+    <url-pattern>/chat/*</url-pattern>
+    <url-pattern>/notifications</url-pattern>
+    <url-pattern>/notifications/*</url-pattern>
+    <url-pattern>/friends</url-pattern>
+    <url-pattern>/friends/*</url-pattern>
+    <url-pattern>/video</url-pattern>
+    <url-pattern>/video/*</url-pattern>
+    <url-pattern>/groups</url-pattern>
+    <url-pattern>/groups/*</url-pattern>
+    <url-pattern>/report/*</url-pattern>
+    <url-pattern>/search</url-pattern>
+    <url-pattern>/stories/*</url-pattern>
+    <url-pattern>/settings</url-pattern>
+    <url-pattern>/settings/*</url-pattern>
+    <url-pattern>/admin</url-pattern>
+    <url-pattern>/admin/*</url-pattern>
+    <url-pattern>/api/*</url-pattern>
+    <url-pattern>/ai/*</url-pattern>
+    <url-pattern>/security/*</url-pattern>
+    <url-pattern>/media/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>AdminFilter</filter-name>
+    <url-pattern>/admin</url-pattern>
+    <url-pattern>/admin/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>CsrfFilter</filter-name>
+    <url-pattern>/admin/*</url-pattern>
+    <url-pattern>/report/*</url-pattern>
+    <url-pattern>/friends/*</url-pattern>
+    <url-pattern>/chat/*</url-pattern>
+    <url-pattern>/notifications/*</url-pattern>
+    <url-pattern>/settings/*</url-pattern>
+    <url-pattern>/stories/*</url-pattern>
+    <url-pattern>/ai/*</url-pattern>
+    <url-pattern>/security/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Kiểu MIME cho mô hình 3D (.glb, <model-viewer>) và phụ đề WebVTT -->
+  <mime-mapping>
+    <extension>glb</extension>
+    <mime-type>model/gltf-binary</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>vtt</extension>
+    <mime-type>text/vtt</mime-type>
+  </mime-mapping>
+
+  <!-- ============================================================
+       Welcome file — index.jsp redirect về /feed hoặc /login
+       ============================================================ -->
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <!-- ============================================================
+       Session timeout: 24 giờ
+       ============================================================ -->
+  <session-config>
+    <session-timeout>1440</session-timeout>
+  </session-config>
+
+  <!-- ============================================================
+       Error pages
+       ============================================================ -->
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/views/common/error404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/views/common/error500.jsp</location>
+  </error-page>
+
+</web-app>

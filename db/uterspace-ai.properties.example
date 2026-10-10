@@ -1,0 +1,35 @@
+# ============================================================
+# UTErSpace — cấu hình Trợ lý AI (Google Gemini hoặc Anthropic Claude)
+#
+# CÁCH DÙNG: chép file này thành  <thư mục Tomcat>/conf/uterspace-ai.properties
+#            (vd: C:\ApacheTomcat\conf\uterspace-ai.properties — BỎ đuôi .example), dán API key rồi lưu.
+#            App tự nạp lại file sau ~2 giây, không cần khởi động lại Tomcat.
+# File thật nằm NGOÀI project → không bị commit. KHÔNG ghi API key vào code.
+#
+# Nhà cung cấp tự nhận theo dạng key:
+#   - Google Gemini: key "AIza..." hoặc "AQ...." — lấy MIỄN PHÍ tại https://aistudio.google.com/apikey
+#   - Anthropic Claude: key "sk-ant-..."          — lấy tại https://platform.claude.com (mục API Keys)
+# Thay thế: biến môi trường GEMINI_API_KEY hoặc ANTHROPIC_API_KEY.
+#
+# Kiểm tra: đăng nhập rồi mở  http://localhost:8080/uterspace/ai/status?ping=1
+#
+# Để trống / không có file → CHẾ ĐỘ OFFLINE: app vẫn chạy đủ tính năng bằng thuật toán nội bộ
+#   - phân tích cảm xúc: từ điển cảm xúc tiếng Việt (có/không dấu, phủ định, emoji)
+#   - tóm tắt: trích câu quan trọng nhất
+#   - viết chú thích: mẫu câu theo giọng văn + hashtag theo chủ đề
+#   - dịch: dùng Translator API có sẵn trong Chrome 138+ (chạy trên máy người dùng) nếu trình duyệt hỗ trợ
+# ============================================================
+ai.apiKey=
+
+# Chỉ định rõ nhà cung cấp (mặc định: đoán theo dạng key)
+# ai.provider=gemini
+
+# Model ưu tiên. Gemini mặc định thử lần lượt: gemini-flash-latest → gemini-3.5-flash → gemini-flash-lite-latest
+# (model quá tải / ngừng hoạt động thì tự chuyển model kế). Claude mặc định: claude-opus-5-5
+# ai.model=gemini-3.5-flash
+
+# Đặt false để tắt hẳn việc gọi AI dù đã có key (vd: hết hạn mức)
+# ai.enabled=true
+
+# Phân tích cảm xúc bài MỚI bằng AI (true) hay luôn dùng từ điển nội bộ (false — không tốn hạn mức)
+# ai.sentiment=true

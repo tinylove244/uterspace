@@ -1,0 +1,392 @@
+/* ============================================================
+   UTErSpace — Trang Nhóm
+   Khung chung xem app-shell.css
+   ============================================================ */
+
+.group-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+  transition: box-shadow var(--t-normal), border-color var(--t-normal), transform var(--t-normal);
+}
+.group-card:hover {
+  box-shadow: 0 14px 32px rgba(8, 27, 51, .12);
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+/* ---------- Ảnh bìa gradient theo loại nhóm ---------- */
+.group-cover {
+  position: relative;
+  height: 84px;
+  margin: 0;
+  background: linear-gradient(135deg, var(--violet), var(--violet-deep));
+}
+.group-card.club .group-cover {
+  background: linear-gradient(135deg, #FF9A5B, var(--accent) 70%);
+}
+.group-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 78% 22%, rgba(255, 255, 255, .28), transparent 58%);
+}
+
+.group-icon {
+  position: absolute;
+  left: 18px;
+  bottom: -24px;
+  z-index: 1;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Nội dung ---------- */
+.group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 34px 18px 18px;
+  flex: 1;
+}
+.group-name {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.group-tag {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: var(--violet-soft);
+  color: var(--violet);
+  font-size: 11px;
+  font-weight: 600;
+}
+.group-card.club .group-tag { background: var(--accent-soft); color: var(--accent); }
+
+.group-desc {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.group-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.group-meta .icon { width: 15px; height: 15px; }
+
+.group-body .btn-pill {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 9px;
+}
+
+/* ============================================================
+   THẺ NHÓM — bổ sung: ảnh bìa, nhãn quyền riêng tư, vai trò
+   ============================================================ */
+.group-cover {
+  display: block;
+  background-size: cover;
+  background-position: center;
+}
+.group-name a:hover { text-decoration: underline; }
+.group-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.group-tags .group-tag { align-self: auto; }
+.group-privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 600;
+}
+.group-privacy .icon { width: 12px; height: 12px; }
+.group-privacy.is-private { background: var(--warning-soft); color: var(--warning); }
+.group-role {
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+.group-pending-link { color: var(--accent); font-weight: 600; }
+.group-pending-link:hover { text-decoration: underline; }
+.group-body a.btn-pill { flex: 0 0 auto; margin-top: auto; }
+
+/* Nhóm đang chờ duyệt */
+.group-pending { margin-bottom: 20px; }
+.group-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.group-pending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.group-pending-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-full);
+  font-size: 13px;
+  font-weight: 500;
+}
+.group-pending-list .btn-pill { flex: 0 0 auto; padding: 6px 12px; }
+
+/* ============================================================
+   HỘP THOẠI TẠO / SỬA NHÓM
+   ============================================================ */
+.group-form-row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 14px;
+}
+fieldset.field { border: none; margin: 0 0 16px; padding: 0; min-width: 0; }
+.field legend { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--ink); padding: 0; }
+.icon-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.icon-choices legend { width: 100%; }
+.field .icon-choice { position: relative; display: block; margin: 0; cursor: pointer; }
+.field .icon-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.icon-choice span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 19px;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.icon-choice input:checked + span { border-color: var(--violet); background: var(--violet-soft); }
+.icon-choice input:focus-visible + span { box-shadow: 0 0 0 3px rgba(10, 61, 143, .2); }
+.privacy-choices { display: grid; gap: 8px; }
+.field .privacy-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.field .privacy-choice input { width: auto; margin-top: 3px; accent-color: var(--violet); }
+.privacy-choice b { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink); }
+.privacy-choice .icon { width: 15px; height: 15px; }
+.privacy-choice:has(input:checked) { border-color: var(--violet); background: var(--violet-soft); }
+
+/* ============================================================
+   TRANG NHÓM (/groups/view)
+   ============================================================ */
+.gv-header {
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.gv-cover {
+  position: relative;
+  height: 210px;
+  background-color: var(--violet);
+  background-image: linear-gradient(120deg, var(--violet-deep), var(--violet) 55%, #3B82F6);
+  background-size: cover;
+  background-position: center;
+}
+.gv-header.club .gv-cover { background-image: linear-gradient(120deg, #FF9A5B, var(--accent) 70%); }
+.gv-cover-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, .92);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.gv-cover-btn .icon { width: 16px; height: 16px; }
+.gv-cover-btn:hover { background: #fff; }
+
+.gv-identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px 18px;
+  position: relative;
+}
+/* Chỉ biểu tượng nhóm chồng lên mép dưới ảnh bìa, tên nhóm nằm hẳn trên nền trắng */
+.gv-icon {
+  align-self: start;
+  margin-top: -52px;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: var(--surface);
+  border: 4px solid var(--surface);
+  box-shadow: var(--shadow-md);
+  font-size: 40px;
+  line-height: 1;
+}
+.gv-title h1 {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+.gv-count { font-size: 12.5px; color: var(--ink-soft); }
+.gv-count b { color: var(--ink); }
+.gv-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.gv-actions .btn-pill { flex: 0 0 auto; }
+
+.pill-alert {
+  padding: 1px 8px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.gv-posts { column-count: 2; column-gap: 20px; }
+.gv-readonly-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--violet-soft);
+  color: var(--violet);
+  font-size: 13px;
+  font-weight: 500;
+}
+.gv-readonly-note .icon { width: 17px; height: 17px; flex-shrink: 0; }
+
+.gv-block + .gv-block { margin-top: 22px; }
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.member-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "user actions" "meta actions";
+  align-items: center;
+  column-gap: 12px;
+  padding: 12px 16px;
+}
+.member-row + .member-row { border-top: 1px solid var(--line); }
+.member-user { grid-area: user; display: flex; align-items: center; gap: 11px; min-width: 0; }
+.member-user img,
+.member-initials { width: 42px; height: 42px; border-radius: var(--r-full); object-fit: cover; flex-shrink: 0; }
+.member-initials {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--violet), var(--accent));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.member-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.member-user:hover .member-name { text-decoration: underline; }
+.member-meta { grid-area: meta; padding-left: 53px; font-size: 12px; color: var(--ink-muted); }
+.member-role.is-owner { color: var(--accent); font-weight: 600; }
+.member-actions { grid-area: actions; display: flex; gap: 6px; }
+.member-actions .btn-pill { flex: 0 0 auto; padding: 7px 12px; font-size: 12px; }
+
+.gv-widget {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.gv-widget + .gv-widget { margin-top: 16px; }
+.gv-widget-title {
+  margin-bottom: 12px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.gv-about-desc { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin-bottom: 14px; white-space: pre-line; }
+.gv-about-desc.is-empty { color: var(--ink-muted); }
+.gv-info-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.gv-info-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+.gv-info-list .icon { width: 17px; height: 17px; flex-shrink: 0; color: var(--ink-muted); }
+.gv-info-list a:hover b { text-decoration: underline; }
+.gv-danger { border-color: var(--accent-soft); }
+.gv-danger p { font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
+.gv-danger .btn-pill { flex: 0 0 auto; }
+.btn-pill--danger { color: var(--accent); }
+.gv-btn-danger { background: var(--accent); border-color: var(--accent); }
+.gv-btn-danger:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.gv-crop-body { background: #000; padding: 0; height: 360px; display: flex; align-items: center; justify-content: center; }
+.gv-crop-body img { max-width: 100%; max-height: 100%; display: block; }
+
+@media (max-width: 1080px) {
+  .gv-posts { column-count: 1; }
+}
+@media (max-width: 680px) {
+  .gv-identity { grid-template-columns: auto minmax(0, 1fr); }
+  .gv-actions { grid-column: 1 / -1; }
+  .group-form-row { grid-template-columns: minmax(0, 1fr); }
+  .member-row { grid-template-areas: "user" "meta" "actions"; grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .member-meta { padding-left: 0; }
+}

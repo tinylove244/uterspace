@@ -1,0 +1,169 @@
+/* ============================================================
+   search.css — Trang kết quả tìm kiếm /search
+   (thẻ người dùng, tab, trạng thái rỗng dùng lại từ app-shell.css)
+   ============================================================ */
+
+.search-term { color: var(--accent); }
+
+/* Tab dạng link: trạng thái đang chọn giống .pill-tab[aria-selected="true"] */
+.pill-tab { text-decoration: none; }
+.pill-tab[aria-current="page"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+  font-weight: 600;
+}
+.pill-tab[aria-current="page"] .pill-count { background: rgba(255,255,255,.22); color: #fff; }
+
+/* Ô tìm kiếm lớn khi chưa nhập từ khóa */
+.search-big {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+  margin-bottom: 26px;
+}
+.search-big > .icon { position: absolute; left: 18px; width: 20px; height: 20px; color: var(--ink-muted); }
+.search-big input {
+  flex: 1;
+  padding: 14px 18px 14px 50px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+}
+.search-big input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 4px rgba(10, 61, 143, .10); }
+.search-big .btn-pill { flex: 0 0 auto; padding: 13px 22px; font-size: 14px; }
+
+.search-tips {
+  margin: 22px 0 0;
+  padding: 16px 20px 16px 36px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.9;
+}
+.search-tips code, .search-tips kbd {
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  background: var(--violet-soft);
+  color: var(--violet);
+  font-size: 12px;
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+/* Khối kết quả theo loại */
+.search-block { margin-bottom: 30px; }
+.search-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.search-block-head a { font-size: 13px; font-weight: 600; color: var(--violet); }
+.search-block-head a:hover { text-decoration: underline; }
+.search-section-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.search-block-head .search-section-title { margin: 0; }
+
+/* Hashtag dạng chip */
+.search-tags { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.search-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--violet);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.search-tag small { font-size: 11.5px; font-weight: 500; color: var(--ink-muted); }
+.search-tag:hover { border-color: var(--violet); background: var(--violet-soft); }
+
+/* Nhóm dạng hàng ngang */
+.search-groups { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.search-group-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--r-md);
+  background: var(--violet-soft) center / cover no-repeat;
+  font-size: 26px;
+}
+.search-group-body { flex: 1; min-width: 0; }
+.search-group-body h3 { margin: 0; font-size: 14.5px; font-weight: 600; }
+.search-group-body h3 a:hover { text-decoration: underline; }
+.search-group-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.search-group-meta .icon { width: 13px; height: 13px; }
+.search-group-desc {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.search-group > .btn-pill { flex: 0 0 auto; }
+.search-badge {
+  margin-left: 4px;
+  padding: 1px 8px;
+  border-radius: var(--r-full);
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 600;
+}
+.search-badge--wait { background: var(--warning-soft); color: var(--warning); }
+
+/* Bài viết: lưới so le giống bảng tin */
+.search-posts { column-count: 3; column-gap: 20px; }
+
+/* Từ khóa được tô sáng */
+.search-mark {
+  padding: 0;                       /* không đệm: tránh trông như có dấu cách chen giữa chữ */
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #FFE58F;    /* nới vùng tô ra một chút mà không đẩy chữ */
+  background: #FFE58F;
+  color: inherit;
+}
+
+@media (max-width: 1080px) { .search-posts { column-count: 2; } }
+@media (max-width: 680px) {
+  .search-posts { column-count: 1; }
+  .search-big { flex-wrap: wrap; }
+  .search-group { flex-wrap: wrap; }
+}

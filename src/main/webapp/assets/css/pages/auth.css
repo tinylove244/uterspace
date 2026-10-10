@@ -1,0 +1,343 @@
+/* ============================================================
+   UTErSpace — Auth Pages CSS (Login & Register)
+   ============================================================ */
+
+body.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: var(--bg);
+}
+
+/* ============================================================
+   BRAND PANEL (Left)
+   ============================================================ */
+.auth-brand {
+  position: relative;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(255,255,255,0.10), transparent 40%),
+    radial-gradient(circle at 10% 85%, rgba(200,29,58,0.35), transparent 45%),
+    linear-gradient(150deg, var(--violet-deep), var(--violet) 65%);
+  color: #fff;
+  padding: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.auth-brand-gear {
+  position: absolute;
+  font-size: 320px;
+  opacity: 0.07;
+  right: -80px;
+  bottom: -100px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth-brand-logo {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff;
+}
+.auth-brand-logo span { color: var(--salmon); }
+
+.auth-brand-mid { max-width: 420px; }
+.auth-brand-mid .eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.auth-brand-mid h1 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1.22;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+.auth-brand-mid p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.85);
+}
+
+.auth-quote {
+  background: rgba(255,255,255,0.08);
+  border-left: 3px solid var(--accent);
+  padding: 14px 18px;
+  border-radius: 0 var(--r-xs) var(--r-xs) 0;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 400px;
+  margin-top: 26px;
+  font-style: italic;
+}
+.auth-quote b {
+  display: block;
+  font-size: 12.5px;
+  margin-top: 8px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+  font-style: normal;
+}
+
+.auth-brand-footer {
+  display: flex;
+  gap: 20px;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.55);
+  flex-wrap: wrap;
+}
+.auth-brand-footer a { color: rgba(255,255,255,0.55); text-decoration: underline; }
+
+/* Feature chips */
+.auth-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.auth-feature-chip {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--r-full);
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* ============================================================
+   FORM PANEL (Right)
+   ============================================================ */
+.auth-form-panel {
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.auth-form-box {
+  width: 100%;
+  max-width: 400px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.auth-form-box h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.auth-form-box .auth-subtitle {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+/* Row with checkbox + forgot link */
+.auth-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-size: 13px;
+}
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.auth-remember input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: var(--violet);
+  cursor: pointer;
+}
+.auth-forgot {
+  color: var(--violet);
+  font-weight: 600;
+  font-size: 13px;
+}
+.auth-forgot:hover { color: var(--accent); }
+
+/* SSO button */
+.btn-sso {
+  width: 100%;
+  padding: 11px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font);
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+}
+.btn-sso:hover { border-color: var(--violet); color: var(--violet); box-shadow: var(--shadow-sm); }
+
+/* Hint switch page */
+.auth-switch-hint {
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-top: 24px;
+}
+.auth-switch-hint a { color: var(--accent); font-weight: 700; }
+
+/* Name row (register) */
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Password strength indicator */
+.pw-strength {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  margin-top: 6px;
+  overflow: hidden;
+}
+.pw-strength-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+  width: 0%;
+}
+.pw-strength-bar.weak   { width: 33%; background: var(--accent); }
+.pw-strength-bar.medium { width: 66%; background: #F5A623; }
+.pw-strength-bar.strong { width: 100%; background: var(--success); }
+
+.pw-strength-label {
+  font-size: 11.5px;
+  margin-top: 4px;
+  color: var(--ink-muted);
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  body.auth-page {
+    grid-template-columns: 1fr;
+  }
+  .auth-brand { display: none; }
+  .auth-form-panel { min-height: 100vh; }
+}
+
+/* ============================================================
+   Quên mật khẩu (OTP) — thông báo, thanh bước, ô nhập mã
+   ============================================================ */
+.auth-alert {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+.auth-alert--error   { background: var(--accent-soft);  color: var(--accent);  border-color: var(--accent); }
+.auth-alert--success { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+.auth-alert--info    { background: #E8EEFB; color: #0A3D8F; border-color: #A9BFEA; }
+.auth-alert--dev     { background: #FFF6E0; color: #8A5A00; border-color: #F5C26B; }
+
+.fp-steps {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  counter-reset: fp;
+}
+.fp-steps li {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  padding-top: 8px;
+  border-top: 3px solid var(--line);
+  counter-increment: fp;
+}
+.fp-steps li::before { content: counter(fp) ". "; }
+.fp-steps li.done    { color: var(--success); border-top-color: var(--success); }
+.fp-steps li.current { color: var(--accent);  border-top-color: var(--accent); }
+
+.field input.otp-input {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding: 12px 8px 12px 20px;
+}
+.fp-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+.fp-meta .expired { color: var(--accent); font-weight: 600; }
+.fp-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 13.5px;
+}
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--violet);
+  cursor: pointer;
+}
+.link-btn:hover:not(:disabled) { color: var(--accent); text-decoration: underline; }
+.link-btn:disabled { color: var(--ink-muted); cursor: not-allowed; }
+.pw-rules {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.pw-rules li::before { content: "○ "; }
+.pw-rules li.ok { color: var(--success); }
+.pw-rules li.ok::before { content: "✓ "; }
+.btn[aria-busy="true"] { opacity: .7; pointer-events: none; }
+
+/* ---------- Đăng nhập bằng danh tính số (DID) ---------- */
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0 12px; color: var(--ink-muted); font-size: 12.5px; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.btn-did { background: var(--surface); color: var(--violet); border: 1.5px solid var(--violet); font-weight: 600; }
+.btn-did:hover { background: var(--violet-soft); }
+.auth-did-restore { display: block; margin-top: 10px; font-size: 13px; color: var(--ink-soft); cursor: pointer; text-align: center; }
+.auth-did-restore[hidden] { display: none; }
+.auth-did-msg { min-height: 18px; margin: 8px 0 0; font-size: 13px; color: var(--success); text-align: center; }
+.auth-did-msg.is-error { color: var(--accent); }
+.auth-did-remember { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
+.auth-did-remember[hidden] { display: none; }

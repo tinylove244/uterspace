@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Cấu hình Tomcat riêng cho webapp (plan mục 2.3).
+
+  File upload (ảnh, video) lưu ở thư mục NGOÀI webapp để redeploy WAR không làm mất:
+    ${catalina.base}/uterspace-uploads   ← ví dụ C:\ApacheTomcat\uterspace-uploads
+  và được ánh xạ thành URL /uploads/...  Servlet mặc định của Tomcat phục vụ file và
+  hỗ trợ sẵn HTTP Range (cần để tua video).
+
+  BẮT BUỘC tạo sẵn thư mục trên trước khi chạy — nếu chưa có, Tomcat báo
+  "The directory specified by base and internal path [...] does not exist" và app không khởi động.
+  Thêm/sửa file này xong phải restart (hoặc redeploy) Tomcat.
+-->
+<Context>
+  <!-- Cookie phiên JSESSIONID gắn SameSite=Lax: trình duyệt không gửi kèm cookie cho POST từ trang khác
+       → lớp chống CSRF thứ hai bên cạnh CsrfFilter (plan 6.4). Tomcat 9.0.21+ hỗ trợ thuộc tính này. -->
+  <CookieProcessor sameSiteCookies="lax"/>
+  <Resources>
+    <PostResources base="${catalina.base}/uterspace-uploads"
+                   className="org.apache.catalina.webresources.DirResourceSet"
+                   webAppMount="/uploads"/>
+  </Resources>
+</Context>

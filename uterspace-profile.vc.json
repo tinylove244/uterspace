@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "SocialProfileCredential"
+  ],
+  "issuer": "did:key:z6MkuVM3phTKcxAHZRYLyjKUEmet9BZ5b54eanrjqnC6UHGb",
+  "validFrom": "2026-10-08T08:05:44.437Z",
+  "credentialSubject": {
+    "id": "did:key:z6MkuVM3phTKcxAHZRYLyjKUEmet9BZ5b54eanrjqnC6UHGb",
+    "platform": "UTErSpace",
+    "name": "Test A",
+    "givenName": "Test",
+    "familyName": "A",
+    "email": "a@test.com",
+    "bio": "Tài khoản test A",
+    "location": "HCMUTE",
+    "website": null,
+    "memberSince": "2026-09-28T10:07:45.473333300",
+    "friendCount": 2,
+    "posts": [
+      {
+        "id": 69,
+        "content": "Hoàng hôn trên biển Vũng Tàu, vui quá trời! #DuLich [TEST 3D]",
+        "visibility": "public",
+        "createdAt": "2026-10-08T15:04:51.973979100",
+        "likes": 0
+      },
+      {
+        "id": 60,
+        "content": "Video test đăng từ giao diện 🎬 #VideoTest",
+        "visibility": "public",
+        "createdAt": "2026-09-28T14:35:50.763339400",
+        "likes": 0
+      }
+    ]
+  },
+  "proof": {
+    "type": "DataIntegrityProof",
+    "cryptosuite": "eddsa-jcs-2022",
+    "created": "2026-10-08T08:05:44.438Z",
+    "verificationMethod": "did:key:z6MkuVM3phTKcxAHZRYLyjKUEmet9BZ5b54eanrjqnC6UHGb#z6MkuVM3phTKcxAHZRYLyjKUEmet9BZ5b54eanrjqnC6UHGb",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z8MNh59gF7nhwaTMii5TS9HzYh5KUpu4iWHpWhyzqvApAqfyuUQLC2aUH8FXoCzZ6ZbajvUsZCn9P539drEDdG6C"
+  }
+}

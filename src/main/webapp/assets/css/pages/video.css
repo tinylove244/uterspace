@@ -1,0 +1,147 @@
+/* ============================================================
+   UTErSpace — Trang Video (/video): cuộn dọc kiểu Reels
+   scroll-snap-type: y mandatory → mỗi lần cuộn dừng đúng một video;
+   footer.jsp (IntersectionObserver) tự phát video đang ở giữa màn hình.
+   Khung chung xem app-shell.css
+   ============================================================ */
+
+.reels {
+  height: calc(100vh - 250px);
+  min-height: 460px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: var(--r-lg);
+}
+.reels:focus-visible { outline: 3px solid var(--violet-soft); outline-offset: 3px; }
+
+.reel {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+/* ---------- Khung video ---------- */
+.reel-stage {
+  position: relative;
+  min-height: 0;
+  border-radius: var(--r-lg);
+  background: #0B1220;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.reel-video,
+.reel-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0B1220;
+}
+.reel-poster { object-fit: cover; opacity: .55; }
+
+/* Thông tin người đăng nằm đè phía trên thanh điều khiển của video */
+.reel-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 16px 18px 40px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .62), transparent);
+  color: #fff;
+  pointer-events: none;
+}
+.reel-info a { pointer-events: auto; }
+.reel-author { display: inline-flex; align-items: center; gap: 9px; }
+.reel-author img,
+.reel-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, .8);
+}
+.reel-initials {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--violet), var(--accent));
+  font-size: 12px;
+  font-weight: 600;
+}
+.reel-name { font-size: 14px; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.reel-author:hover .reel-name { text-decoration: underline; }
+.reel-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, .18);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.reel-group .icon { width: 13px; height: 13px; }
+.reel-caption {
+  margin-top: 8px;
+  max-width: 640px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.reel-caption .hashtag { color: #BFD6FF; pointer-events: auto; }
+.reel-meta { margin-top: 4px; font-size: 11.5px; opacity: .8; }
+
+/* ---------- Cột tương tác bên phải ---------- */
+.reel-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+.reel-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.reel-action .icon {
+  width: 46px;
+  height: 46px;
+  padding: 11px;
+  border-radius: var(--r-full);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-fast), color var(--t-fast);
+}
+.reel-action:hover .icon { transform: scale(1.06); color: var(--violet); }
+.reel-action.is-active { color: var(--accent); }
+.reel-action.is-active .icon { color: var(--accent); fill: currentColor; }
+
+/* Bài video mẫu cũ chưa có file (dùng chung với post-video.jsp) */
+.reel-stage .video-missing { position: absolute; }
+
+@media (max-width: 680px) {
+  .reels { height: calc(100vh - 210px); }
+  .reel { grid-template-columns: minmax(0, 1fr); }
+  .reel-actions { flex-direction: row; justify-content: center; padding-bottom: 0; }
+}

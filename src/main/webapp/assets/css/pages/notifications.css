@@ -1,0 +1,151 @@
+/* ============================================================
+   UTErSpace — Trang Thông báo
+   Khung chung xem app-shell.css
+   ============================================================ */
+
+.notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.notif-item + .notif-item { border-top: 1px solid var(--line); }
+.notif-item.is-unread { background: var(--violet-soft); }
+
+.notif-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  transition: background var(--t-fast);
+}
+.notif-link:hover { background: var(--bg); }
+.notif-item.is-unread .notif-link:hover { background: #DFE7F6; }
+
+/* ---------- Ảnh đại diện + huy hiệu loại ---------- */
+.notif-avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+}
+.notif-avatar img,
+.notif-initials {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-full);
+  object-fit: cover;
+}
+.notif-initials {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--violet), var(--accent));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+.notif-badge-icon {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Nội dung ---------- */
+.notif-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.notif-text {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+.notif-text b { color: var(--ink); font-weight: 600; }
+.notif-time { font-size: 11.5px; color: var(--ink-muted); }
+
+.notif-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+.notif-actions {
+  padding: 0 18px 15px 80px;
+}
+.notif-actions .btn-pill { flex: 0 0 auto; }
+
+@media (max-width: 680px) {
+  .notif-link { padding: 13px 14px; gap: 11px; }
+  .notif-actions { padding-left: 14px; }
+}
+
+/* ============================================================
+   Bản nâng cấp: nhóm thời gian, menu từng thông báo, tab có số chưa đọc
+   ============================================================ */
+.pill-tab { text-decoration: none; }
+.pill-tab[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+.pill-tab[aria-current="page"] .pill-count { background: var(--accent); color: #fff; }
+.pill-count--hot { background: var(--accent); color: #fff; }
+
+.notif-group-title {
+  margin: 22px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.notif-group-title:first-of-type { margin-top: 4px; }
+
+.notif-item { position: relative; transition: opacity .25s ease, transform .25s ease; }
+.notif-item.is-removing { opacity: 0; transform: translateX(16px); }
+.notif-item .notif-link { padding-right: 56px; }
+.notif-item.is-unread .notif-time { color: var(--violet); font-weight: 600; }
+.notif-initials--system { background: var(--violet-soft); font-size: 20px; }
+
+.notif-more { position: absolute; top: 12px; right: 12px; }
+.notif-more-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--t-fast), background var(--t-fast);
+}
+.notif-item:hover .notif-more-btn, .notif-more-btn:focus-visible, .notif-menu.open ~ .notif-more-btn { opacity: 1; }
+.notif-more-btn:hover { background: var(--bg); color: var(--ink); }
+.notif-more-btn .icon { width: 18px; height: 18px; }
+.notif-menu { right: 0; left: auto; min-width: 230px; }
+.notif-menu .dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+.notif-menu .dropdown-item .icon { width: 16px; height: 16px; }
+@media (hover: none) { .notif-more-btn { opacity: 1; } }
+
+.notif-actions .rel-actions { max-width: 320px; }
+.notif-actions .rel-actions .btn-pill { flex: 1; }
+.notif-more-wrap { margin: 18px 0 0; text-align: center; }
+.notif-more-wrap .btn-pill { display: inline-flex; flex: 0 0 auto; }
