@@ -98,6 +98,30 @@
       <artifactId>bcrypt</artifactId>
       <version>0.10.2</version>
     </dependency>
+    <!-- Pool kết nối HikariCP thay pool có sẵn của Hibernate ("not for production"): DB cloud ở Mỹ ~200 ms / lượt,
+         pool cũ tốn thêm 2 lượt mạng mỗi lần mượn / trả kết nối và mở kết nối mới (~1,4 giây) giữa lúc người dùng chờ -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-hikaricp</artifactId>
+      <version>5.6.15.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>4.0.3</version>
+    </dependency>
+    <!-- Log của HikariCP (lỗi kết nối DB...) đi qua SLF4J → java.util.logging → log Tomcat.
+         Ghim bản ổn định thay slf4j-api 2.0.0-alpha1 mà HikariCP 4.0.3 kéo theo -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.36</version>
+    </dependency>
       <!-- Cloudinary -->
     <dependency>
       <groupId>com.cloudinary</groupId>

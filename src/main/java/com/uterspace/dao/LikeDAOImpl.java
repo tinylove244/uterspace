@@ -8,7 +8,10 @@ import com.uterspace.util.JPAUtil;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** LikeDAOImpl — Implementation của LikeDAO dùng JPA */
 public class LikeDAOImpl implements LikeDAO {
@@ -24,6 +27,26 @@ public class LikeDAOImpl implements LikeDAO {
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public void markLikedBy(List<Post> posts, int userId) {
+        if (posts.isEmpty()) return;
+        List<Integer> ids = new ArrayList<>();
+        for (Post p : posts) ids.add(p.getPostId());
+        Set<Integer> liked = new HashSet<>();
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            for (List<Integer> chunk : CommentDAOImpl.chunks(ids)) {
+                liked.addAll(em.createQuery("SELECT l.post.postId FROM Like l WHERE l.user.userId = :userId AND l.post.postId IN :ids", Integer.class)
+                               .setParameter("userId", userId)
+                               .setParameter("ids", chunk)
+                               .getResultList());
+            }
+        } finally {
+            em.close();
+        }
+        for (Post p : posts) p.setLikedByCurrentUser(liked.contains(p.getPostId()));
     }
 
     @Override

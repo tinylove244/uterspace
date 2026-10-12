@@ -62,6 +62,7 @@ public class AppContextListener implements ServletContextListener {
         stop("AiService", () -> com.uterspace.ai.AiService.shutdown());
         // Chờ các lệnh xóa file Cloudinary đang xếp hàng chạy xong rồi dừng luồng nền
         stop("UploadUtil", () -> UploadUtil.shutdown());
+        stop("DbParallel", () -> DbParallel.shutdown());
         // Dừng các luồng gửi sự kiện WebSocket — không để luồng "mồ côi" sau mỗi lần redeploy
         stop("RealtimeHub", () -> com.uterspace.realtime.RealtimeHub.shutdown());
         // Đóng Hibernate an toàn để giải phóng resources

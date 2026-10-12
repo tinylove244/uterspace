@@ -21,7 +21,7 @@ db.password=
 
 # Đổi DB (vd: SQL Server trên máy mình). Bỏ trống = DB cloud ghi trong persistence.xml
 # db.url=jdbc:sqlserver://localhost:1433;databaseName=uterspace;encrypt=true;trustServerCertificate=true;
-# Số kết nối tối đa (gói SmarterASP giới hạn số kết nối đồng thời). Mặc định 20
+# Số kết nối tối đa (gói SmarterASP giới hạn số kết nối đồng thời). Mặc định 10
 # db.poolSize=5
 
 # ---------- Cloudinary (ảnh, video, mô hình 3D) ----------

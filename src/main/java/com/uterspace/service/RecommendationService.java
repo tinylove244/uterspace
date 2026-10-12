@@ -186,10 +186,15 @@ public final class RecommendationService {
 
     /** Gợi ý kết bạn thông minh — dùng chung cho Bảng tin và trang Bạn bè */
     public static List<FriendSuggestion> friendSuggestions(int me, int limit) {
+        return friendSuggestions(me, null, limit);
+    }
+
+    /** given = hồ sơ sở thích đã dựng sẵn trong request (Bảng tin) — tránh dựng lại 6 truy vấn; null thì tự dựng */
+    public static List<FriendSuggestion> friendSuggestions(int me, InterestProfile given, int limit) {
         List<FriendSuggestion> base = FRIENDS.getSuggestions(me, 200);   // đã lọc chặn / quyền riêng tư, có bạn chung + khu vực
         if (base.isEmpty()) return base;
         List<Integer> ids = base.stream().map(s -> s.getUser().getUserId()).collect(Collectors.toList());
-        InterestProfile prof = profile(me);
+        InterestProfile prof = given != null ? given : profile(me);
 
         Map<Integer, Integer> sharedGroups = new HashMap<>();
         Map<Integer, String>  sharedGroupName = new HashMap<>();

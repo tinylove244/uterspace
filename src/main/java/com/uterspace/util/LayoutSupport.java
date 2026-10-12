@@ -4,6 +4,7 @@ import com.uterspace.dao.*;
 import com.uterspace.model.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * LayoutSupport — nạp dữ liệu cho khung giao diện dùng chung (app-shell).
@@ -33,15 +34,25 @@ public final class LayoutSupport {
         if (currentUser == null) return;
         int uid = currentUser.getUserId();
 
-        req.setAttribute("myPostCount",      POST_DAO.countPostsByUser(uid));
-        req.setAttribute("myFriendCount",    FRIEND_DAO.countFriends(uid));
-        req.setAttribute("friendRequestCount", FRIEND_DAO.countPendingFor(uid));
-        req.setAttribute("mySavedCount",     SAVED_DAO.getSavedPosts(uid).size());
-        req.setAttribute("unreadNotifCount", NOTIF_DAO.getUnreadNotificationCount(uid));
-        req.setAttribute("unreadChatCount",  MSG_DAO.getUnreadMessageCount(uid));
+        // Các câu đếm độc lập → chạy song song (DB cloud: mỗi câu ~0,25 giây đường truyền).
+        // Controller đã có sẵn số liệu thì đặt attribute trước, ở đây không đọc lại.
+        CompletableFuture<Integer> posts    = DbParallel.async(() -> POST_DAO.countPostsByUser(uid));
+        CompletableFuture<Integer> friends  = DbParallel.async(() -> FRIEND_DAO.countFriends(uid));
+        CompletableFuture<Integer> requests = DbParallel.async(() -> FRIEND_DAO.countPendingFor(uid));
+        CompletableFuture<Integer> saved    = req.getAttribute("mySavedCount") != null ? null
+                                            : DbParallel.async(() -> SAVED_DAO.getSavedPosts(uid).size());
+        CompletableFuture<Integer> notifs   = DbParallel.async(() -> NOTIF_DAO.getUnreadNotificationCount(uid));
+        CompletableFuture<Integer> chats    = DbParallel.async(() -> MSG_DAO.getUnreadMessageCount(uid));
         // Bộ lọc nội dung cá nhân: danh sách từ khóa cho JS thu gọn bình luận (post-support.jsp)
-        if (req.getAttribute("filterTermsJson") == null) {
-            req.setAttribute("filterTermsJson", ContentFilter.of(SETTINGS_DAO.get(uid)).termsJson());
-        }
+        CompletableFuture<String> terms     = req.getAttribute("filterTermsJson") != null ? null
+                                            : DbParallel.async(() -> ContentFilter.of(SETTINGS_DAO.get(uid)).termsJson());
+
+        req.setAttribute("myPostCount",        DbParallel.get(posts));
+        req.setAttribute("myFriendCount",      DbParallel.get(friends));
+        req.setAttribute("friendRequestCount", DbParallel.get(requests));
+        if (saved != null) req.setAttribute("mySavedCount", DbParallel.get(saved));
+        req.setAttribute("unreadNotifCount",   DbParallel.get(notifs));
+        req.setAttribute("unreadChatCount",    DbParallel.get(chats));
+        if (terms != null) req.setAttribute("filterTermsJson", DbParallel.get(terms));
     }
 }

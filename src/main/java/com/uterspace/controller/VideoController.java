@@ -39,7 +39,7 @@ public class VideoController extends HttpServlet {
         page = Math.min(Math.max(page, 1), pages);
 
         List<Post> videoPosts = postDAO.getVideoPosts(uid, friendsOnly, page, PAGE_SIZE);
-        for (Post p : videoPosts) p.setLikedByCurrentUser(likeDAO.isLikedBy(p.getPostId(), uid));
+        likeDAO.markLikedBy(videoPosts, uid);
         postDAO.attachGroupNames(videoPosts);
 
         req.setAttribute("videoPosts",   videoPosts);

@@ -34,6 +34,17 @@
             <property name="javax.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://sql5113.site4now.net:1433;databaseName=db_acf87d_uterspace;encrypt=true;trustServerCertificate=true;"/>
 
+            <!-- Pool kết nối HikariCP. DB cloud ở Las Vegas (~200 ms / lượt mạng) nên: giữ sẵn kết nối mở
+                 (mở mới mất ~1,4 giây vì đăng nhập + TLS), ping nền kết nối rảnh để không phải kiểm tra lúc mượn.
+                 Số kết nối tối đa đổi được bằng db.poolSize trong conf/uterspace-cloud.properties -->
+            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hikari.poolName" value="uterspace-db"/>
+            <property name="hibernate.hikari.minimumIdle" value="5"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="10"/>
+            <property name="hibernate.hikari.connectionTimeout" value="20000"/>
+            <property name="hibernate.hikari.keepaliveTime" value="30000"/>
+            <property name="hibernate.hikari.maxLifetime" value="900000"/>
+
             <!-- Hibernate Settings -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2012Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>

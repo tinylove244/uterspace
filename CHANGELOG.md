@@ -1,3 +1,18 @@
+# CHANGELOG — Tăng tốc khi dùng DB cloud
+> Session ngày 12/10/2026 — không cần migration. DB cloud đặt ở Las Vegas (Mỹ): mỗi lượt mạng ~200 ms.
+
+| Thay đổi | File chính |
+|:--|:--|
+| Pool kết nối **HikariCP** thay pool có sẵn của Hibernate: mỗi câu SQL còn 1 lượt mạng thay vì 3 (pool cũ tốn thêm ~250 ms mượn + ~250 ms trả kết nối), giữ sẵn 5 kết nối mở, ping nền mỗi 30 giây; kết nối rảnh quá 10 giây được kiểm tra trước khi dùng (tránh "Connection reset" sau khi máy ngủ) | `pom.xml`, `persistence.xml`, `JPAUtil` |
+| Bình luận + trạng thái "đã thích" của cả trang đọc bằng 1 truy vấn mỗi loại (trước: 2 truy vấn **mỗi bài**) — Bảng tin, Nhóm, Trang cá nhân, Tìm kiếm, Video | `CommentDAO.attachComments`, `LikeDAO.markLikedBy` |
+| Truy vấn độc lập chạy song song: 6 số đếm của thanh bên (mọi trang), các khối của Bảng tin (bài viết, hồ sơ sở thích, bài gần đây, Tin, gợi ý) | `DbParallel` (mới), `LayoutSupport`, `FeedController` |
+| Bảng tin không đọc lại: hồ sơ sở thích (6 truy vấn), bài gần đây, cài đặt, danh sách đã lưu | `FeedController`, `RecommendationService.friendSuggestions` |
+| Khởi động: chỉ ghi nhãn cảm xúc khi nhãn thay đổi (trước: UPDATE lại cả 43 bài mỗi lần khởi động, giành kết nối của người dùng ~30 giây) | `AiService.backfillAsync` |
+
+**Đo (tài khoản 10 bạn, 15 bài trên bảng tin):** đăng nhập 6,2 → ~1,7 giây (0,55 giây là BCrypt, như khi chạy local); Bảng tin 30 → ~5 giây (69 → 32 truy vấn). Nội dung trang giống hệt trước (cùng bài, bình luận, gợi ý, trạng thái đã thích).
+
+---
+
 # CHANGELOG — Cloud: sửa hiển thị media Cloudinary, xóa file theo bài, bỏ mật khẩu khỏi code
 > Session ngày 10/10/2026 — migration mới **100_cloudinary_seed_media** (cuối `db/all_migrations_cloud.sql`, đã chạy trên DB cloud).
 > **Mỗi máy phải tạo `<Tomcat>/conf/uterspace-cloud.properties`** (mẫu `db/uterspace-cloud.properties.example`) — thiếu thì web không khởi động.

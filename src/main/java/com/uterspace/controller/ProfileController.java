@@ -70,10 +70,8 @@ public class ProfileController extends HttpServlet {
         List<Post> userPosts = hideContent ? new java.util.ArrayList<>()
                                            : postDAO.getProfilePosts(targetUserId, currentUser.getUserId());
         CommentDAO commentDAO = new CommentDAOImpl();
-        for (Post p : userPosts) {
-            p.setLikedByCurrentUser(likeDAO.isLikedBy(p.getPostId(), currentUser.getUserId()));
-            p.setComments(commentDAO.getCommentsByPostId(p.getPostId()));
-        }
+        likeDAO.markLikedBy(userPosts, currentUser.getUserId());
+        commentDAO.attachComments(userPosts);
         postDAO.attachSharedPosts(userPosts, currentUser.getUserId());
         postDAO.attachGroupNames(userPosts);
 

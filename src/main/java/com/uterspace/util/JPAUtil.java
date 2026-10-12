@@ -21,6 +21,12 @@ public class JPAUtil {
     // Khởi tạo EntityManagerFactory (được gọi bởi AppContextListener khi web server start)
     public static synchronized void init() {
         if (factory == null) {
+            // HikariCP mặc định kiểm tra (1 lượt mạng ~200 ms tới DB cloud) mọi kết nối rảnh quá 0,5 giây trước khi
+            // cho mượn → trong lúc đang duyệt (kết nối vừa dùng xong) bỏ qua bước này tới 10 giây.
+            // Không để lâu hơn: máy ngủ / Windows tạm dừng tiến trình thì luồng ping nền (keepaliveTime) không chạy,
+            // máy chủ cắt kết nối → kết nối rảnh lâu PHẢI được kiểm tra, nếu không request sẽ lỗi "Connection reset".
+            // Đặt trước khi lớp HikariCP được nạp (giá trị đọc một lần khi nạp lớp).
+            System.setProperty("com.zaxxer.hikari.aliveBypassWindowMs", "10000");
             factory = Persistence.createEntityManagerFactory("uterspacePU", overrides());
             LOG.info("[JPAUtil] Database: Đã kết nối tới " + factory.getProperties().get("javax.persistence.jdbc.url"));
         }
@@ -43,7 +49,7 @@ public class JPAUtil {
         String url = CloudConfig.get("db.url");
         if (!url.isEmpty()) props.put("javax.persistence.jdbc.url", url);
         String pool = CloudConfig.get("db.poolSize");
-        if (!pool.isEmpty()) props.put("hibernate.connection.pool_size", pool);
+        if (!pool.isEmpty()) props.put("hibernate.hikari.maximumPoolSize", pool);
         return props;
     }
 

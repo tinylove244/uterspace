@@ -10,20 +10,7 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
-# ===== Compiled / class files =====
-*.class
-*.jar
-*.war
-*.ear
 
-# ===== Cấu hình nhạy cảm (mỗi thành viên tự tạo, không đẩy lên Git) =====
-src/main/resources/db.properties
-*.env
-.env
-# Mật khẩu DB cloud + API secret Cloudinary: gửi riêng cho thành viên, mỗi máy khai báo trong
-# <Tomcat>/conf/uterspace-cloud.properties (mẫu: db/uterspace-cloud.properties.example)
-docs/CLOUD_CREDENTIALS.md
-uterspace-cloud.properties
 
 # ===== IDE: VS Code =====
 .vscode/

@@ -120,7 +120,7 @@ public final class AiService {
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> r = em.createNativeQuery(
-                        "SELECT post_id, content FROM posts WHERE sentiment IS NULL OR sentiment_source = 'LEXICON'").getResultList();
+                        "SELECT post_id, content, sentiment, sentiment_score FROM posts WHERE sentiment IS NULL OR sentiment_source = 'LEXICON'").getResultList();
                 rows = r;
             } catch (RuntimeException e) {
                 LOG.warning("[AI] Không quét được bài chưa phân tích (đã chạy migration 090 chưa?): " + e.getMessage());
@@ -128,10 +128,18 @@ public final class AiService {
             } finally {
                 em.close();
             }
+            // Chỉ ghi bài có nhãn thay đổi — mỗi UPDATE lên DB cloud mất ~0,5 giây, ghi lại cả bảng mỗi lần
+            // khởi động làm chậm mọi request trong khoảng nửa phút đầu
+            int changed = 0;
             for (Object[] row : rows) {
-                saveSentiment(((Number) row[0]).intValue(), SentimentAnalyzer.analyze((String) row[1]));
+                SentimentAnalyzer.Result res = SentimentAnalyzer.analyze((String) row[1]);
+                Number oldScore = (Number) row[3];
+                boolean same = res.label.equals(row[2]) && oldScore != null && Math.abs(oldScore.doubleValue() - res.score) < 1e-6;
+                if (same) continue;
+                saveSentiment(((Number) row[0]).intValue(), res);
+                changed++;
             }
-            if (!rows.isEmpty()) LOG.info("[AI] Đã gắn / làm mới nhãn cảm xúc (từ điển) cho " + rows.size() + " bài viết.");
+            if (changed > 0) LOG.info("[AI] Đã gắn / làm mới nhãn cảm xúc (từ điển) cho " + changed + " bài viết.");
         });
     }
 
