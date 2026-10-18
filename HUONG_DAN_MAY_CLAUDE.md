@@ -29,10 +29,13 @@ Tài liệu này hướng dẫn chi tiết từng bước để máy của bạn
 ---
 
 ### Bước 2: Kéo Code mới nhất về máy & Kiểm tra kết nối Database
-1. Trong thư mục dự án trên máy bạn, kéo code mới nhất về:
+1. Trong thư mục dự án trên máy bạn, kéo code mới nhất từ nhánh **`Khue`** về:
    ```powershell
-   git pull
+   git fetch --all
+   git checkout Khue
+   git pull origin Khue
    ```
+   *(Hoặc nếu bạn đang làm trên nhánh riêng của bạn thì gõ: `git pull origin Khue` để gộp cấu hình Tailscale & công cụ Claude vào nhánh của bạn).*
 2. Kiểm tra file `<Thư-mục-Tomcat-của-bạn>/conf/uterspace-cloud.properties`:
    - **Không cần sửa gì cả** nếu file đó của bạn đã có sẵn `db.user=avnadmin`, `db.password=...` và 3 dòng `cloudinary.*` như trước đây!
    - *(Nếu trước đó bạn từng thêm dòng `db.url=...` riêng vào file đó, hãy xóa hoặc thêm dấu `#` trước dòng `db.url` để dự án tự đọc địa chỉ `100.119.255.40:3306` từ `persistence.xml`, hoặc chạy lệnh `.\set-tailscale-db-ip.ps1 -TailscaleIP 100.119.255.40`).*
