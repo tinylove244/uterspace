@@ -33,8 +33,8 @@ Write-Host "================================================================" -F
 # Kiem tra xem Tomcat da chay tren cong 8080 chua
 $portCheck = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
 if (-not $portCheck) {
-    Write-Host "[CANH BAO] Hien tai Tomcat chua chay tren cong $Port!" -ForegroundColor Yellow
-    Write-Host " -> Hay dam bao ban da chuot phai vao target/uterspace.war -> Run on Server trong VS Code." -ForegroundColor Yellow
+    Write-Host "[AUTO] Phat hien Tomcat chua chay tren cong $Port. Dang tu dong khoi dong Tomcat 9..." -ForegroundColor Yellow
+    & (Join-Path $ProjectRoot "restart-tomcat.ps1")
 } else {
     Write-Host "[OK] Phat hien Tomcat dang chay tren http://localhost:$Port" -ForegroundColor Green
 }
