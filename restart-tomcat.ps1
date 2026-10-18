@@ -58,17 +58,24 @@ if ($Rebuild -or (-not (Test-Path $warFile))) {
     & $mvnCmd clean package -DskipTests
 }
 
-if (Test-Path $warFile) {
+$targetDir = Join-Path $ProjectRoot "target\uterspace"
+$warFile = Join-Path $ProjectRoot "target\uterspace.war"
+
+if (Test-Path $targetDir) {
     Write-Host " -> Dang xoa cache cu trong webapps va work..." -ForegroundColor Cyan
     Remove-Item "$WebappsDir\demo*" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item "$WebappsDir\uterspace" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item "$WebappsDir\uterspace*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item "$WorkDir\*" -Recurse -Force -ErrorAction SilentlyContinue
 
+    Write-Host " -> Dang copy thu muc target/uterspace vao Tomcat webapps..." -ForegroundColor Cyan
+    Copy-Item $targetDir (Join-Path $WebappsDir "uterspace") -Recurse -Force
+    Write-Host " -> [OK] Da deploy thu muc target/uterspace vao Tomcat!" -ForegroundColor Green
+} elseif (Test-Path $warFile) {
     Write-Host " -> Dang copy uterspace.war moi nhat vao Tomcat webapps..." -ForegroundColor Cyan
     Copy-Item $warFile (Join-Path $WebappsDir "uterspace.war") -Force
-    Write-Host " -> [OK] Da deploy uterspace.war moi nhat vao Tomcat!" -ForegroundColor Green
+    Write-Host " -> [OK] Da deploy uterspace.war vao Tomcat!" -ForegroundColor Green
 } else {
-    Write-Host " -> [CANH BAO] Khong tim thay target\uterspace.war. Hay chay 'mvn clean package -DskipTests' truoc!" -ForegroundColor Red
+    Write-Host " -> [CANH BAO] Khong tim thay target\uterspace. Hay chay 'mvn package -DskipTests' truoc!" -ForegroundColor Red
 }
 
 # 4. Khoi dong Tomcat 9 (Persistent qua WMI)
