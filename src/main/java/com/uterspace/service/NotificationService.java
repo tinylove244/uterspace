@@ -38,7 +38,7 @@ public final class NotificationService {
         String category = UserSettings.categoryOf(type);
         if (!s.wantsInApp(category)) return null;
 
-        if (content != null && content.length() > 480) content = content.substring(0, 477) + "…";   // cột NVARCHAR(500)
+        if (content != null && content.length() > 480) content = content.substring(0, 477) + "…";   // cột VARCHAR(500)
         Notification n = new Notification();
         n.setUserId(recipientId);
         User actor = new User();

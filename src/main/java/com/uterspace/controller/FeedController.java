@@ -6,6 +6,7 @@ import com.uterspace.dao.*;
 import com.uterspace.model.*;
 import com.uterspace.service.RecommendationService;
 import com.uterspace.util.ContentFilter;
+import com.uterspace.util.DbParallel;
 import com.uterspace.util.GroupPermission;
 import com.uterspace.util.HashtagUtil;
 import com.uterspace.util.LayoutSupport;
@@ -17,6 +18,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * FeedController — Xử lý trang Bảng tin (/feed).
@@ -85,39 +87,54 @@ public class FeedController extends HttpServlet {
             if (!want.equals(settings.getFeedMode())) { settings.setFeedMode(want); settingsDAO.save(settings); }
         }
 
-        // Load posts + comments + likedByCurrentUser + bài gốc của bài chia sẻ
-        List<Post> posts = postDAO.getFeedPosts(uid);
-        preparePosts(posts, uid);
-        ContentFilter.of(settings).apply(posts, uid);
-
+        // Các khối độc lập chạy song song (DB cloud ~0,1 giây mỗi truy vấn, chủ yếu do đường truyền):
+        //   bài viết (+ bình luận, đã thích, bài gốc, tên nhóm) | hồ sơ sở thích | bài gần đây | thanh Tin
+        CompletableFuture<List<Post>> fPosts = DbParallel.async(() -> {
+            List<Post> list = postDAO.getFeedPosts(uid);
+            preparePosts(list, uid);
+            return list;
+        });
         // Hồ sơ sở thích (lịch sử tương tác + tìm kiếm) → xếp bảng tin + gợi ý nội dung
-        RecommendationService.InterestProfile profile = RecommendationService.profile(uid);
-        List<String> recent = postDAO.getRecentContentsVisibleTo(uid, 300);
+        CompletableFuture<RecommendationService.InterestProfile> fProfile = DbParallel.async(() -> RecommendationService.profile(uid));
+        CompletableFuture<List<String>> fRecent = DbParallel.async(() -> postDAO.getRecentContentsVisibleTo(uid, 300));
+        // Thanh "Tin": tin còn hạn của mình + bạn bè (StoryDAO)
+        CompletableFuture<List<StoryRing>> fRings = DbParallel.async(() -> storyDAO.getRings(uid));
+
+        // Gợi ý kết bạn thông minh (bạn chung, nhóm chung, sở thích, khu vực) + nhóm / hashtag / video nên xem — cần hồ sơ sở thích
+        RecommendationService.InterestProfile profile = DbParallel.get(fProfile);
+        CompletableFuture<List<FriendSuggestion>> fFriends = DbParallel.async(() -> RecommendationService.friendSuggestions(uid, profile, 12));
+        CompletableFuture<?> fGroups = DbParallel.async(() -> RecommendationService.suggestGroups(uid, profile, 6));
+        CompletableFuture<?> fVideos = DbParallel.async(() -> RecommendationService.suggestVideos(uid, profile, 6));
+        List<String> recent = DbParallel.get(fRecent);
+        CompletableFuture<?> fTags = DbParallel.async(() -> RecommendationService.suggestHashtags(uid, profile, recent, 8));
+
+        List<Post> posts = DbParallel.get(fPosts);
+        ContentFilter.of(settings).apply(posts, uid);
         if (settings.isSmartFeed()) {
             Map<String, Integer> trending = new HashMap<>();
             for (Map.Entry<String, Integer> e : HashtagUtil.topHashtags(recent, 12)) trending.put(e.getKey().toLowerCase(), e.getValue());
             RecommendationService.rankFeed(posts, uid, profile, trending);
         }
 
-        // Thanh "Tin": tin còn hạn của mình + bạn bè (StoryDAO), vòng của mình tách riêng
-        List<StoryRing> rings = storyDAO.getRings(uid);
+        // Vòng Tin của mình tách riêng
+        List<StoryRing> rings = DbParallel.get(fRings);
         StoryRing myRing = null;
         if (!rings.isEmpty() && rings.get(0).getUser().getUserId() == uid) myRing = rings.remove(0);
-
-        // Gợi ý kết bạn thông minh (bạn chung, nhóm chung, sở thích, khu vực) + nhóm / hashtag / video nên xem
-        List<FriendSuggestion> suggestedFriends = RecommendationService.friendSuggestions(uid, 12);
 
         req.setAttribute("smartFeed",         settings.isSmartFeed());
         req.setAttribute("hideNegativeOn",    settings.isHideNegative());
         req.setAttribute("interestTags",      profile.topTags(5));
-        req.setAttribute("suggestedGroups",   RecommendationService.suggestGroups(uid, profile, 6));
-        req.setAttribute("suggestedTags",     RecommendationService.suggestHashtags(uid, profile, recent, 8));
-        req.setAttribute("suggestedVideos",   RecommendationService.suggestVideos(uid, profile, 6));
+        req.setAttribute("suggestedGroups",   DbParallel.get(fGroups));
+        req.setAttribute("suggestedTags",     DbParallel.get(fTags));
+        req.setAttribute("suggestedVideos",   DbParallel.get(fVideos));
+        List<FriendSuggestion> suggestedFriends = DbParallel.get(fFriends);
         req.setAttribute("storyRings",        rings);
         req.setAttribute("myStoryRing",       myRing);
         req.setAttribute("suggestedFriends",  suggestedFriends);
         req.setAttribute("pageTitle",         "Bảng tin");
-        forwardToFeedView(req, resp, currentUser, posts);
+        // Cài đặt đã đọc ở trên → LayoutSupport không đọc lại
+        req.setAttribute("filterTermsJson",   ContentFilter.of(settings).termsJson());
+        forwardToFeedView(req, resp, currentUser, posts, recent);
     }
 
     // ---- Trang tổng hợp hashtag: GET /hashtag?tag=DoAnCuoiKy ----
@@ -129,26 +146,29 @@ public class FeedController extends HttpServlet {
         int uid = currentUser.getUserId();
         List<Post> posts = postDAO.getPostsByHashtag(tag, uid);
         preparePosts(posts, uid);
-        ContentFilter.of(settingsDAO.get(uid)).apply(posts, uid);
+        ContentFilter filter = ContentFilter.of(settingsDAO.get(uid));
+        filter.apply(posts, uid);
 
         req.setAttribute("hashtag",   tag);
         req.setAttribute("pageTitle", "#" + tag);
-        forwardToFeedView(req, resp, currentUser, posts);
+        req.setAttribute("filterTermsJson", filter.termsJson());
+        forwardToFeedView(req, resp, currentUser, posts, null);
     }
 
-    /** Gắn comments, trạng thái đã thích và bài gốc (nếu là bài chia sẻ) cho từng bài */
+    /** Gắn comments, trạng thái đã thích và bài gốc (nếu là bài chia sẻ) cho từng bài — mỗi loại 1 truy vấn cho cả trang */
     private void preparePosts(List<Post> posts, int uid) {
-        for (Post post : posts) {
-            post.setComments(commentDAO.getCommentsByPostId(post.getPostId()));
-            post.setLikedByCurrentUser(likeDAO.isLikedBy(post.getPostId(), uid));
-        }
+        commentDAO.attachComments(posts);
+        likeDAO.markLikedBy(posts, uid);
         postDAO.attachSharedPosts(posts, uid);
         postDAO.attachGroupNames(posts);
     }
 
-    /** Thuộc tính dùng chung cho /feed và /hashtag rồi forward tới newsfeed.jsp */
+    /**
+     * Thuộc tính dùng chung cho /feed và /hashtag rồi forward tới newsfeed.jsp.
+     * @param recent nội dung bài gần đây đã đọc ở /feed (null thì tự đọc) — mỗi truy vấn tới DB cloud ~0,3 giây
+     */
     private void forwardToFeedView(HttpServletRequest req, HttpServletResponse resp,
-                                   User currentUser, List<Post> posts)
+                                   User currentUser, List<Post> posts, List<String> recent)
             throws ServletException, IOException {
         int uid = currentUser.getUserId();
 
@@ -158,14 +178,15 @@ public class FeedController extends HttpServlet {
         for (Post sp : savedPosts) savedPostIds.add(sp.getPostId());
 
         // Hashtag thịnh hành: đếm thật trên các bài gần đây người dùng được xem
+        if (recent == null) recent = postDAO.getRecentContentsVisibleTo(uid, 300);
         List<Map<String, String>> trendingTopics = new ArrayList<>();
-        for (Map.Entry<String, Integer> e :
-                HashtagUtil.topHashtags(postDAO.getRecentContentsVisibleTo(uid, 300), 6)) {
+        for (Map.Entry<String, Integer> e : HashtagUtil.topHashtags(recent, 6)) {
             trendingTopics.add(buildTrend(e.getKey(), e.getValue()));
         }
 
         req.setAttribute("posts",          posts);
         req.setAttribute("savedPostIds",   savedPostIds);
+        req.setAttribute("mySavedCount",   savedPosts.size());   // LayoutSupport không đọc lại danh sách đã lưu
         req.setAttribute("trendingTopics", trendingTopics);
         req.setAttribute("currentPage",    "feed");
         LayoutSupport.populate(req, currentUser);

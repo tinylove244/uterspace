@@ -69,10 +69,8 @@ public class SearchController extends HttpServlet {
             for (Group g : groups) g.setMyMembership(groupDAO.getMembership(g.getGroupId(), uid));
 
             List<Post> posts = searchDAO.searchPosts(q, uid, LIMIT_POSTS);
-            for (Post p : posts) {
-                p.setComments(commentDAO.getCommentsByPostId(p.getPostId()));
-                p.setLikedByCurrentUser(likeDAO.isLikedBy(p.getPostId(), uid));
-            }
+            commentDAO.attachComments(posts);
+            likeDAO.markLikedBy(posts, uid);
             postDAO.attachSharedPosts(posts, uid);
             postDAO.attachGroupNames(posts);
             com.uterspace.util.ContentFilter.of(new com.uterspace.dao.UserSettingsDAO().get(uid)).apply(posts, uid);

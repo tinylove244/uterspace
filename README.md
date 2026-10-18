@@ -6,14 +6,14 @@ Mạng xã hội dành cho sinh viên HCMUTE – Đồ án môn học Web Progra
 - **Backend:** Java Servlet / JSP (Jakarta EE-style MVC)
 - **Build tool:** Maven
 - **Server:** Apache Tomcat 9.x
-- **Database:** Microsoft SQL Server (Đã được Cloud hóa trên SmarterASP)
+- **Database:** MySQL 8 (Cloud trên Aiven — trước đây là SQL Server trên SmarterASP)
 - **Media Storage:** Cloudinary (Tự động upload và đồng bộ)
 
 ---
 
 ## 🚀 Hướng Dẫn Chạy Dự Án (Dành Cho Nhóm)
 
-Dự án này đã được cấu hình **100% Cloud**. Bạn **KHÔNG CẦN** phải cài đặt SQL Server tại máy hay cấu hình thư mục lưu trữ ảnh. Chỉ cần khai báo tài khoản Cloud một lần (Bước 2) là chạy được.
+Dự án này đã được cấu hình **100% Cloud**. Bạn **KHÔNG CẦN** phải cài đặt MySQL / SQL Server tại máy hay cấu hình thư mục lưu trữ ảnh. Chỉ cần khai báo tài khoản Cloud một lần (Bước 2) là chạy được.
 
 ### Bước 1: Chuẩn Bị
 1. Clone dự án về máy.
@@ -54,8 +54,9 @@ Tomcat sẽ tự động khởi động, giải nén toàn bộ code và thư vi
 ---
 
 ## 📂 Cơ Sở Dữ Liệu & Ảnh
-- **Database:** Mọi dữ liệu (tài khoản, bài đăng, comment...) đều được đọc/ghi trực tiếp vào Server sql5113.site4now.net. (Xem file docs/CLOUD_CREDENTIALS.md để biết tài khoản quản trị nếu cần mở bằng SSMS).
+- **Database:** Mọi dữ liệu (tài khoản, bài đăng, comment...) đều được đọc/ghi trực tiếp vào MySQL trên Aiven (`uterspace-uterspace.b.aivencloud.com:23135`, database `defaultdb`). Xem file docs/CLOUD_CREDENTIALS.md để biết tài khoản nếu cần mở bằng MySQL Workbench / DBeaver (bật SSL).
+- **Script DB:** `db/aiven_mysql_migration.sql` bổ sung cho DB Aiven phần migration 090 (Story nâng cao, AI, passkey, DID) và gắn link ảnh / video mẫu trên Cloudinary — chạy lại nhiều lần không sao. `db/all_migrations_cloud.sql` là bản T-SQL cũ cho SQL Server, chỉ để tham khảo.
 - **Ảnh & Video:** Khi bạn đăng ảnh mới trên trang web, ảnh sẽ tự động được đẩy lên **Cloudinary** và mọi người trong nhóm đều có thể thấy. Xóa bài / đổi ảnh đại diện / đổi ảnh bìa thì file cũ trên Cloudinary cũng tự xóa theo.
-- **Ảnh / video mẫu** của dữ liệu seed nằm ở gốc thư mục `uterspace_uploads/` trên Cloudinary (gắn vào DB bởi mục `100_cloudinary_seed_media` trong `db/all_migrations_cloud.sql`) và không bao giờ bị app tự xóa.
+- **Ảnh / video mẫu** của dữ liệu seed nằm ở gốc thư mục `uterspace_uploads/` trên Cloudinary (gắn vào DB bởi mục 4 trong `db/aiven_mysql_migration.sql`) và không bao giờ bị app tự xóa.
 
 Chúc các bạn code vui vẻ và đạt điểm cao! 🎉

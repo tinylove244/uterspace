@@ -98,10 +98,8 @@ public class GroupsController extends HttpServlet {
         List<Post> posts = new ArrayList<>();
         if (canView) {
             posts = postDAO.getGroupPosts(gid);
-            for (Post p : posts) {
-                p.setComments(commentDAO.getCommentsByPostId(p.getPostId()));
-                p.setLikedByCurrentUser(likeDAO.isLikedBy(p.getPostId(), uid));
-            }
+            commentDAO.attachComments(posts);
+            likeDAO.markLikedBy(posts, uid);
             // Bộ lọc nội dung cá nhân của người xem (từ khóa / ẩn bài tiêu cực)
             com.uterspace.util.ContentFilter.of(new com.uterspace.dao.UserSettingsDAO().get(uid)).apply(posts, uid);
         }

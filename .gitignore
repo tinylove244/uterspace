@@ -55,3 +55,8 @@ desktop.ini
 # ===== Node (nếu sau này có build tool frontend riêng, VD Tailwind CLI) =====
 node_modules/
 npm-debug.log
+
+# ===== Local Server Tools & Database Dumps (Portable MySQL 8.4, Cloudflared) =====
+tools/
+db/aiven_live_backup.sql
+

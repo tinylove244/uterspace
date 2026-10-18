@@ -13,10 +13,10 @@ import java.util.*;
 /**
  * SearchDAO — tìm kiếm toàn trang: người dùng, bài viết, nhóm, hashtag (trang /search và gợi ý ở thanh tìm kiếm).
  *
- * Tìm KHÔNG PHÂN BIỆT DẤU: gõ "duc" ra "Đức", "minh ha" ra "Minh Hà". Cột NVARCHAR dùng collation có dấu
- * (CI_AS) nên phần lọc theo chữ dùng truy vấn SQL gốc với COLLATE Latin1_General_100_CI_AI — collation này
- * coi "đ" = "d" (Vietnamese_CI_AI thì không). Đây là chỗ DUY NHẤT phụ thuộc SQL Server:
- * khi đổi sang PostgreSQL chỉ cần thay biểu thức ACCENT_INSENSITIVE bằng unaccent(...) ILIKE (plan 8.2).
+ * Tìm KHÔNG PHÂN BIỆT DẤU: gõ "duc" ra "Đức", "minh ha" ra "Minh Hà". Cột chữ dùng collation utf8mb4_unicode_ci
+ * (coi "đ" khác "d") nên phần lọc theo chữ dùng truy vấn SQL gốc với COLLATE utf8mb4_0900_ai_ci — collation này
+ * bỏ dấu, không phân biệt hoa thường và coi "đ" = "d". Đây là chỗ DUY NHẤT phụ thuộc MySQL:
+ * khi đổi sang PostgreSQL chỉ cần thay biểu thức AI bằng unaccent(...) ILIKE (plan 8.2).
  *
  * Quyền xem bài KHÔNG viết lại ở đây: SQL gốc chỉ lấy id ứng viên, sau đó lọc bằng JPQL với
  * PostDAOImpl.VISIBLE — vẫn một quy tắc duy nhất cho "ai được thấy bài nào" (plan 2.2).
@@ -24,14 +24,14 @@ import java.util.*;
  */
 public class SearchDAO {
 
-    private static final String AI = " COLLATE Latin1_General_100_CI_AI ";
+    private static final String AI = " COLLATE utf8mb4_0900_ai_ci ";
 
     /** Số bài ứng viên tối đa lấy từ bước lọc chữ, trước khi lọc quyền xem */
     private static final int POST_CANDIDATES = 300;
 
-    /** Chuỗi người dùng gõ → mẫu LIKE "%...%", thoát ký tự đặc biệt % _ [ bằng '!' */
+    /** Chuỗi người dùng gõ → mẫu LIKE "%...%", thoát ký tự đặc biệt % _ bằng '!' */
     static String likePattern(String q) {
-        return "%" + q.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![") + "%";
+        return "%" + q.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
     }
 
     /** Bỏ dấu tiếng Việt + chữ thường — dùng để so khớp hashtag trong Java */
@@ -47,14 +47,14 @@ public class SearchDAO {
     public List<User> searchUsers(String q, int limit, int viewerId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            String full = "(first_name + N' ' + last_name)";
+            String full = "CONCAT(first_name, ' ', last_name)";
             @SuppressWarnings("unchecked")
             List<Number> ids = em.createNativeQuery(
                     "SELECT user_id FROM users WHERE status = 'ACTIVE' " +
                     // bỏ người có quan hệ CHẶN với người tìm (bất kể chiều)
                     "AND user_id NOT IN (SELECT blocked_id FROM user_blocks WHERE blocker_id = :me) " +
                     "AND user_id NOT IN (SELECT blocker_id FROM user_blocks WHERE blocked_id = :me) AND (" +
-                    full + AI + "LIKE :p ESCAPE '!' OR (last_name + N' ' + first_name)" + AI + "LIKE :p ESCAPE '!'" +
+                    full + AI + "LIKE :p ESCAPE '!' OR CONCAT(last_name, ' ', first_name)" + AI + "LIKE :p ESCAPE '!'" +
                     " OR email" + AI + "LIKE :p ESCAPE '!') " +
                     "ORDER BY CASE WHEN " + full + AI + "LIKE :prefix ESCAPE '!' THEN 0 ELSE 1 END, first_name, last_name")
                 .setParameter("p", likePattern(q))

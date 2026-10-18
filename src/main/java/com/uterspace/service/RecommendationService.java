@@ -61,17 +61,17 @@ public final class RecommendationService {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             // Bài đã thích
-            for (Object[] r : rows(em, "SELECT TOP 400 p.user_id, p.content, u.first_name FROM likes l JOIN posts p ON p.post_id = l.post_id " +
-                                       "JOIN users u ON u.user_id = p.user_id WHERE l.user_id = :me AND p.user_id <> :me ORDER BY l.created_at DESC", me)) {
+            for (Object[] r : rows(em, "SELECT p.user_id, p.content, u.first_name FROM likes l JOIN posts p ON p.post_id = l.post_id " +
+                                       "JOIN users u ON u.user_id = p.user_id WHERE l.user_id = :me AND p.user_id <> :me ORDER BY l.created_at DESC LIMIT 400", me)) {
                 bump(p, r, 1.0);
             }
             // Bài đã bình luận
-            for (Object[] r : rows(em, "SELECT TOP 300 p.user_id, p.content, u.first_name FROM comments c JOIN posts p ON p.post_id = c.post_id " +
-                                       "JOIN users u ON u.user_id = p.user_id WHERE c.user_id = :me AND p.user_id <> :me ORDER BY c.created_at DESC", me)) {
+            for (Object[] r : rows(em, "SELECT p.user_id, p.content, u.first_name FROM comments c JOIN posts p ON p.post_id = c.post_id " +
+                                       "JOIN users u ON u.user_id = p.user_id WHERE c.user_id = :me AND p.user_id <> :me ORDER BY c.created_at DESC LIMIT 300", me)) {
                 bump(p, r, 2.0);
             }
             // Bài tự đăng → chủ đề của chính mình
-            for (Object[] r : rows(em, "SELECT TOP 100 user_id, content FROM posts WHERE user_id = :me AND moderation_status <> 'DELETED' ORDER BY created_at DESC", me)) {
+            for (Object[] r : rows(em, "SELECT user_id, content FROM posts WHERE user_id = :me AND moderation_status <> 'DELETED' ORDER BY created_at DESC LIMIT 100", me)) {
                 for (String t : HashtagUtil.extract((String) r[1])) {
                     String k = t.toLowerCase(Locale.ROOT);
                     p.tags.merge(k, 1.5, Double::sum);
@@ -81,7 +81,7 @@ public final class RecommendationService {
             // Nhắn tin 1-1 trong 30 ngày
             @SuppressWarnings("unchecked")
             List<Object[]> msgs = em.createNativeQuery(
-                    // SQL Server không GROUP BY được biểu thức chứa tham số → gom trong truy vấn con
+                    // GROUP BY trên cột của truy vấn con (biểu thức chứa tham số không GROUP BY được ở mọi DB)
                     "SELECT other, COUNT(*) FROM (SELECT CASE WHEN c.user_a_id = :me THEN c.user_b_id ELSE c.user_a_id END AS other " +
                     "FROM chat_messages m JOIN conversations c ON c.conversation_id = m.conversation_id " +
                     "WHERE c.is_group = 0 AND m.sender_id = :me AND m.sent_at > :since) x GROUP BY other")
@@ -92,7 +92,7 @@ public final class RecommendationService {
             }
             // Từ khóa đã tìm (search_history, migration 090)
             try {
-                for (Object[] r : rows(em, "SELECT TOP 30 query, 0 FROM search_history WHERE user_id = :me ORDER BY created_at DESC", me)) {
+                for (Object[] r : rows(em, "SELECT query, 0 FROM search_history WHERE user_id = :me ORDER BY created_at DESC LIMIT 30", me)) {
                     String q = SentimentAnalyzer.fold(String.valueOf(r[0])).replace("#", "").trim();
                     if (q.length() >= 2 && !p.searches.contains(q)) p.searches.add(q);
                     String tag = HashtagUtil.normalize(String.valueOf(r[0]));
@@ -186,10 +186,15 @@ public final class RecommendationService {
 
     /** Gợi ý kết bạn thông minh — dùng chung cho Bảng tin và trang Bạn bè */
     public static List<FriendSuggestion> friendSuggestions(int me, int limit) {
+        return friendSuggestions(me, null, limit);
+    }
+
+    /** given = hồ sơ sở thích đã dựng sẵn trong request (Bảng tin) — tránh dựng lại 6 truy vấn; null thì tự dựng */
+    public static List<FriendSuggestion> friendSuggestions(int me, InterestProfile given, int limit) {
         List<FriendSuggestion> base = FRIENDS.getSuggestions(me, 200);   // đã lọc chặn / quyền riêng tư, có bạn chung + khu vực
         if (base.isEmpty()) return base;
         List<Integer> ids = base.stream().map(s -> s.getUser().getUserId()).collect(Collectors.toList());
-        InterestProfile prof = profile(me);
+        InterestProfile prof = given != null ? given : profile(me);
 
         Map<Integer, Integer> sharedGroups = new HashMap<>();
         Map<Integer, String>  sharedGroupName = new HashMap<>();
@@ -428,8 +433,8 @@ public final class RecommendationService {
         try {
             em.getTransaction().begin();
             em.createNativeQuery("INSERT INTO search_history (user_id, query, created_at) SELECT :me, :q, :at " +
-                                 "WHERE NOT EXISTS (SELECT 1 FROM (SELECT TOP 1 query FROM search_history WHERE user_id = :me " +
-                                 "ORDER BY created_at DESC) last WHERE last.query = :q)")
+                                 "WHERE NOT EXISTS (SELECT 1 FROM (SELECT query FROM search_history WHERE user_id = :me " +
+                                 "ORDER BY created_at DESC LIMIT 1) last WHERE last.query = :q)")
               .setParameter("me", me).setParameter("q", q).setParameter("at", Timestamp.valueOf(LocalDateTime.now()))
               .executeUpdate();
             em.getTransaction().commit();

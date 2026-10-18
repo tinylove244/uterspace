@@ -39,7 +39,7 @@ public final class UploadUtil {
 
     /**
      * URL file do app upload: https://res.cloudinary.com/<cloud>/<image|video|raw>/upload/v123/uterspace_uploads/<thư mục>/<tên>.
-     * File dữ liệu mẫu nằm thẳng ở gốc (uterspace_uploads/avatar_1.jpg, db/all_migrations_cloud.sql mục 100)
+     * File dữ liệu mẫu nằm thẳng ở gốc (uterspace_uploads/avatar_1.jpg, db/aiven_mysql_migration.sql mục 4)
      * KHÔNG khớp → không bao giờ bị xóa, chạy lại script dựng DB vẫn còn ảnh.
      */
     private static final Pattern CLOUD_UPLOAD_URL = Pattern.compile(

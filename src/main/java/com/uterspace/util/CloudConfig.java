@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * CloudConfig — tài khoản SQL Server cloud (SmarterASP) và Cloudinary. KHÔNG ghi mật khẩu / API secret vào code.
+ * CloudConfig — tài khoản MySQL cloud (Aiven) và Cloudinary. KHÔNG ghi mật khẩu / API secret vào code.
  * Thứ tự ưu tiên (giống AiConfig, MailUtil):
  *   1. Biến môi trường: UTERSPACE_DB_URL, UTERSPACE_DB_USER, UTERSPACE_DB_PASSWORD, UTERSPACE_DB_POOL_SIZE,
  *                       CLOUDINARY_URL (dạng cloudinary://API_KEY:API_SECRET@CLOUD_NAME)

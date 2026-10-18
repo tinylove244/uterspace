@@ -57,11 +57,12 @@ public class AppContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Mỗi bước bọc riêng: khi redeploy nóng (WAR bị thay giữa chừng), một bước nạp class lỗi không được
-        // làm bỏ qua các bước sau — nhất là đóng pool kết nối DB cloud (SmarterASP giới hạn số kết nối)
+        // làm bỏ qua các bước sau — nhất là đóng pool kết nối DB cloud (gói Aiven giới hạn số kết nối)
         if (storyCleaner != null) storyCleaner.shutdownNow();
         stop("AiService", () -> com.uterspace.ai.AiService.shutdown());
         // Chờ các lệnh xóa file Cloudinary đang xếp hàng chạy xong rồi dừng luồng nền
         stop("UploadUtil", () -> UploadUtil.shutdown());
+        stop("DbParallel", () -> DbParallel.shutdown());
         // Dừng các luồng gửi sự kiện WebSocket — không để luồng "mồ côi" sau mỗi lần redeploy
         stop("RealtimeHub", () -> com.uterspace.realtime.RealtimeHub.shutdown());
         // Đóng Hibernate an toàn để giải phóng resources

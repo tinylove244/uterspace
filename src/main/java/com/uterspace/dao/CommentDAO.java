@@ -1,6 +1,7 @@
 package com.uterspace.dao;
 
 import com.uterspace.model.Comment;
+import com.uterspace.model.Post;
 import java.util.List;
 
 /** CommentDAO — Interface cho thao tác Comment */
@@ -8,6 +9,9 @@ public interface CommentDAO {
 
     /** Lấy tất cả comment của 1 bài viết, kèm author */
     List<Comment> getCommentsByPostId(int postId);
+
+    /** Gắn bình luận (kèm author) cho cả danh sách bài bằng 1 truy vấn — thay vòng lặp getCommentsByPostId từng bài */
+    void attachComments(List<Post> posts);
 
     /**
      * Thêm comment mới vào bài viết.

@@ -1,3 +1,37 @@
+# CHANGELOG — Đổi DB cloud: SQL Server (SmarterASP) → MySQL 8 (Aiven)
+> Session ngày 12/10/2026 — script mới **`db/aiven_mysql_migration.sql`** (đã chạy trên Aiven, chạy lại nhiều lần không sao).
+> **Mỗi máy sửa `<Tomcat>/conf/uterspace-cloud.properties`**: `db.user` / `db.password` theo mục 1 của `docs/CLOUD_CREDENTIALS.md`, rồi khởi động lại Tomcat.
+
+| Thay đổi | File chính |
+|:--|:--|
+| Driver `mysql-connector-j` 8.3.0 thay `mssql-jdbc`; dialect `MySQL8Dialect`; URL Aiven bắt buộc SSL. Phiên DB đặt giờ `Asia/Ho_Chi_Minh` (máy chủ Aiven để UTC) để `NOW()` / giá trị mặc định `created_at` khớp giờ của app | `pom.xml`, `persistence.xml` |
+| Tìm kiếm không dấu (người, bài, nhóm, tin nhắn): `COLLATE utf8mb4_0900_ai_ci` (coi "đ" = "d") thay `Latin1_General_100_CI_AI`; nối họ tên bằng `CONCAT` | `SearchDAO`, `MessageDAOImpl.search` |
+| `SELECT TOP n` → `LIMIT n` (hồ sơ sở thích, lịch sử tìm kiếm) | `RecommendationService` |
+| **DB Aiven:** `friendships.user_lo / user_hi` là cột thường → app kết bạn để NULL, UNIQUE không chặn được cặp trùng. Đổi thành cột tự tính (VIRTUAL — MySQL không cho STORED khi FK có ON DELETE CASCADE) | `db/aiven_mysql_migration.sql` mục 1 |
+| **DB Aiven:** thêm UNIQUE hội thoại 1-1 theo cặp, UNIQUE tin nhắn theo `(sender_id, client_id)` (chống gửi trùng), chỉ mục `ref_key` của thông báo | mục 2 |
+| **DB Aiven:** migration 090 bản MySQL — cột cảm xúc / media nâng cao / phụ đề của `posts`, cột mới của `user_settings`, bảng `story_reactions`, `search_history`, `webauthn_credentials`, `user_dids` (credential_id, DID so khớp phân biệt hoa thường) | mục 3 |
+| **Link Cloudinary** từ DB SmarterASP: 15 avatar, 11 ảnh bìa nhóm, 16 ảnh bài viết, 6 video. ID ở Aiven khác SmarterASP nên khớp theo email / tên nhóm / tác giả + đầu nội dung bài; không đụng link `http...` đã có | mục 4 |
+
+**Kiểm thử (DB Aiven):** app khởi động, AiService gắn nhãn cảm xúc cho 49 bài; 19 kịch bản DAO đạt — bảng tin + link `/cdn/` (301 sang `res.cloudinary.com`), video, tìm "duc" ra "Đức" / "do an" = "đồ án", gợi ý, lịch sử tìm kiếm, story (xem 2 lần, thả tim, xóa), kết bạn (gửi 2 chiều chỉ 1 dòng), chat (gửi trùng `client_id` ra 1 tin, tìm không dấu, thu hồi), DID, giờ DB = giờ app. Dữ liệu test đã xóa.
+**Còn lại:** 4 đường dẫn `uploads/...` chỉ có trên máy đã tạo dữ liệu (avatar user 33, ảnh bìa user 1, ảnh bài 47 và 51) — không có trên Cloudinary nên các máy khác thấy ảnh hỏng.
+
+---
+
+# CHANGELOG — Tăng tốc khi dùng DB cloud
+> Session ngày 12/10/2026 — không cần migration. DB cloud đặt ở Las Vegas (Mỹ): mỗi lượt mạng ~200 ms.
+
+| Thay đổi | File chính |
+|:--|:--|
+| Pool kết nối **HikariCP** thay pool có sẵn của Hibernate: mỗi câu SQL còn 1 lượt mạng thay vì 3 (pool cũ tốn thêm ~250 ms mượn + ~250 ms trả kết nối), giữ sẵn 5 kết nối mở, ping nền mỗi 30 giây; kết nối rảnh quá 10 giây được kiểm tra trước khi dùng (tránh "Connection reset" sau khi máy ngủ) | `pom.xml`, `persistence.xml`, `JPAUtil` |
+| Bình luận + trạng thái "đã thích" của cả trang đọc bằng 1 truy vấn mỗi loại (trước: 2 truy vấn **mỗi bài**) — Bảng tin, Nhóm, Trang cá nhân, Tìm kiếm, Video | `CommentDAO.attachComments`, `LikeDAO.markLikedBy` |
+| Truy vấn độc lập chạy song song: 6 số đếm của thanh bên (mọi trang), các khối của Bảng tin (bài viết, hồ sơ sở thích, bài gần đây, Tin, gợi ý) | `DbParallel` (mới), `LayoutSupport`, `FeedController` |
+| Bảng tin không đọc lại: hồ sơ sở thích (6 truy vấn), bài gần đây, cài đặt, danh sách đã lưu | `FeedController`, `RecommendationService.friendSuggestions` |
+| Khởi động: chỉ ghi nhãn cảm xúc khi nhãn thay đổi (trước: UPDATE lại cả 43 bài mỗi lần khởi động, giành kết nối của người dùng ~30 giây) | `AiService.backfillAsync` |
+
+**Đo (tài khoản 10 bạn, 15 bài trên bảng tin):** đăng nhập 6,2 → ~1,7 giây (0,55 giây là BCrypt, như khi chạy local); Bảng tin 30 → ~5 giây (69 → 32 truy vấn). Nội dung trang giống hệt trước (cùng bài, bình luận, gợi ý, trạng thái đã thích).
+
+---
+
 # CHANGELOG — Cloud: sửa hiển thị media Cloudinary, xóa file theo bài, bỏ mật khẩu khỏi code
 > Session ngày 10/10/2026 — migration mới **100_cloudinary_seed_media** (cuối `db/all_migrations_cloud.sql`, đã chạy trên DB cloud).
 > **Mỗi máy phải tạo `<Tomcat>/conf/uterspace-cloud.properties`** (mẫu `db/uterspace-cloud.properties.example`) — thiếu thì web không khởi động.

@@ -1,5 +1,5 @@
 # ============================================================
-# UTErSpace — tài khoản Cloud: SQL Server (SmarterASP) + Cloudinary (ảnh / video)
+# UTErSpace — tài khoản Cloud: MySQL (Aiven) + Cloudinary (ảnh / video)
 #
 # CÁCH DÙNG: chép file này thành  <thư mục Tomcat>/conf/uterspace-cloud.properties
 #            (vd: C:\ApacheTomcat\conf\uterspace-cloud.properties — BỎ đuôi .example),
@@ -15,13 +15,13 @@
 # Thiếu Cloudinary   → app vẫn chạy nhưng không đăng được ảnh / video ("[Cloudinary] Chưa cấu hình...").
 # ============================================================
 
-# ---------- SQL Server cloud (bắt buộc) ----------
+# ---------- MySQL cloud trên Aiven (bắt buộc) ----------
 db.user=
 db.password=
 
-# Đổi DB (vd: SQL Server trên máy mình). Bỏ trống = DB cloud ghi trong persistence.xml
-# db.url=jdbc:sqlserver://localhost:1433;databaseName=uterspace;encrypt=true;trustServerCertificate=true;
-# Số kết nối tối đa (gói SmarterASP giới hạn số kết nối đồng thời). Mặc định 20
+# Đổi DB (vd: MySQL trên máy mình). Bỏ trống = DB cloud Aiven ghi trong persistence.xml
+# db.url=jdbc:mysql://localhost:3306/uterspace?characterEncoding=UTF-8&connectionTimeZone=Asia/Ho_Chi_Minh&forceConnectionTimeZoneToSession=true
+# Số kết nối tối đa (gói Aiven giới hạn số kết nối đồng thời). Mặc định 10
 # db.poolSize=5
 
 # ---------- Cloudinary (ảnh, video, mô hình 3D) ----------

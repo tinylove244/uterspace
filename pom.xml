@@ -67,11 +67,18 @@
       <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
-    <!-- Microsoft JDBC Driver for SQL Server -->
+    <!-- MySQL Connector/J — DB cloud MySQL 8 trên Aiven (trước đây: mssql-jdbc cho SQL Server SmarterASP) -->
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>12.6.1.jre11</version>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>8.3.0</version>
+      <exclusions>
+        <!-- protobuf chỉ dùng cho X DevAPI (cổng 33060), app dùng giao thức MySQL thường -->
+        <exclusion>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Hibernate Core for JPA -->
     <dependency>
@@ -97,6 +104,30 @@
       <groupId>at.favre.lib</groupId>
       <artifactId>bcrypt</artifactId>
       <version>0.10.2</version>
+    </dependency>
+    <!-- Pool kết nối HikariCP thay pool có sẵn của Hibernate ("not for production"): DB cloud ở Mỹ ~200 ms / lượt,
+         pool cũ tốn thêm 2 lượt mạng mỗi lần mượn / trả kết nối và mở kết nối mới (~1,4 giây) giữa lúc người dùng chờ -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-hikaricp</artifactId>
+      <version>5.6.15.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>4.0.3</version>
+    </dependency>
+    <!-- Log của HikariCP (lỗi kết nối DB...) đi qua SLF4J → java.util.logging → log Tomcat.
+         Ghim bản ổn định thay slf4j-api 2.0.0-alpha1 mà HikariCP 4.0.3 kéo theo -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.36</version>
     </dependency>
       <!-- Cloudinary -->
     <dependency>

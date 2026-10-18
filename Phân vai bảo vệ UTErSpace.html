@@ -1,0 +1,636 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Phân vai bảo vệ UTErSpace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: một cột đọc ~70ch, thanh mục lục dính trên cùng; mỗi thành viên một khối có dải màu riêng để tìm nhanh phần của mình */
+:root {
+  --bg: #F3F5F9;
+  --paper: #FFFFFF;
+  --ink: #0E1A2E;
+  --ink-2: #44546E;
+  --ink-3: #7B8AA3;
+  --line: #DCE2EC;
+  --navy: #0A3D8F;
+  --navy-soft: #E6EDF8;
+  --red: #C21D3B;
+  --red-soft: #FBE6EA;
+  --a: #0A3D8F;  --a-soft: #E6EDF8;
+  --b: #9C2A6B;  --b-soft: #F6E6F0;
+  --c: #1F7A5A;  --c-soft: #E1F2EA;
+  --d: #A35A00;  --d-soft: #FBEEDB;
+  --code-bg: #F0F3F8;
+  --font: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131C; --paper: #161D29; --ink: #E6EBF3; --ink-2: #A9B5C8; --ink-3: #7686A0; --line: #283347;
+    --navy: #7EA6F0; --navy-soft: rgba(126,166,240,.14); --red: #F07B8F; --red-soft: rgba(240,123,143,.14);
+    --a: #7EA6F0; --a-soft: rgba(126,166,240,.14); --b: #E08BBE; --b-soft: rgba(224,139,190,.14);
+    --c: #6FCFA6; --c-soft: rgba(111,207,166,.13); --d: #F0B566; --d-soft: rgba(240,181,102,.13);
+    --code-bg: #1E2737; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131C; --paper: #161D29; --ink: #E6EBF3; --ink-2: #A9B5C8; --ink-3: #7686A0; --line: #283347;
+  --navy: #7EA6F0; --navy-soft: rgba(126,166,240,.14); --red: #F07B8F; --red-soft: rgba(240,123,143,.14);
+  --a: #7EA6F0; --a-soft: rgba(126,166,240,.14); --b: #E08BBE; --b-soft: rgba(224,139,190,.14);
+  --c: #6FCFA6; --c-soft: rgba(111,207,166,.13); --d: #F0B566; --d-soft: rgba(240,181,102,.13);
+  --code-bg: #1E2737; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.65 var(--font); }
+a { color: var(--navy); }
+h1, h2, h3, h4 { text-wrap: balance; line-height: 1.25; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: .86em; }
+code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Đầu trang */
+.top { padding-block: 40px 28px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.top h1 { font-size: clamp(26px, 4.4vw, 38px); font-weight: 800; letter-spacing: -0.02em; margin-top: 8px; }
+.top .lead { margin-top: 12px; color: var(--ink-2); max-width: 68ch; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; font-size: 13px; color: var(--ink-3); }
+.meta-row b { color: var(--ink-2); font-weight: 600; }
+
+/* Mục lục dính */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: none; }
+.toc a { flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; text-decoration: none; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper); }
+.toc a:hover, .toc a:focus-visible { color: var(--ink); border-color: var(--ink-3); }
+.toc a.pa { color: var(--a); } .toc a.pb { color: var(--b); } .toc a.pc { color: var(--c); } .toc a.pd { color: var(--d); }
+
+main { display: grid; gap: 40px; padding-block: 32px 64px; }
+section > h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px; scroll-margin-top: 70px; }
+section > h2 small { display: block; font-size: 13px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; margin-top: 4px; }
+h3 { font-size: 16.5px; font-weight: 700; margin: 26px 0 10px; }
+h4 { font-size: 14.5px; font-weight: 700; margin: 0 0 6px; }
+.prose > * + * { margin-top: 10px; }
+.muted { color: var(--ink-3); }
+ul.tight, ol.tight { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+
+/* Thẻ vai trò */
+.roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.role { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.role-head { display: flex; align-items: center; gap: 10px; }
+.badge { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+.role h3 { margin: 0; font-size: 16px; }
+.role .kind { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.share { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.share i { display: block; height: 100%; border-radius: 999px; }
+.role p { font-size: 14px; color: var(--ink-2); }
+.ra .badge, .ra .share i { background: var(--a); color: var(--paper); } .ra .kind { color: var(--a); }
+.rb .badge, .rb .share i { background: var(--b); color: var(--paper); } .rb .kind { color: var(--b); }
+.rc .badge, .rc .share i { background: var(--c); color: var(--paper); } .rc .kind { color: var(--c); }
+.rd .badge, .rd .share i { background: var(--d); color: var(--paper); } .rd .kind { color: var(--d); }
+
+/* Bảng */
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+thead th { border-top: 0; background: var(--code-bg); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); white-space: nowrap; }
+td.who { white-space: nowrap; font-weight: 700; }
+td.time { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ta { background: var(--a-soft); color: var(--a); } .tb { background: var(--b-soft); color: var(--b); }
+.tc { background: var(--c-soft); color: var(--c); } .td { background: var(--d-soft); color: var(--d); }
+
+/* Khối thành viên */
+.member { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px clamp(16px, 3vw, 28px); border-top: 5px solid var(--accent); }
+.member > h2 { color: var(--accent); }
+.member.ma { --accent: var(--a); --accent-soft: var(--a-soft); }
+.member.mb { --accent: var(--b); --accent-soft: var(--b-soft); }
+.member.mc { --accent: var(--c); --accent-soft: var(--c-soft); }
+.member.md { --accent: var(--d); --accent-soft: var(--d-soft); }
+.scope { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top: 4px; }
+.scope div { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; min-width: 0; }
+.scope b { display: block; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+
+.flow { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.flow li { counter-increment: s; position: relative; padding: 10px 12px 10px 46px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; min-width: 0; }
+.flow li::before { content: counter(s); position: absolute; left: 12px; top: 10px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--accent); color: var(--paper); }
+.flow-title { font-weight: 700; font-size: 14px; margin: 18px 0 8px; color: var(--ink); }
+
+.qa { display: grid; gap: 10px; }
+.q { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; min-width: 0; }
+.q h4 { font-size: 14.5px; }
+.q p { font-size: 14px; color: var(--ink-2); }
+
+.note { background: var(--navy-soft); border-radius: 12px; padding: 14px 16px; font-size: 14px; }
+.note.red { background: var(--red-soft); }
+.note b { color: var(--ink); }
+
+.mermaid-box { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px; overflow-x: auto; }
+pre.mermaid { margin: 0; font-family: var(--font); font-size: 13px; background: transparent; }
+
+.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.checks li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.checks input { margin-top: 4px; accent-color: var(--navy); }
+
+footer { border-top: 1px solid var(--line); padding-block: 20px; font-size: 13px; color: var(--ink-3); }
+a:focus-visible, input:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .roles { grid-template-columns: minmax(0, 1fr); }
+  th, td { padding: 9px 10px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Đồ án Lập trình Web · HCMUTE</p>
+    <h1>Phân vai bảo vệ đồ án UTErSpace</h1>
+    <p class="lead">Kịch bản demo và phần code từng người cần nắm để trả lời vấn đáp. Người 1 và Người 2 trình bày xuyên suốt và giữ logic chính. Người 3 và Người 4 phụ trách phần nhỏ hơn nhưng có lượt demo và lượt giải thích code riêng, để cô thấy rõ cả bốn người đều tham gia.</p>
+    <div class="meta-row">
+      <span><b>Stack:</b> Java 17 · Servlet/JSP · JPA (Hibernate) · MySQL 8 trên Aiven · Cloudinary · WebSocket</span>
+      <span><b>Đường dẫn code:</b> <code>src/main/java/com/uterspace/</code></span>
+      <span><b>Số dòng</b> ghi theo code hiện tại (18/10/2026)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Mục lục">
+  <div class="wrap">
+    <a href="#tong-quan">Kiến trúc chung</a>
+    <a href="#phan-vai">Bảng phân vai</a>
+    <a href="#kich-ban">Kịch bản demo</a>
+    <a class="pa" href="#nguoi1">Người 1</a>
+    <a class="pb" href="#nguoi2">Người 2</a>
+    <a class="pc" href="#nguoi3">Người 3</a>
+    <a class="pd" href="#nguoi4">Người 4</a>
+    <a href="#cau-hoi-chung">Câu hỏi chung</a>
+    <a href="#chuan-bi">Chuẩn bị</a>
+  </div>
+</nav>
+
+<div class="wrap">
+<main>
+
+<!-- ============================================================ KIẾN TRÚC -->
+<section id="tong-quan">
+  <h2>Kiến trúc chung — cả 4 người đều phải nói được<small>Cô thường hỏi câu này đầu tiên, và hỏi bất kỳ ai</small></h2>
+  <div class="prose">
+    <p>UTErSpace dùng mô hình <b>MVC nhiều tầng</b>. Một request đi qua các tầng theo thứ tự:</p>
+  </div>
+  <div class="mermaid-box" style="margin-top:12px">
+<pre class="mermaid">
+flowchart LR
+  B["Trình duyệt<br/>JSP + JavaScript"] -->|HTTP| F["Filter chain<br/>Encoding → Auth → Admin → Csrf"]
+  F --> C["Controller<br/>(Servlet)"]
+  C --> S["Service<br/>Chat · Relation · Notification"]
+  C --> D["DAO<br/>PostDAOImpl, UserDAOImpl..."]
+  S --> D
+  D -->|"JPA/Hibernate + HikariCP"| DB[("MySQL 8<br/>Aiven cloud")]
+  C -->|forward| V["View<br/>JSP + JSTL"]
+  C -->|upload| CL[("Cloudinary")]
+  S -->|đẩy sự kiện| WS["RealtimeHub<br/>WebSocket /ws"]
+  WS -->|JSON| B
+  C -.->|chạy nền| AI["AiService<br/>Gemini / Claude / từ điển"]
+</pre>
+  </div>
+  <div class="table-box" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Tầng</th><th>Vai trò</th><th>Ví dụ trong code</th></tr></thead>
+      <tbody>
+        <tr><td><b>Model</b></td><td>Entity JPA ánh xạ 1 bảng (<code>@Entity</code>, <code>@Table</code>, <code>@Column</code>)</td><td><code>model/User.java</code> ↔ bảng <code>users</code>, <code>Post</code> ↔ <code>posts</code></td></tr>
+        <tr><td><b>View</b></td><td>JSP + JSTL (<code>&lt;c:forEach&gt;</code>, <code>&lt;c:out&gt;</code>) render HTML</td><td><code>WEB-INF/views/feed/newsfeed.jsp</code></td></tr>
+        <tr><td><b>Controller</b></td><td>Servlet nhận request, kiểm tra tham số + quyền, gọi DAO/Service, rồi forward JSP hoặc trả JSON</td><td><code>@WebServlet(...)</code> trong <code>controller/</code> — 25 servlet</td></tr>
+        <tr><td><b>Service</b></td><td>Nghiệp vụ dùng chung nhiều controller (quy tắc quyền, gửi realtime, gộp thông báo)</td><td><code>service/ChatService</code>, <code>RelationService</code>, <code>NotificationService</code></td></tr>
+        <tr><td><b>DAO</b></td><td>Truy vấn DB bằng JPQL/SQL, quản lý transaction. Interface + Impl</td><td><code>dao/PostDAO</code> → <code>PostDAOImpl</code></td></tr>
+        <tr><td><b>Hạ tầng</b></td><td>Kết nối DB, filter, upload, luồng nền</td><td><code>util/JPAUtil</code>, <code>AppContextListener</code>, <code>UploadUtil</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note" style="margin-top:14px">
+    <b>Câu trả lời mẫu 30 giây:</b> “Trình duyệt gửi request, đi qua chuỗi filter trong <code>web.xml</code>: EncodingFilter đặt UTF-8, AuthFilter kiểm tra đăng nhập, AdminFilter kiểm tra quyền admin, CsrfFilter kiểm tra token. Sau đó Servlet controller đọc tham số, kiểm tra quyền, gọi DAO. DAO dùng JPA/Hibernate truy vấn MySQL trên Aiven qua pool HikariCP. Kết quả được đặt vào request attribute rồi forward sang JSP, hoặc trả JSON nếu là AJAX. Sự kiện tức thời (tin nhắn, thông báo) được đẩy xuống trình duyệt qua WebSocket.”
+  </div>
+</section>
+
+<!-- ============================================================ PHÂN VAI -->
+<section id="phan-vai">
+  <h2>Bảng phân vai<small>Tỷ lệ là khối lượng phải học và thời gian nói</small></h2>
+  <div class="roles">
+    <article class="role ra">
+      <div class="role-head"><span class="badge">1</span><div><span class="kind">Chủ chốt · dẫn chương trình</span><h3>Nền tảng, tài khoản &amp; Bảng tin</h3></div></div>
+      <div class="share" aria-label="Khoảng 32%"><i style="width:32%"></i></div>
+      <p>Mở đầu, giới thiệu kiến trúc, cấu hình DB, filter, đăng ký/đăng nhập/quên mật khẩu, bài viết (đăng, thích, bình luận, xóa, chia sẻ), quy tắc ai được xem bài, upload Cloudinary, xếp hạng Bảng tin. Kết thúc buổi báo cáo.</p>
+    </article>
+    <article class="role rb">
+      <div class="role-head"><span class="badge">2</span><div><span class="kind">Chủ chốt · realtime &amp; quản trị</span><h3>Tương tác thời gian thực &amp; Admin</h3></div></div>
+      <div class="share" aria-label="Khoảng 32%"><i style="width:32%"></i></div>
+      <p>WebSocket, chat (đang gõ, đã nhận, đã xem, nhóm chat), thông báo realtime, kết bạn/chặn, trang Quản trị (khóa tài khoản, xử lý báo cáo, ẩn bài, nhật ký).</p>
+    </article>
+    <article class="role rc">
+      <div class="role-head"><span class="badge">3</span><div><span class="kind">Hỗ trợ · cộng đồng</span><h3>Nhóm, Tin (Story), Báo cáo, Cài đặt</h3></div></div>
+      <div class="share" aria-label="Khoảng 18%"><i style="width:18%"></i></div>
+      <p>Demo nhóm công khai/kín, đăng Tin 24 giờ, báo cáo vi phạm (rồi chuyển lời cho Người 2 xử lý ở Admin), cài đặt quyền riêng tư và bộ lọc nội dung.</p>
+    </article>
+    <article class="role rd">
+      <div class="role-head"><span class="badge">4</span><div><span class="kind">Hỗ trợ · tính năng thông minh</span><h3>AI, Tìm kiếm, Danh tính số</h3></div></div>
+      <div class="share" aria-label="Khoảng 18%"><i style="width:18%"></i></div>
+      <p>Phân tích cảm xúc bài viết (AI + từ điển offline), trợ lý viết chú thích, tìm kiếm không dấu, đăng nhập vân tay (passkey) và danh tính số DID.</p>
+    </article>
+  </div>
+  <div class="note red" style="margin-top:14px">
+    <b>Nguyên tắc để cô thấy cả 4 người đều tham gia:</b> Người 3 và 4 mỗi người có <b>2 lượt nói riêng</b> trong buổi demo (xem kịch bản), mỗi lượt đều có <b>mở code và giải thích ít nhất 1 hàm</b>. Khi cô hỏi trúng phần của ai thì người đó trả lời trước, người chủ chốt chỉ bổ sung. Không giành lời của Người 3 và 4.
+  </div>
+</section>
+
+<!-- ============================================================ KỊCH BẢN -->
+<section id="kich-ban">
+  <h2>Kịch bản demo (~20 phút)<small>Cần 2 trình duyệt (vd Chrome + Edge ẩn danh) với 2 tài khoản thường, và 1 tài khoản admin</small></h2>
+  <div class="table-box">
+    <table>
+      <thead><tr><th>Phút</th><th>Ai</th><th>Thao tác trên web</th><th>Mở code nào</th></tr></thead>
+      <tbody>
+        <tr><td class="time">0–2</td><td class="who"><span class="tag ta">Người 1</span></td><td>Giới thiệu đề tài, công nghệ, sơ đồ kiến trúc ở trên. Giới thiệu nhanh từng thành viên và phần phụ trách.</td><td><code>web.xml</code> (chuỗi filter), <code>persistence.xml</code></td></tr>
+        <tr><td class="time">2–4</td><td class="who"><span class="tag ta">Người 1</span></td><td>Đăng ký tài khoản mới → đăng nhập. Nhắc qua chức năng Quên mật khẩu bằng mã OTP.</td><td><code>AuthController.handleLogin</code>, <code>startSession</code></td></tr>
+        <tr><td class="time">4–7</td><td class="who"><span class="tag ta">Người 1</span></td><td>Đăng bài có ảnh, thích, bình luận, chia sẻ. Chuyển chế độ “Dành cho bạn” / “Mới nhất”.</td><td><code>FeedController.handleCreatePost</code>, <code>PostDAOImpl.VISIBLE</code></td></tr>
+        <tr><td class="time">7–8.5</td><td class="who"><span class="tag td">Người 4</span></td><td>Chỉ nhãn cảm xúc trên bài vừa đăng. Dùng nút AI viết chú thích trong khung soạn bài.</td><td><code>AiService.analyzePostAsync</code>, <code>SentimentAnalyzer</code></td></tr>
+        <tr><td class="time">8.5–12</td><td class="who"><span class="tag tb">Người 2</span></td><td>Trình duyệt A gửi lời mời kết bạn → B nhận thông báo tức thì → chấp nhận. Nhắn tin qua lại: hiện “đang gõ…”, “đã xem”.</td><td><code>RealtimeEndpoint</code>, <code>ChatService.send</code></td></tr>
+        <tr><td class="time">12–14.5</td><td class="who"><span class="tag tc">Người 3</span></td><td>Tạo nhóm kín → tài khoản B xin vào → chủ nhóm duyệt. Đăng 1 Tin (Story), B xem và thả tim.</td><td><code>GroupsController.doPost</code>, <code>GroupPermission</code></td></tr>
+        <tr><td class="time">14.5–16</td><td class="who"><span class="tag td">Người 4</span></td><td>Tìm “duc” ra “Đức” (không dấu). Vào Cài đặt → Danh tính số, tạo DID và đăng nhập không mật khẩu.</td><td><code>SearchDAO</code>, <code>DidKey.verify</code></td></tr>
+        <tr><td class="time">16–17</td><td class="who"><span class="tag tc">Người 3</span></td><td>Tài khoản B báo cáo một bài viết vi phạm. Giải thích vì sao không báo cáo được bài mình không xem được.</td><td><code>ReportController.doPost</code></td></tr>
+        <tr><td class="time">17–19.5</td><td class="who"><span class="tag tb">Người 2</span></td><td>Đăng nhập admin: Bảng điều khiển → Báo cáo vi phạm → ẩn bài. Khóa tài khoản B → trình duyệt B bị đăng xuất ngay. Mở Nhật ký quản trị.</td><td><code>AdminFilter</code>, <code>AdminController.doLock</code></td></tr>
+        <tr><td class="time">19.5–20</td><td class="who"><span class="tag ta">Người 1</span></td><td>Tổng kết: điểm nổi bật về bảo mật, realtime, DB cloud, hướng phát triển. Mời cô đặt câu hỏi.</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin-top:10px">Câu chuyển lời gợi ý: “Bài vừa đăng đã được AI gắn nhãn cảm xúc, phần này bạn [Người 4] sẽ trình bày.” / “Báo cáo này sẽ vào hàng đợi của admin, mời bạn [Người 2] xử lý.”</p>
+</section>
+
+<!-- ============================================================ NGƯỜI 1 -->
+<section id="nguoi1" class="member ma">
+  <h2>Người 1 — Nền tảng, tài khoản &amp; Bảng tin<small>Chủ chốt. Dẫn chương trình, mở đầu và kết thúc</small></h2>
+  <div class="scope">
+    <div><b>Cấu hình</b><code>persistence.xml</code>, <code>JPAUtil</code>, <code>CloudConfig</code>, <code>AppContextListener</code></div>
+    <div><b>Filter</b><code>EncodingFilter</code>, <code>AuthFilter</code>, <code>CsrfFilter</code></div>
+    <div><b>Tài khoản</b><code>AuthController</code>, <code>ForgotPasswordController</code>, <code>PasswordUtil</code></div>
+    <div><b>Bài viết</b><code>FeedController</code>, <code>PostDAOImpl</code>, <code>LikeDAOImpl</code>, <code>UploadUtil</code>, <code>RecommendationService.rankFeed</code></div>
+  </div>
+
+  <p class="flow-title">Luồng 1 — Khởi động ứng dụng</p>
+  <ol class="flow">
+    <li>Tomcat khởi động → <code>AppContextListener.contextInitialized</code> gọi <code>JPAUtil.init()</code> tạo <code>EntityManagerFactory</code> một lần duy nhất.</li>
+    <li><code>JPAUtil.overrides()</code> đọc tài khoản DB từ <code>conf/uterspace-cloud.properties</code> (qua <code>CloudConfig</code>), không ghi mật khẩu trong code. Pool kết nối là <b>HikariCP</b>, giữ sẵn kết nối tới MySQL trên Aiven.</li>
+    <li>Gắn <code>assetVersion</code> (thời điểm khởi động) vào URL CSS/JS (<code>?v=...</code>) để trình duyệt tải lại file mới sau mỗi lần deploy.</li>
+    <li>Khởi động 2 luồng nền: <code>AiService.backfillAsync()</code> gắn nhãn cảm xúc cho bài cũ, và luồng <code>story-cleaner</code> chạy mỗi 30 phút dọn Tin hết hạn.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 2 — Đăng nhập (<code>AuthController.java:83</code> handleLogin)</p>
+  <ol class="flow">
+    <li>Đọc email, mật khẩu. <code>userDAO.findByEmail(email)</code> tìm người dùng.</li>
+    <li><code>PasswordUtil.verifyPassword</code> so mật khẩu với chuỗi băm <b>BCrypt cost 12</b> trong cột <code>password_hash</code>. DB không bao giờ lưu mật khẩu gốc; BCrypt tự sinh salt nên cùng mật khẩu ra hash khác nhau.</li>
+    <li>Tài khoản bị khóa (<code>isLocked()</code>) → báo lỗi kèm lý do admin ghi.</li>
+    <li><code>startSession</code> (dòng 128): hủy session cũ rồi tạo session mới, chống <b>session fixation</b>. Lưu <code>currentUser</code> vào session (sống 24 giờ).</li>
+    <li>Nếu đăng nhập từ thiết bị chưa dùng trong 30 ngày → <code>NotificationService.loginFromDevice</code> gửi thông báo bảo mật.</li>
+    <li>Chuyển về trang người dùng định vào trước đó (<code>redirectAfterLogin</code>) hoặc <code>/feed</code>.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 3 — Mỗi request sau khi đăng nhập (<code>AuthFilter.java:27</code>)</p>
+  <ol class="flow">
+    <li>Không có <code>currentUser</code> trong session → về <code>/login</code> (nếu là fetch/AJAX thì trả 401 JSON).</li>
+    <li>Đọc lại user từ DB <b>mỗi request</b> theo khóa chính. Bị admin khóa → hủy phiên ngay ở request kế tiếp.</li>
+    <li>So <code>passwordHash</code> trong session với DB: mật khẩu vừa đổi ở nơi khác → đăng xuất phiên cũ.</li>
+    <li>Đặt <code>authUser</code> (bản mới từ DB, AdminFilter dùng lại) và <code>csrfToken</code> vào request.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 4 — Đăng bài (<code>FeedController.java:296</code> handleCreatePost)</p>
+  <ol class="flow">
+    <li>Form gửi <b>multipart</b> (<code>@MultipartConfig</code>: video tối đa 100 MB). Kiểm tra nội dung không rỗng.</li>
+    <li>Đăng vào nhóm: <code>GroupPermission.canPost</code> đọc DB xem có phải thành viên ACTIVE, không tin <code>groupId</code> từ client.</li>
+    <li>Mỗi bài chỉ ảnh <i>hoặc</i> video. <code>UploadUtil.saveImage</code> kiểm tra <b>magic bytes</b> (byte đầu file) để biết đúng là JPG/PNG thật, rồi upload lên <b>Cloudinary</b>, nhận lại <code>secure_url</code>.</li>
+    <li>Ghi file trước, INSERT sau: <code>postDAO.createPost(p)</code>. Nếu INSERT lỗi thì xóa file vừa upload để không còn file mồ côi.</li>
+    <li><code>AiService.analyzePostAsync</code> phân tích cảm xúc ở luồng nền (người đăng không phải chờ). Bài trong nhóm → <code>NotificationService.notifyMany</code> báo cho thành viên.</li>
+    <li>Trả JSON <code>{"success":true,"postId":...}</code>; JavaScript chèn bài lên đầu trang, không tải lại trang.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 5 — Ai được xem bài nào (<code>PostDAOImpl.java:38</code> hằng <code>VISIBLE</code>)</p>
+  <div class="prose" style="font-size:14px">
+    <p>Đây là <b>nơi duy nhất</b> định nghĩa quyền xem bài, được ghép vào mọi truy vấn (Bảng tin, hashtag, video, tìm kiếm…). Một bài hiển thị khi:</p>
+    <ul class="tight">
+      <li>admin chưa ẩn/xóa (<code>moderationStatus = 'ACTIVE'</code>), chủ bài chưa tự ẩn, và hai người không chặn nhau;</li>
+      <li>bài cá nhân: công khai, hoặc của chính mình, hoặc của bạn bè (subquery <code>friendIdsOfMe</code>);</li>
+      <li>bài trong nhóm: chỉ khi mình đang là thành viên ACTIVE của nhóm.</li>
+    </ul>
+    <p>Trước khi thích hay bình luận, controller gọi <code>postDAO.canView(postId, uid)</code> (dòng 57). Vì vậy dù sửa <code>postId</code> trên request cũng không tương tác được với bài không được phép xem (chống IDOR).</p>
+  </div>
+
+  <p class="flow-title">Luồng 6 — Thích / xóa bài</p>
+  <ol class="flow">
+    <li><b>Thích</b> (<code>LikeDAOImpl.java:53</code> toggleLike): trong 1 transaction, tìm like cũ; có thì xóa và giảm <code>likeCount</code>, chưa có thì thêm. Trả <code>{"liked","likeCount"}</code> và báo cho chủ bài.</li>
+    <li><b>Xóa</b> (<code>FeedController.java:405</code>): chỉ tác giả hoặc chủ nhóm được xóa. Bài đang bị admin ẩn thì không cho xóa (giữ làm bằng chứng). <code>PostDAOImpl.deletePost</code> (dòng 228) xóa lần lượt comments → likes → saved_posts → post trong <b>một transaction</b> (đúng thứ tự khóa ngoại), lỗi thì <code>rollback</code>. Cuối cùng xóa file trên Cloudinary ở luồng nền.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 7 — Bảng tin “Dành cho bạn” (<code>RecommendationService.java:126</code> rankFeed)</p>
+  <div class="prose" style="font-size:14px">
+    <p><code>FeedController.doGet</code> chạy song song các truy vấn độc lập bằng <code>DbParallel</code> (6 luồng) vì mỗi lượt tới DB cloud tốn ~0,1–0,2 giây. Sau đó chấm điểm từng bài:</p>
+    <p><code>điểm = 3·e<sup>−giờ/36</sup> + 1,2·ln(1+thân thiết) + 0,8·ln(1+tương tác) + sở thích hashtag + 0,6·xu hướng (+0,3 nếu bài nhóm)</code></p>
+    <p>Trong đó: tương tác = thích + 2×bình luận + 3×chia sẻ. Bài mình vừa đăng dưới 2 giờ được cộng 4 để luôn nằm đầu. Mỗi bài kèm lý do, ví dụ “Vì bạn hay tương tác với…”.</p>
+  </div>
+
+  <h3>Câu hỏi cô có thể hỏi Người 1</h3>
+  <div class="qa">
+    <div class="q"><h4>Mật khẩu lưu thế nào? Vì sao không dùng MD5/SHA?</h4><p>Lưu hash BCrypt cost 12 (<code>PasswordUtil</code>). BCrypt có salt ngẫu nhiên và cố ý chậm (khoảng nửa giây mỗi lần kiểm tra) nên dò mật khẩu hàng loạt rất tốn kém. MD5/SHA quá nhanh và không có salt mặc định.</p></div>
+    <div class="q"><h4>Session fixation là gì, em xử lý ở đâu?</h4><p>Kẻ tấn công gài sẵn một session id cho nạn nhân rồi chờ nạn nhân đăng nhập. <code>startSession</code> gọi <code>old.invalidate()</code> rồi tạo session mới nên id cũ vô dụng.</p></div>
+    <div class="q"><h4>Admin khóa tài khoản thì người đó bị đăng xuất lúc nào?</h4><p>Ngay request kế tiếp: <code>AuthFilter</code> đọc lại user từ DB mỗi request, thấy LOCKED thì hủy session. WebSocket cũng bị đóng ngay (phần của Người 2).</p></div>
+    <div class="q"><h4>Quên mật khẩu hoạt động thế nào?</h4><p><code>ForgotPasswordController</code> gồm 3 bước: nhập email → gửi mã OTP 6 số sinh bằng <code>SecureRandom</code>, session chỉ lưu bản băm SHA-256, hiệu lực 5 phút, sai 5 lần thì hủy mã → đặt mật khẩu mới. Có giới hạn 60 giây/lần gửi, 5 mã/email/giờ. Mọi POST đều redirect về GET (mẫu PRG) để tải lại trang không gửi lại email.</p></div>
+    <div class="q"><h4>JPA khác JDBC thế nào? Transaction ở đâu?</h4><p>JPA ánh xạ bảng thành object (<code>@Entity</code>), viết truy vấn bằng JPQL theo tên class/thuộc tính. Hibernate sinh SQL cho MySQL. Transaction mở bằng <code>em.getTransaction().begin()</code>, <code>commit()</code>, lỗi thì <code>rollback()</code> (xem <code>deletePost</code>).</p></div>
+    <div class="q"><h4>File ảnh/video lưu ở đâu? Vì sao không lưu trong project?</h4><p>Lưu trên Cloudinary (CDN). DB chỉ lưu URL. Lưu trong thư mục webapp thì mỗi lần deploy lại sẽ mất file, và các máy trong nhóm không dùng chung được. Khi hiển thị, <code>MediaUrl</code> đổi URL thành <code>/cdn/...</code>, <code>CloudMediaController</code> chuyển hướng 301 về <code>res.cloudinary.com</code>.</p></div>
+    <div class="q"><h4>Kiểm tra định dạng file thế nào, có tin đuôi file không?</h4><p>Không tin đuôi file hay Content-Type do trình duyệt gửi. <code>detectImageExtension</code> đọc magic bytes (vd PNG bắt đầu bằng <code>89 50 4E 47</code>); mô hình 3D phải bắt đầu bằng <code>glTF</code>.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ NGƯỜI 2 -->
+<section id="nguoi2" class="member mb">
+  <h2>Người 2 — Realtime, Chat, Bạn bè &amp; Quản trị<small>Chủ chốt. Demo hai trình duyệt và phần Admin</small></h2>
+  <div class="scope">
+    <div><b>WebSocket</b><code>RealtimeEndpoint</code>, <code>RealtimeHub</code>, <code>Live</code>, <code>ChatLive</code>, <code>Presence</code>, <code>assets/js/realtime.js</code></div>
+    <div><b>Chat</b><code>ChatController</code>, <code>ChatService</code>, <code>MessageDAOImpl</code>, <code>ConversationDAOImpl</code></div>
+    <div><b>Thông báo &amp; Bạn bè</b><code>NotificationService</code>, <code>RelationService</code>, <code>FriendshipDAOImpl</code>, <code>FriendsController</code></div>
+    <div><b>Quản trị</b><code>AdminFilter</code>, <code>AdminController</code>, <code>AdminLogDAO</code>, <code>ReportDAOImpl</code></div>
+  </div>
+
+  <p class="flow-title">Luồng 1 — Kết nối WebSocket (<code>RealtimeEndpoint.java</code>)</p>
+  <ol class="flow">
+    <li>Mỗi tab đã đăng nhập mở một kết nối <code>ws://…/uterspace/ws</code> (<code>realtime.js</code>), tự nối lại khi mất mạng.</li>
+    <li><b>Bắt tay</b> (<code>AuthConfigurator.modifyHandshake</code>, dòng 39): đọc <code>currentUser</code> từ HttpSession qua cookie JSESSIONID, chép <code>userId</code> vào kết nối.</li>
+    <li><code>onOpen</code> (dòng 60): chưa đăng nhập, tài khoản bị khóa, hoặc mật khẩu đã đổi → đóng với mã 1008. Hợp lệ thì <code>RealtimeHub.register(uid, session)</code>.</li>
+    <li><code>RealtimeHub</code> giữ <code>ConcurrentHashMap&lt;userId, Set&lt;Session&gt;&gt;</code>: một người mở nhiều tab thì có nhiều session. Mỗi session có một hàng đợi gửi riêng (<code>lane</code>) để tin tới đúng thứ tự.</li>
+    <li>Trình duyệt chỉ được gửi lên 2 loại tin: <code>ping</code> (mỗi 25 giây, để biết đang online) và <code>typing</code> (đang gõ). Mọi thao tác ghi dữ liệu vẫn đi qua HTTP POST có kiểm quyền và CSRF. WebSocket chỉ dùng để <b>đẩy xuống</b>.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 2 — Gửi tin nhắn (<code>ChatController.java:368</code> → <code>ChatService.java:71</code>)</p>
+  <ol class="flow">
+    <li><code>ChatService.require(conversationId, uid)</code> kiểm tra người gửi là <b>thành viên</b> hội thoại, nếu không thì 403 (chặn đọc trộm bằng cách đổi id).</li>
+    <li><code>sendDeniedReason</code>: chặn nhau thì không được gửi; người nhận cài “chỉ bạn bè nhắn tin” thì người lạ không gửi được. Tin dài tối đa 4000 ký tự.</li>
+    <li><code>MessageDAOImpl.send</code> (dòng 107): trình duyệt gửi kèm <code>clientId</code> ngẫu nhiên. DB có UNIQUE <code>(sender_id, client_id)</code> nên mạng chập chờn gửi lại 2 lần vẫn chỉ lưu 1 tin (<b>idempotent</b>). Cập nhật <code>lastMessageTime</code> và mốc đã đọc của người gửi trong cùng transaction.</li>
+    <li><code>afterSend</code>: <code>ChatLive.message</code> đẩy tin tới mọi tab của mọi thành viên. Người nhận đang online → đánh dấu <b>đã nhận</b> và báo lại cho người gửi.</li>
+    <li><code>NotificationService.messageReceived</code> gộp thông báo: mỗi hội thoại chưa đọc chỉ có 1 thông báo kiểu “đã gửi 3 tin nhắn mới”. <code>Live.badges</code> cập nhật số trên biểu tượng.</li>
+    <li>Người nhận mở hội thoại → <code>POST /chat/read</code> → <code>ChatService.read</code> → người gửi thấy “Đã xem”. Sửa tin được trong 15 phút, có thu hồi, thả cảm xúc, ghim, nhóm chat từ 3 người.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 3 — Tạo thông báo (<code>NotificationService.java:33</code> notify)</p>
+  <div class="prose" style="font-size:14px">
+    <p>Mọi controller tạo thông báo qua hàm này, không gọi thẳng DAO, để luôn áp đủ 5 quy tắc: (1) không tự báo cho chính mình, (2) bỏ qua nếu hai người chặn nhau, (3) tôn trọng cài đặt tắt loại thông báo đó, (4) lưu DB rồi đẩy realtime qua <code>Live.notification</code>, (5) gộp thông báo tin nhắn. Trường <code>refKey</code> (vd <code>fr:12</code>) dùng để gỡ thông báo lời mời khi lời mời đã được trả lời.</p>
+  </div>
+
+  <p class="flow-title">Luồng 4 — Kết bạn (<code>RelationService.java:106</code> request)</p>
+  <ol class="flow">
+    <li><code>statusOf</code> trả về một trong 7 trạng thái: SELF, NONE, SENT, RECEIVED, FRIEND, BLOCKED, BLOCKED_BY.</li>
+    <li><code>requestDeniedReason</code> kiểm tra cài đặt người nhận: “không ai được mời” hoặc “chỉ bạn của bạn bè”.</li>
+    <li><code>FriendshipDAOImpl.sendRequest</code> (dòng 239): nếu người kia đã mời mình trước → tự chấp nhận luôn (<code>AUTO_ACCEPTED</code>). Bảng <code>friendships</code> có UNIQUE trên cặp <code>(user_lo, user_hi)</code> (cột tự tính = id nhỏ, id lớn) nên A mời B và B mời A cùng lúc vẫn chỉ ra 1 dòng; bên thua bắt <code>PersistenceException</code> rồi đọc lại trạng thái.</li>
+    <li><code>sync(...)</code> đẩy sự kiện tới <b>cả hai người</b> để nút trạng thái ở mọi tab tự đổi mà không tải lại trang.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 5 — Quản trị: khóa tài khoản và xử lý báo cáo</p>
+  <ol class="flow">
+    <li><code>AdminFilter</code> chạy sau AuthFilter, kiểm tra <code>authUser.isAdmin()</code> bằng dữ liệu mới đọc từ DB, không tin role trong session. Vì vậy hạ quyền admin có hiệu lực ngay ở request kế tiếp. POST <code>/admin/*</code> còn phải qua <code>CsrfFilter</code>.</li>
+    <li><b>Khóa</b> (<code>AdminController.java:271</code> lockUser → <code>doLock</code> dòng 284): <code>lockDeniedReason</code> (dòng 291) chặn tự khóa mình và khóa admin khác. Cập nhật <code>status = LOCKED</code> kèm lý do, <code>RealtimeHub.closeUser</code> cắt WebSocket ngay, AuthFilter đá phiên HTTP ở request kế tiếp.</li>
+    <li><b>Báo cáo</b> (<code>resolveReport</code> dòng 316): báo cáo được gom theo đối tượng (1 thẻ = 1 bài/bình luận/tài khoản bị nhiều người báo cáo). Xử lý: bài → ẩn (khôi phục được), bình luận → xóa, tài khoản → khóa. “Bỏ qua” thì đóng báo cáo.</li>
+    <li>Mọi thao tác ghi vào <code>admin_logs</code> qua <code>log(...)</code> (dòng 438) kèm IP. Nhật ký không thể sửa hay xóa từ giao diện.</li>
+  </ol>
+
+  <h3>Câu hỏi cô có thể hỏi Người 2</h3>
+  <div class="qa">
+    <div class="q"><h4>Vì sao dùng WebSocket mà không gọi AJAX liên tục (polling)?</h4><p>Polling phải hỏi máy chủ mỗi vài giây, tốn tài nguyên và vẫn trễ. WebSocket giữ 1 kết nối hai chiều, máy chủ đẩy sự kiện ngay khi có. Trang vẫn có <code>/api/pulse</code> và <code>/chat/messages</code> làm phương án dự phòng khi WebSocket rớt.</p></div>
+    <div class="q"><h4>WebSocket xác thực người dùng thế nào?</h4><p>Lúc bắt tay, trình duyệt gửi kèm cookie phiên; <code>modifyHandshake</code> lấy HttpSession để biết userId. Không có phiên thì đóng kết nối với mã 1008.</p></div>
+    <div class="q"><h4>“Đang online” tính thế nào?</h4><p><code>Presence</code> ghi lần ping cuối. Trong vòng 90 giây thì coi là online. Người dùng tắt “hiện trạng thái hoạt động” trong cài đặt thì không ai thấy.</p></div>
+    <div class="q"><h4>Hai người cùng bấm kết bạn một lúc có bị trùng không?</h4><p>Không. Có ràng buộc UNIQUE cặp <code>(user_lo, user_hi)</code> ở DB và xử lý <code>AUTO_ACCEPTED</code> trong <code>sendRequest</code>.</p></div>
+    <div class="q"><h4>Làm sao biết người dùng không đọc được tin nhắn của hội thoại khác?</h4><p>Mọi endpoint chat đều gọi <code>ChatService.require</code> / <code>requireMessage</code>: truy vấn <code>getForMember(conversationId, uid)</code> chỉ trả hội thoại khi uid là thành viên.</p></div>
+    <div class="q"><h4>Phân quyền admin có mấy lớp?</h4><p>3 lớp: AuthFilter (đã đăng nhập, chưa bị khóa) → AdminFilter (role ADMIN đọc từ DB) → CsrfFilter (token hợp lệ cho POST). Trong controller còn kiểm tra thêm: không tự khóa mình, không khóa admin khác.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ NGƯỜI 3 -->
+<section id="nguoi3" class="member mc">
+  <h2>Người 3 — Nhóm, Tin (Story), Báo cáo &amp; Cài đặt<small>Hỗ trợ. 2 lượt demo: phút 12 và phút 16</small></h2>
+  <div class="scope">
+    <div><b>Nhóm</b><code>GroupsController</code>, <code>GroupPermission</code>, <code>GroupDAOImpl</code></div>
+    <div><b>Tin</b><code>StoryController</code>, <code>StoryDAOImpl</code>, luồng <code>story-cleaner</code></div>
+    <div><b>Báo cáo</b><code>ReportController</code>, <code>Report</code></div>
+    <div><b>Cài đặt</b><code>SettingsController</code>, <code>ContentFilter</code>, <code>UserSettings</code></div>
+  </div>
+
+  <p class="flow-title">Luồng 1 — Tham gia nhóm và phân quyền (<code>GroupsController.java:134</code> doPost)</p>
+  <ol class="flow">
+    <li>Mọi thao tác đọc lại vai trò từ DB: <code>GroupPermission.membershipOf(gid, uid)</code>. Không tin vai trò do client gửi.</li>
+    <li><b>Tham gia</b> (<code>join</code> dòng 179 → <code>GroupDAOImpl.join</code> dòng 176): nhóm công khai → ACTIVE ngay; nhóm kín → PENDING và báo cho chủ nhóm. Khóa chính kép <code>(group_id, user_id)</code> nên bấm 2 lần cũng chỉ có 1 dòng; người bị xóa khỏi nhóm không xin vào lại được.</li>
+    <li>Các việc duyệt, xóa thành viên, sửa nhóm, chuyển quyền, giải tán: kiểm tra <code>GroupPermission.isOwner(mine)</code> trước, nếu không phải chủ nhóm thì 403.</li>
+    <li>Chủ nhóm không rời nhóm được; phải chuyển quyền cho người khác trước.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 2 — Tin 24 giờ (<code>StoryController.java:207</code> create)</p>
+  <ol class="flow">
+    <li>Ảnh tối đa 10 MB, video MP4/WEBM tối đa 50 MB và 60 giây, chú thích 200 ký tự, tối đa 15 tin trong 24 giờ.</li>
+    <li>Ai xem được: chính chủ và bạn bè (<code>StoryDAOImpl.canViewStoriesOf</code>). Tin quá 24 giờ bị lọc ngay trong truy vấn.</li>
+    <li>Xem → ghi vào <code>story_views</code>, chủ tin thấy danh sách người xem; thả tim → <code>story_reactions</code> + thông báo; trả lời tin → gửi thành tin nhắn riêng.</li>
+    <li>Luồng nền <code>story-cleaner</code> (trong <code>AppContextListener</code>) chạy 30 phút/lần: người bật “Lưu trữ tin” thì giữ lại trong kho; người tắt thì xóa bản ghi và file.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 3 — Báo cáo vi phạm (<code>ReportController.java</code> doPost)</p>
+  <ol class="flow">
+    <li>Kiểm tra lý do nằm trong danh sách hợp lệ <code>Report.REASONS</code>.</li>
+    <li>Chống IDOR: chỉ báo cáo được bài/bình luận mình <b>được phép xem</b> (<code>postDAO.canView</code>), không báo cáo nội dung của chính mình.</li>
+    <li>Mỗi người chỉ báo cáo một đối tượng một lần (UNIQUE trong DB). Lần sau trả thông báo thân thiện, không lỗi.</li>
+    <li>Báo cáo vào hàng đợi trang Quản trị. Từ đây chuyển lời cho Người 2.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 4 — Cài đặt quyền riêng tư</p>
+  <div class="prose" style="font-size:14px">
+    <p><code>SettingsController</code> có các mục: đổi mật khẩu (phải nhập mật khẩu cũ; nếu đã bật vân tay thì phải quét vân tay trong 5 phút gần nhất), quyền riêng tư (ai được mời kết bạn, ai được nhắn tin, hiện online), thông báo, bộ lọc nội dung. <code>ContentFilter.apply</code> (dòng 53) thu gọn bài chứa từ khóa người dùng muốn ẩn, hoặc bài tiêu cực nếu bật “ẩn nội dung tiêu cực”.</p>
+  </div>
+
+  <h3>Câu hỏi cô có thể hỏi Người 3</h3>
+  <div class="qa">
+    <div class="q"><h4>Nhóm kín và nhóm công khai khác nhau thế nào trong code?</h4><p><code>GroupPermission.canViewPosts</code>: nhóm công khai ai cũng xem được bài; nhóm kín chỉ thành viên ACTIVE. Tham gia nhóm kín ở trạng thái PENDING chờ duyệt.</p></div>
+    <div class="q"><h4>Tin tự mất sau 24 giờ bằng cách nào?</h4><p>Hai lớp: truy vấn chỉ lấy tin có thời gian tạo trong 24 giờ, và luồng nền <code>ScheduledExecutorService</code> chạy 30 phút/lần dọn tin hết hạn (<code>purgeExpired</code>).</p></div>
+    <div class="q"><h4>Sửa <code>targetId</code> để báo cáo bài của nhóm kín có được không?</h4><p>Không. <code>canView</code> dùng chung quy tắc VISIBLE: không phải thành viên nhóm kín thì không xem được bài → trả 404.</p></div>
+    <div class="q"><h4>Bấm “Tham gia” hai lần thì sao?</h4><p><code>em.flush()</code> làm lỗi trùng khóa chính nổ ngay; DAO bắt <code>PersistenceException</code>, rollback và trả null → controller báo “đã tham gia hoặc đã gửi yêu cầu”.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ NGƯỜI 4 -->
+<section id="nguoi4" class="member md">
+  <h2>Người 4 — AI, Tìm kiếm &amp; Danh tính số<small>Hỗ trợ. 2 lượt demo: phút 7 và phút 14,5</small></h2>
+  <div class="scope">
+    <div><b>AI</b><code>AiService</code>, <code>SentimentAnalyzer</code>, <code>AiController</code>, <code>LlmClient</code></div>
+    <div><b>Tìm kiếm</b><code>SearchDAO</code>, <code>SearchController</code></div>
+    <div><b>Danh tính số</b><code>DidKey</code>, <code>DidLoginController</code>, <code>SecurityController</code>, <code>assets/js/security.js</code></div>
+    <div><b>Vân tay</b><code>WebAuthnService</code>, <code>StepUp</code> (chỉ cần nắm ý chính)</div>
+  </div>
+
+  <p class="flow-title">Luồng 1 — Phân tích cảm xúc bài viết (<code>AiService.java:85</code> sentiment)</p>
+  <ol class="flow">
+    <li>Sau khi đăng bài, <code>analyzePostAsync</code> đưa việc vào luồng nền <code>ai-sentiment</code>, người đăng không phải chờ.</li>
+    <li>Luôn chạy trước bộ <b>từ điển offline</b> <code>SentimentAnalyzer.analyze</code> (dòng 101): cụm từ có trọng số +3..−3, nhận cả chữ không dấu, phủ định đảo dấu (“không vui”), từ nhấn mạnh nhân 1,5, emoji có điểm. Tổng điểm chuẩn hóa <code>s / √(s² + 4)</code> về [−1, 1]; ≥ 0,25 là tích cực, ≤ −0,25 là tiêu cực.</li>
+    <li>Nếu có cấu hình API key thì gọi AI (Gemini hoặc Claude qua <code>LlmClient</code>), yêu cầu trả đúng một dòng JSON <code>{"label","score"}</code>. AI lỗi hoặc chưa cấu hình → dùng kết quả từ điển. Giao diện luôn có nhãn.</li>
+    <li>Ghi vào các cột cảm xúc của <code>posts</code>. Bảng tin hiện nhãn; admin lọc được “Tiêu cực (AI)”; người dùng có thể bật ẩn bài tiêu cực.</li>
+    <li><code>AiController</code> còn có viết chú thích, tóm tắt, dịch; giới hạn 40 yêu cầu / 10 phút mỗi người để không lạm dụng hạn mức API.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 2 — Tìm kiếm không dấu (<code>SearchDAO.java</code>)</p>
+  <ol class="flow">
+    <li>Gõ “duc” phải ra “Đức”. Dùng SQL gốc với <code>COLLATE utf8mb4_0900_ai_ci</code>: collation của MySQL 8 bỏ dấu, không phân biệt hoa thường, coi “đ” = “d”.</li>
+    <li>Tìm bài (<code>searchPosts</code> dòng 74): bước 1 SQL lấy tối đa 300 id ứng viên khớp chữ; bước 2 lọc lại bằng JPQL với quy tắc <code>VISIBLE</code>. Tìm kiếm không viết lại quyền xem riêng nên không lộ bài riêng tư.</li>
+    <li>Lịch sử tìm kiếm được lưu (<code>search_history</code>) để gợi ý nội dung.</li>
+  </ol>
+
+  <p class="flow-title">Luồng 3 — Danh tính số DID, đăng nhập không mật khẩu</p>
+  <ol class="flow">
+    <li>Trình duyệt tạo cặp khóa <b>Ed25519</b> bằng WebCrypto, khóa riêng lưu trong IndexedDB của trình duyệt. DID có dạng <code>did:key:z6Mk…</code>, chứa sẵn khóa công khai (<code>DidKey.fromPublicKey</code>, dòng 31).</li>
+    <li><b>Liên kết</b>: máy chủ gửi thông điệp ngẫu nhiên (challenge), trình duyệt ký bằng khóa riêng, máy chủ kiểm tra chữ ký bằng <code>DidKey.verify</code> (dòng 47) rồi lưu DID vào <code>user_dids</code>. Bước này bắt buộc xác thực lại bằng mật khẩu hoặc vân tay (<code>StepUp</code>).</li>
+    <li><b>Đăng nhập</b> (<code>DidLoginController.java:102</code>): <code>/did/challenge</code> → ký → <code>/did/login</code>. Challenge hết hạn sau 3 phút và chỉ dùng một lần. Chữ ký đúng thì gọi lại <code>AuthController.startSession</code> như đăng nhập thường.</li>
+    <li>Máy chủ chỉ giữ khóa công khai, không có bí mật nào của người dùng để bị lộ. Có thể xuất hồ sơ thành tệp có chữ ký số (Verifiable Credential) và kiểm tra công khai ở <code>/did/verify</code>.</li>
+  </ol>
+
+  <h3>Câu hỏi cô có thể hỏi Người 4</h3>
+  <div class="qa">
+    <div class="q"><h4>Không có mạng / hết hạn mức API thì AI có làm web lỗi không?</h4><p>Không. Mọi hàm trong <code>AiService</code> thử AI trước, lỗi hoặc chưa cấu hình thì dùng thuật toán offline. Phân tích chạy ở luồng nền nên đăng bài không bị chậm.</p></div>
+    <div class="q"><h4>Từ điển xử lý “không vui” thế nào?</h4><p>Gặp từ phủ định trong 2 âm tiết đứng trước và cùng mệnh đề thì đảo dấu điểm của “vui” và giảm 20%. Dấu câu cắt mệnh đề nên “có mở cửa không? Cảm ơn!” không bị hiểu nhầm.</p></div>
+    <div class="q"><h4>Tìm không dấu có làm chậm không, có bị SQL injection không?</h4><p>Collation được so khớp ngay trong MySQL. Từ khóa truyền bằng tham số (<code>setParameter</code>), không nối chuỗi vào SQL nên không bị injection.</p></div>
+    <div class="q"><h4>DID an toàn hơn mật khẩu ở điểm nào?</h4><p>Không có mật khẩu để lộ hay đoán. Máy chủ chỉ có khóa công khai; mỗi lần đăng nhập ký một challenge mới (chống phát lại), thông điệp có kèm tên miền nên chữ ký không dùng lại được ở trang khác. Mất khóa thì vẫn đăng nhập bằng mật khẩu.</p></div>
+    <div class="q"><h4>Passkey (vân tay) dùng để làm gì?</h4><p>Xác thực lại trước thao tác nhạy cảm: đổi mật khẩu, mở Album ẩn, liên kết DID. Theo chuẩn WebAuthn: dữ liệu vân tay không rời thiết bị, máy chủ chỉ nhận khóa công khai và chữ ký (<code>WebAuthnService</code>).</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ CÂU HỎI CHUNG -->
+<section id="cau-hoi-chung">
+  <h2>Câu hỏi chung về bảo mật &amp; kỹ thuật<small>Ai bị hỏi cũng phải trả lời được</small></h2>
+  <div class="table-box">
+    <table>
+      <thead><tr><th>Câu hỏi</th><th>Trả lời ngắn</th><th>Chỉ code</th></tr></thead>
+      <tbody>
+        <tr><td><b>Chống SQL injection?</b></td><td>Mọi truy vấn dùng tham số <code>:me</code>, <code>?1</code> + <code>setParameter</code>, không nối chuỗi dữ liệu người dùng vào câu lệnh.</td><td><code>PostDAOImpl.canView</code></td></tr>
+        <tr><td><b>Chống XSS?</b></td><td>JSP in dữ liệu bằng <code>&lt;c:out&gt;</code> (tự escape). JSON escape cả <code>&lt; &gt; &amp;</code> (<code>JsonUtil.str</code>). Tên người dùng cấm ký tự <code>&lt; &gt; " &amp;</code> từ lúc đăng ký.</td><td><code>JsonUtil.java</code>, <code>AuthController.isSafeName</code></td></tr>
+        <tr><td><b>Chống CSRF?</b></td><td>Mỗi phiên có token ngẫu nhiên 32 byte; JSP in vào <code>&lt;meta name="csrf-token"&gt;</code>; fetch gửi header <code>X-CSRF-Token</code>; <code>CsrfFilter</code> so bằng <code>MessageDigest.isEqual</code>, sai thì 403.</td><td><code>CsrfFilter.java</code></td></tr>
+        <tr><td><b>IDOR là gì, xử lý sao?</b></td><td>Đổi id trên request để truy cập dữ liệu người khác. Máy chủ luôn kiểm quyền với dữ liệu đọc từ DB: <code>canView</code>, <code>ChatService.require</code>, <code>GroupPermission</code>.</td><td>như bên trái</td></tr>
+        <tr><td><b>Session lưu gì, sống bao lâu?</b></td><td>Lưu <code>currentUser</code>, token CSRF, mốc xác thực lại. Timeout 24 giờ (<code>web.xml</code> + <code>setMaxInactiveInterval</code>).</td><td><code>web.xml</code></td></tr>
+        <tr><td><b>Interface DAO để làm gì?</b></td><td>Controller chỉ phụ thuộc interface (<code>PostDAO</code>), muốn đổi cách lưu trữ (vd SQL Server → MySQL) chỉ sửa lớp Impl. Nhóm đã thực sự đổi DB sang MySQL trên Aiven.</td><td><code>dao/PostDAO.java</code></td></tr>
+        <tr><td><b>Vì sao trang vẫn nhanh dù DB ở Mỹ?</b></td><td>Pool HikariCP giữ sẵn kết nối, chạy song song truy vấn độc lập (<code>DbParallel</code>), đọc bình luận + trạng thái đã thích của cả trang bằng 1 truy vấn mỗi loại thay vì 1 truy vấn mỗi bài.</td><td><code>CommentDAO.attachComments</code></td></tr>
+        <tr><td><b>CSDL có những bảng nào?</b></td><td>24 bảng: users, posts, comments, likes, saved_posts, friendships, user_blocks, groups_tbl, group_members, conversations, conversation_members, chat_messages, message_reactions, message_hidden, notifications, stories, story_views, story_reactions, reports, admin_logs, user_settings, search_history, webauthn_credentials, user_dids.</td><td><code>db/all_migrations_cloud.sql</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ CHUẨN BỊ -->
+<section id="chuan-bi">
+  <h2>Chuẩn bị trước buổi báo cáo<small>Tick vào để theo dõi trên máy mình (không đồng bộ giữa các máy)</small></h2>
+  <ul class="checks">
+    <li><input type="checkbox" id="c1"><label for="c1">Máy demo có file <code>&lt;Tomcat&gt;/conf/uterspace-cloud.properties</code> đúng tài khoản DB Aiven và Cloudinary. Chạy thử đăng nhập + đăng bài có ảnh trước giờ báo cáo.</label></li>
+    <li><input type="checkbox" id="c2"><label for="c2">Chuẩn bị sẵn 3 tài khoản: 2 tài khoản thường (đã có vài bài viết, chưa là bạn của nhau để demo kết bạn) và 1 tài khoản admin.</label></li>
+    <li><input type="checkbox" id="c3"><label for="c3">Mở sẵn 2 trình duyệt cạnh nhau (Chrome + Edge ẩn danh) để demo realtime.</label></li>
+    <li><input type="checkbox" id="c4"><label for="c4">Mở sẵn IDE với các file trong kịch bản, đặt bookmark ở các dòng đã ghi. Tăng cỡ chữ IDE để cô nhìn rõ.</label></li>
+    <li><input type="checkbox" id="c5"><label for="c5">Mạng trường chậm: phát hotspot điện thoại dự phòng (DB và ảnh đều ở cloud). Quay sẵn video demo ngắn phòng khi mất mạng.</label></li>
+    <li><input type="checkbox" id="c6"><label for="c6">Mỗi người tự nói lại phần của mình trong 2 phút, không nhìn tài liệu. Hai người còn lại đóng vai cô hỏi ngẫu nhiên 3 câu ở mục câu hỏi.</label></li>
+    <li><input type="checkbox" id="c7"><label for="c7">Người 3 và 4 mỗi người thuộc ít nhất 1 hàm để mở và giải thích từng dòng: Người 3 — <code>GroupDAOImpl.join</code>; Người 4 — <code>DidKey.verify</code> hoặc <code>AiService.sentiment</code>.</label></li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="wrap">Tài liệu soạn từ code hiện tại của project UTErSpace. Nếu nhóm sửa code sau ngày 18/10/2026, số dòng có thể lệch vài dòng — tìm theo tên hàm.</div>
+</footer>
+
+<script>
+(function () {
+  // Ghi nhớ các mục đã tick trên trình duyệt này (chỉ tiện ích cá nhân)
+  document.querySelectorAll('.checks input').forEach(function (box) {
+    var key = 'ut-defense-' + box.id;
+    try { box.checked = localStorage.getItem(key) === '1'; } catch (e) {}
+    box.addEventListener('change', function () {
+      try { localStorage.setItem(key, box.checked ? '1' : '0'); } catch (e) {}
+    });
+  });
+})();
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+
+</body></html>

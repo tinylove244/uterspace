@@ -254,15 +254,15 @@ public class MessageDAOImpl implements MessageDAO {
     public List<ChatMessage> search(int conversationId, int viewerId, String query, int limit) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            // Lọc chữ không dấu bằng SQL gốc (COLLATE Latin1_General_100_CI_AI coi "đ" = "d", giống SearchDAO)
+            // Lọc chữ không dấu bằng SQL gốc (COLLATE utf8mb4_0900_ai_ci coi "đ" = "d", giống SearchDAO)
             @SuppressWarnings("unchecked")
             List<Number> ids = em.createNativeQuery(
                     "SELECT m.message_id FROM chat_messages m " +
                     "JOIN conversation_members cm ON cm.conversation_id = m.conversation_id AND cm.user_id = ?2 " +
                     "WHERE m.conversation_id = ?1 AND m.message_id > cm.cleared_message_id AND m.recalled_at IS NULL " +
                     "AND m.message_type = 'TEXT' " +
-                    "AND (m.content COLLATE Latin1_General_100_CI_AI LIKE ?3 ESCAPE '!' " +
-                    "     OR m.attachment_name COLLATE Latin1_General_100_CI_AI LIKE ?3 ESCAPE '!') " +
+                    "AND (m.content COLLATE utf8mb4_0900_ai_ci LIKE ?3 ESCAPE '!' " +
+                    "     OR m.attachment_name COLLATE utf8mb4_0900_ai_ci LIKE ?3 ESCAPE '!') " +
                     "AND NOT EXISTS (SELECT 1 FROM message_hidden h WHERE h.message_id = m.message_id AND h.user_id = ?2) " +
                     "ORDER BY m.message_id DESC")
                 .setParameter(1, conversationId).setParameter(2, viewerId).setParameter(3, SearchDAO.likePattern(query))

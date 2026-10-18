@@ -7,7 +7,10 @@ import com.uterspace.util.JPAUtil;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** CommentDAOImpl — Implementation của CommentDAO dùng JPA */
 public class CommentDAOImpl implements CommentDAO {
@@ -22,6 +25,33 @@ public class CommentDAOImpl implements CommentDAO {
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public void attachComments(List<Post> posts) {
+        if (posts.isEmpty()) return;
+        Map<Integer, List<Comment>> byPost = new HashMap<>();
+        for (Post p : posts) byPost.put(p.getPostId(), new ArrayList<>());
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            for (List<Integer> ids : chunks(new ArrayList<>(byPost.keySet()))) {
+                List<Object[]> rows = em.createQuery("SELECT c, c.post.postId FROM Comment c JOIN FETCH c.author " +
+                                                     "WHERE c.post.postId IN :ids ORDER BY c.createdAt ASC", Object[].class)
+                                        .setParameter("ids", ids)
+                                        .getResultList();
+                for (Object[] r : rows) byPost.get((Integer) r[1]).add((Comment) r[0]);
+            }
+        } finally {
+            em.close();
+        }
+        for (Post p : posts) p.setComments(byPost.get(p.getPostId()));
+    }
+
+    /** Chia danh sách id thành lô 1000 — giữ câu IN (...) ngắn (viết từ thời SQL Server: tối đa 2100 tham số / câu) */
+    static List<List<Integer>> chunks(List<Integer> ids) {
+        List<List<Integer>> out = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i += 1000) out.add(ids.subList(i, Math.min(i + 1000, ids.size())));
+        return out;
     }
 
     @Override
