@@ -45,7 +45,7 @@
                   <c:otherwise><c:out value="${u.initials}"/></c:otherwise>
                 </c:choose></span>
                 <div>
-                  <a class="name" href="${ctx}/profile?userId=${u.userId}" target="_blank" rel="noopener"><c:out value="${u.fullName}"/></a><c:if test="${didUsers.contains(u.userId)}"><span class="did-tag" title="Đã liên kết danh tính số (DID)"><svg class="icon" aria-hidden="true"><use href="#i-check-badge"></use></svg><span class="u-sr">Đã liên kết danh tính số</span></span></c:if><c:if test="${u.userId == me.userId}"><span class="you-tag">Bạn</span></c:if>
+                  <a class="name" href="<c:url value='/admin/users'><c:param name='q' value='${u.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${u.fullName}"/></a><c:if test="${didUsers.contains(u.userId)}"><span class="did-tag" title="Đã liên kết danh tính số (DID)"><svg class="icon" aria-hidden="true"><use href="#i-check-badge"></use></svg><span class="u-sr">Đã liên kết danh tính số</span></span></c:if><c:if test="${u.userId == me.userId}"><span class="you-tag">Bạn</span></c:if>
                   <div class="email"><c:out value="${u.email}"/></div>
                 </div>
               </div>

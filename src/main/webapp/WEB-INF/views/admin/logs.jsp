@@ -38,7 +38,7 @@
             <td class="nowrap"><div class="user-cell"><span class="avatar avatar--sm"><c:out value="${l.admin.initials}"/></span><c:out value="${l.admin.fullName}"/></div></td>
             <td class="nowrap"><span class="tag ${l.actionTone == 'ok' ? 'ok' : 'danger'}"><svg class="icon" aria-hidden="true"><use href="#i-${l.actionIcon}"></use></svg><c:out value="${l.actionLabel}"/></span></td>
             <td class="nowrap"><c:choose>
-              <c:when test="${l.targetType == 'USER'}"><a href="${ctx}/profile?userId=${l.targetId}" target="_blank" rel="noopener"><c:out value="${l.targetLabel}"/></a></c:when>
+              <c:when test="${l.targetType == 'USER'}"><c:out value="${l.targetLabel}"/></c:when>
               <c:otherwise><c:out value="${l.targetLabel}"/></c:otherwise>
             </c:choose></td>
             <td style="max-width:360px; overflow-wrap:anywhere"><c:out value="${empty l.detail ? '—' : l.detail}"/></td>

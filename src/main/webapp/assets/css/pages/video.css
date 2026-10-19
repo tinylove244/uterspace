@@ -7,6 +7,7 @@
 
 .reels {
   height: calc(100vh - 250px);
+  height: calc(100dvh - 250px);
   min-height: 460px;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
@@ -22,6 +23,8 @@
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 64px;
+  /* Hàng cao đúng bằng khung cuộn, không bị video to kéo giãn */
+  grid-template-rows: minmax(0, 1fr);
   gap: 12px;
   padding-bottom: 12px;
 }
@@ -29,19 +32,24 @@
 /* ---------- Khung video ---------- */
 .reel-stage {
   position: relative;
+  height: 100%;
   min-height: 0;
   border-radius: var(--r-lg);
-  background: #0B1220;
+  background: #000;
   overflow: hidden;
   display: grid;
   place-items: center;
 }
+/* Video đặt tuyệt đối phủ kín khung: kích thước gốc của file (vd 1080×1920) không còn kéo khung cao quá màn hình.
+   object-fit: contain thu cả khung hình vào vừa khung, dư bên nào thì nền đen bên đó */
 .reel-video,
 .reel-poster {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: #0B1220;
+  background: #000;
 }
 .reel-poster { object-fit: cover; opacity: .55; }
 
@@ -141,7 +149,7 @@
 .reel-stage .video-missing { position: absolute; }
 
 @media (max-width: 680px) {
-  .reels { height: calc(100vh - 210px); }
+  .reels { height: calc(100vh - 210px); height: calc(100dvh - 210px); }
   .reel { grid-template-columns: minmax(0, 1fr); }
   .reel-actions { flex-direction: row; justify-content: center; padding-bottom: 0; }
 }

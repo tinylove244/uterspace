@@ -327,6 +327,33 @@
     return m;
   }
 
+  /* Gom tin kiểu Messenger: tin liên tiếp của cùng một người dính thành một khối chỉ khi gửi sát nhau.
+     Cách nhau từ CLUSTER_GAP_MIN phút → bắt đầu khối mới (hiện lại tên, giờ); từ TIME_SEP_MIN phút → thêm dòng giờ ở giữa. */
+  var CLUSTER_GAP_MIN = 5;
+  var TIME_SEP_MIN = 15;
+
+  /** Thời điểm gửi (ms) theo giờ máy: tin đang gửi = bây giờ; tin đã lưu ghép từ date (yyyy-MM-dd) + time (HH:mm) */
+  function sentMs(m) {
+    if (m.pending || !m.date || !m.time) return Date.now();
+    var t = new Date(m.date + 'T' + m.time + ':00').getTime();
+    return isNaN(t) ? Date.now() : t;
+  }
+  /** Ngày hôm nay yyyy-MM-dd theo giờ máy (toISOString là giờ UTC → 0h–7h sáng ở VN bị lùi một ngày) */
+  function localDate() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function gapMinutes(a, b) { return Math.abs(sentMs(b) - sentMs(a)) / 60000; }
+
+  /** a và b (liền nhau) có nằm chung một khối không */
+  function sameCluster(a, b) {
+    if (!a || !b) return false;
+    if (a.senderId !== b.senderId || a.type === 'SYSTEM' || b.type === 'SYSTEM') return false;
+    if (a.pending && b.pending) return true;
+    if ((a.date || '') !== (b.date || '') && !a.pending && !b.pending) return false;
+    return gapMinutes(a, b) < CLUSTER_GAP_MIN;
+  }
+
   function dayLabel(date) {
     if (!date) return '';
     var d = new Date(date + 'T00:00:00'), today = new Date();
@@ -355,12 +382,11 @@
     }
     var lastDay = null;
     S.msgs.forEach(function (m, i) {
-      var day = m.date || (m.pending ? new Date().toISOString().slice(0, 10) : null);
-      if (day && day !== lastDay) { ol.appendChild(el('li', 'day-sep', dayLabel(day))); lastDay = day; }
+      var day = m.date || (m.pending ? localDate() : null);
       var prev = S.msgs[i - 1], next = S.msgs[i + 1];
-      var sameAsPrev = prev && prev.senderId === m.senderId && prev.type !== 'SYSTEM' && (prev.date === m.date || prev.pending);
-      var sameAsNext = next && next.senderId === m.senderId && next.type !== 'SYSTEM' && (next.date === m.date || next.pending);
-      ol.appendChild(renderMessage(m, !sameAsPrev, !sameAsNext));
+      if (day && day !== lastDay) { ol.appendChild(el('li', 'day-sep', dayLabel(day))); lastDay = day; }
+      else if (prev && gapMinutes(prev, m) >= TIME_SEP_MIN) ol.appendChild(el('li', 'time-sep', m.time || ''));
+      ol.appendChild(renderMessage(m, !sameCluster(prev, m), !sameCluster(m, next)));
     });
     renderStatusLine();
     $('history-loader').hidden = !S.hasMore;
@@ -585,7 +611,7 @@
     var m = {
       id: 'p-' + clientId, clientId: clientId, pending: true, seq: ++seq,
       conversationId: S.conv.id, type: 'TEXT', senderId: ME, content: text,
-      date: new Date().toISOString().slice(0, 10), reactions: [],
+      date: localDate(), reactions: [],
       reply: S.replyTo ? { id: S.replyTo.id, senderName: S.replyTo.senderName, preview: S.replyTo.content || '📎 Tệp đính kèm', recalled: false } : null,
       replyToId: S.replyTo ? S.replyTo.id : null,
       file: S.file ? S.file.file : null,

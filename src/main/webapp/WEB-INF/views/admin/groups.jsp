@@ -38,7 +38,7 @@
                   <c:otherwise><c:out value="${g.iconDisplay}"/></c:otherwise>
                 </c:choose></span>
                 <div style="min-width:0">
-                  <a class="name" href="${ctx}/groups/view?id=${g.groupId}" target="_blank" rel="noopener"><c:out value="${g.name}"/></a>
+                  <a class="name" href="<c:url value='/admin/groups'><c:param name='q' value='${g.name}'/></c:url>" title="Xem trong Quản lý nhóm"><c:out value="${g.name}"/></a>
                   <div class="email"><c:out value="${empty g.description ? 'Chưa có mô tả' : g.description}"/></div>
                 </div>
               </div>
@@ -46,7 +46,7 @@
             <td class="nowrap"><span class="tag violet"><c:out value="${g.categoryLabel}"/></span>
               <span class="tag ${g.privateGroup ? 'warn' : 'muted'}"><svg class="icon" aria-hidden="true"><use href="#i-${g.privateGroup ? 'lock' : 'globe'}"></use></svg><c:out value="${g.privacyLabel}"/></span></td>
             <td><c:choose>
-              <c:when test="${not empty g.owner}"><a href="${ctx}/profile?userId=${g.owner.userId}" target="_blank" rel="noopener"><c:out value="${g.owner.fullName}"/></a></c:when>
+              <c:when test="${not empty g.owner}"><a href="<c:url value='/admin/users'><c:param name='q' value='${g.owner.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${g.owner.fullName}"/></a></c:when>
               <c:otherwise><span class="muted">—</span></c:otherwise>
             </c:choose></td>
             <td>${g.memberCount}</td>

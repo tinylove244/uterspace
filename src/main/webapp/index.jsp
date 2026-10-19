@@ -2,10 +2,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   index.jsp — Entry point của ứng dụng.
-  Logic: Nếu đã login (có session currentUser) → redirect /feed
+  Logic: Nếu đã login (có session currentUser) → redirect /feed (tài khoản quản trị → /admin)
          Nếu chưa login → redirect /login
 --%>
 <c:choose>
+  <c:when test="${not empty sessionScope.currentUser and sessionScope.currentUser.admin}">
+    <c:redirect url="/admin"/>
+  </c:when>
   <c:when test="${not empty sessionScope.currentUser}">
     <c:redirect url="/feed"/>
   </c:when>

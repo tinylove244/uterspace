@@ -608,8 +608,18 @@ a.hashtag:hover { text-decoration: underline; }
 [data-badge][hidden] { display: none !important; }
 
 /* ---------- Video trong bài viết (common/post-video.jsp) ---------- */
-.post-video { position: relative; background: #0B1220; display: grid; place-items: center; min-height: 180px; }
-.post-video video { display: block; width: 100%; max-height: 520px; background: #0B1220; }
+/* Video dọc hay ngang đều thu vào khung vừa màn hình (không cao quá 70% chiều cao cửa sổ), phần thừa hai bên
+   là nền đen — object-fit: contain giữ nguyên tỉ lệ, không cắt hình */
+.post-video { position: relative; background: #000; display: grid; place-items: center; min-height: 180px; }
+.post-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(520px, 70vh);
+  max-height: min(520px, 70dvh);
+  object-fit: contain;
+  background: #000;
+}
 .post-card:hover .post-video img { transform: none; }
 .post-video > img { opacity: .6; }
 .video-badge {

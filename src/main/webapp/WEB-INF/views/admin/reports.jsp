@@ -39,7 +39,7 @@
       <c:when test="${g.targetType == 'POST'}">
         <div class="reported-content">
           <span class="author">Đăng bởi:
-            <a href="${ctx}/profile?userId=${g.post.author.userId}" target="_blank" rel="noopener"><c:out value="${g.post.author.fullName}"/></a>
+            <a href="<c:url value='/admin/users'><c:param name='q' value='${g.post.author.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${g.post.author.fullName}"/></a>
             <span class="muted">· ${g.post.formattedCreatedAt} · ${g.post.visibilityIcon} ${g.post.visibilityLabel}<c:if test="${not empty g.post.groupId}"> · trong nhóm</c:if></span>
             <c:if test="${g.post.moderationStatus == 'HIDDEN'}"><span class="tag warn"><svg class="icon" aria-hidden="true"><use href="#i-eye-slash"></use></svg>Đang bị ẩn</span></c:if>
           </span>
@@ -51,7 +51,7 @@
       <c:when test="${g.targetType == 'COMMENT'}">
         <div class="reported-content">
           <span class="author">Bình luận bởi:
-            <a href="${ctx}/profile?userId=${g.comment.author.userId}" target="_blank" rel="noopener"><c:out value="${g.comment.author.fullName}"/></a>
+            <a href="<c:url value='/admin/users'><c:param name='q' value='${g.comment.author.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${g.comment.author.fullName}"/></a>
             <span class="muted">· ${g.comment.formattedCreatedAt} · trong bài viết #${g.comment.postId}</span>
           </span>
           <div class="body"><c:out value="${g.comment.content}"/></div>
@@ -64,7 +64,7 @@
               <c:when test="${not empty g.user.avatar}"><img src="${ctx}${g.user.avatarUrl}" alt="" loading="lazy"></c:when>
               <c:otherwise><c:out value="${g.user.initials}"/></c:otherwise>
             </c:choose></span>
-            <a href="${ctx}/profile?userId=${g.user.userId}" target="_blank" rel="noopener"><c:out value="${g.user.fullName}"/></a>
+            <a href="<c:url value='/admin/users'><c:param name='q' value='${g.user.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${g.user.fullName}"/></a>
             <span class="muted">· <c:out value="${g.user.email}"/> · tham gia ${g.user.formattedJoinDate}</span>
             <span class="role-badge ${g.user.admin ? 'admin' : 'user'}">${g.user.admin ? 'ADMIN' : 'USER'}</span>
             <c:if test="${g.user.locked}"><span class="tag danger">Đã khóa</span></c:if>

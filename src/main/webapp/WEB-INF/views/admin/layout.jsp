@@ -61,15 +61,16 @@
     <div class="adm-side-card">
       <b>Đang ở chế độ quản trị</b>
       Mọi thao tác đều được ghi vào nhật ký kèm thời gian và địa chỉ IP.
-      <br><a href="${ctx}/feed"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Về Bảng tin</a>
+      <br><a href="${ctx}/logout"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg> Đăng xuất</a>
     </div>
-    <a class="adm-me" href="${ctx}/profile?userId=${me.userId}">
+    <%-- Tài khoản quản trị không có trang cá nhân / giao diện người dùng (AuthFilter chặn) → chỉ hiển thị --%>
+    <div class="adm-me">
       <span class="avatar"><c:choose>
         <c:when test="${not empty me.avatar}"><img src="${ctx}${me.avatarUrl}" alt=""></c:when>
         <c:otherwise><c:out value="${me.initials}"/></c:otherwise>
       </c:choose></span>
       <span class="adm-me-text"><b><c:out value="${me.fullName}"/></b><small>Quản trị viên</small></span>
-    </a>
+    </div>
   </div>
 </aside>
 <div class="adm-scrim" data-adm-menu></div>
@@ -88,7 +89,7 @@
         <svg class="icon i-moon" aria-hidden="true"><use href="#i-moon"></use></svg>
         <svg class="icon i-sun" aria-hidden="true"><use href="#i-sun"></use></svg>
       </button>
-      <a class="adm-back" href="${ctx}/feed"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg><span class="long">Trang người dùng</span></a>
+      <a class="adm-back" href="${ctx}/logout"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg><span class="long">Đăng xuất</span></a>
     </div>
   </header>
 

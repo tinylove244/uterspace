@@ -56,7 +56,7 @@
                     <c:otherwise><span class="muted">[Không có chữ]</span></c:otherwise>
                   </c:choose></div>
                   <div class="meta">
-                    <a href="${ctx}/profile?userId=${p.author.userId}" target="_blank" rel="noopener"><c:out value="${p.author.fullName}"/></a>
+                    <a href="<c:url value='/admin/users'><c:param name='q' value='${p.author.email}'/></c:url>" title="Xem trong Quản lý người dùng"><c:out value="${p.author.fullName}"/></a>
                     <span>#${p.postId}</span><span>${p.formattedCreatedAt}</span>
                     <c:if test="${p.hiddenByOwner}"><span class="tag muted" title="Chủ bài tự ẩn — chỉ chủ bài đổi được">Chủ bài tự ẩn</span></c:if>
                     <c:if test="${p.negative}"><span class="tag danger" title="Điểm cảm xúc ${p.sentimentScore} — nhận diện bởi ${p.sentimentSource == 'AI' ? 'AI (Gemini / Claude)' : 'từ điển cảm xúc'}"><svg class="icon" aria-hidden="true"><use href="#i-frown"></use></svg>Tiêu cực</span></c:if>

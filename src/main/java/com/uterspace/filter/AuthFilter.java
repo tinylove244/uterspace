@@ -63,7 +63,24 @@ public class AuthFilter implements Filter {
         req.setAttribute("authUser", fresh);
         req.setAttribute("csrfToken", CsrfFilter.token(session));
 
+        // Tài khoản ADMIN chỉ dùng trang quản trị (+ đăng xuất, không đi qua filter này) — không vào giao diện người dùng
+        if (fresh.isAdmin() && !isAdminArea(req.getServletPath())) {
+            if ("GET".equals(req.getMethod()) && !req.getServletPath().startsWith("/api/") && !wantsJson(req)) {
+                resp.sendRedirect(req.getContextPath() + "/admin");
+            } else {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                resp.setContentType("application/json;charset=UTF-8");
+                resp.getWriter().write("{\"error\":\"Tài khoản quản trị chỉ dùng trang quản trị.\"}");
+            }
+            return;
+        }
+
         chain.doFilter(request, response);
+    }
+
+    /** Đường dẫn tài khoản quản trị được phép dùng */
+    public static boolean isAdminArea(String path) {
+        return "/admin".equals(path) || path.startsWith("/admin/");
     }
 
     private void denyAnonymous(HttpServletRequest req, HttpServletResponse resp) throws IOException {

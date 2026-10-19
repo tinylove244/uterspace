@@ -30,11 +30,12 @@ public class AuthController extends HttpServlet {
         String path = req.getServletPath();
         String ctx = req.getContextPath();
 
-        // Nếu đã login mà vào trang đăng nhập/đăng ký → redirect vào feed
+        // Nếu đã login mà vào trang đăng nhập/đăng ký → redirect vào feed (admin → trang quản trị)
         if (req.getSession(false) != null &&
                 req.getSession(false).getAttribute("currentUser") != null &&
                 !path.equals("/logout")) {
-            resp.sendRedirect(ctx + "/feed");
+            User current = (User) req.getSession(false).getAttribute("currentUser");
+            resp.sendRedirect(ctx + (current.isAdmin() ? "/admin" : "/feed"));
             return;
         }
 
@@ -154,6 +155,11 @@ public class AuthController extends HttpServlet {
             redirectTarget = "/feed";
         } else if (!ctx.isEmpty() && redirectTarget.startsWith(ctx + "/")) {
             redirectTarget = redirectTarget.substring(ctx.length());
+        }
+        // Tài khoản quản trị chỉ dùng trang quản trị (AuthFilter cũng chặn mọi trang khác)
+        if (found.isAdmin()) {
+            String p = redirectTarget.split("[?#]", 2)[0];
+            if (!com.uterspace.filter.AuthFilter.isAdminArea(p)) redirectTarget = "/admin";
         }
         return redirectTarget;
     }
