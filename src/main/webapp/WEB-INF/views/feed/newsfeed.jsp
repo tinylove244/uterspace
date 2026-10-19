@@ -245,6 +245,32 @@
           </div>
         </c:if>
 
+        <%-- Kiểu hiển thị: lưới 3 cột (mặc định) · lưới 2 cột · từng bài một như Facebook.
+             Lựa chọn nhớ trong localStorage của trình duyệt; script đặt sẵn html[data-feed-view]
+             trước khi vẽ lưới để không bị nháy bố cục khi tải trang. --%>
+        <script>
+          try {
+            var savedFeedView = localStorage.getItem('uterspace.feedView');
+            if (savedFeedView === 'grid2' || savedFeedView === 'list') {
+              document.documentElement.setAttribute('data-feed-view', savedFeedView);
+            }
+          } catch (e) { /* chế độ riêng tư / chặn lưu trữ: dùng mặc định */ }
+        </script>
+        <div class="feed-view" role="group" aria-label="Kiểu hiển thị bảng tin">
+          <button type="button" class="feed-view-btn is-active" data-view="grid3" aria-pressed="true"
+                  title="Lưới 3 cột" aria-label="Lưới 3 cột">
+            <svg class="icon" aria-hidden="true"><use href="#i-cols-3"></use></svg>
+          </button>
+          <button type="button" class="feed-view-btn" data-view="grid2" aria-pressed="false"
+                  title="Lưới 2 cột" aria-label="Lưới 2 cột">
+            <svg class="icon" aria-hidden="true"><use href="#i-cols-2"></use></svg>
+          </button>
+          <button type="button" class="feed-view-btn" data-view="list" aria-pressed="false"
+                  title="Từng bài một (lướt như Facebook)" aria-label="Từng bài một">
+            <svg class="icon" aria-hidden="true"><use href="#i-rows"></use></svg>
+          </button>
+        </div>
+
         <c:if test="${not empty trendingTopics}">
           <ul class="topic-list" aria-label="Chủ đề đang thịnh hành">
             <li>
@@ -355,6 +381,35 @@ document.querySelectorAll('.discover-tab').forEach(function (tab) {
     document.querySelectorAll('[data-discover-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-discover-panel') !== key; });
   });
 });
+
+/* ---------- Kiểu hiển thị bảng tin: lưới 3 cột · lưới 2 cột · từng bài một ----------
+   Đổi html[data-feed-view] (CSS trong feed.css / app-shell.css), nhớ lựa chọn cho lần sau. */
+(function () {
+  var KEY = 'uterspace.feedView';
+  var btns = document.querySelectorAll('.feed-view-btn');
+  if (!btns.length) return;
+
+  function apply(view) {
+    if (view === 'grid2' || view === 'list') document.documentElement.setAttribute('data-feed-view', view);
+    else { view = 'grid3'; document.documentElement.removeAttribute('data-feed-view'); }
+    btns.forEach(function (b) {
+      var on = b.getAttribute('data-view') === view;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    return view;
+  }
+
+  apply(document.documentElement.getAttribute('data-feed-view'));
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var view = apply(b.getAttribute('data-view'));
+      try { localStorage.setItem(KEY, view); } catch (e) { }
+      refreshMoreText();                              // số dòng thu gọn đổi theo kiểu hiển thị
+      window.dispatchEvent(new Event('resize'));      // trình xem 360° / 3D tự co giãn theo khung mới
+    });
+  });
+})();
 
 /* ---------- Trang hashtag: soạn bài có sẵn thẻ ---------- */
 function composeWithHashtag(tag) {

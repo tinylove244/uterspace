@@ -223,6 +223,46 @@
   column-gap: 20px;
 }
 
+/* ---------- 8. KIỂU HIỂN THỊ (html[data-feed-view], nút .feed-view-btn) ----------
+   Mặc định: lưới 3 cột · grid2: lưới 2 cột, thẻ rộng hơn · list: từng bài một ở giữa như Facebook
+   (bố cục thẻ kiểu Facebook — chữ trên ảnh, nút có nhãn — nằm ở app-shell.css, dùng chung với hộp xem bài). */
+[data-feed-view="grid2"] .feed-grid { column-count: 2; column-gap: 24px; }
+[data-feed-view="list"] .feed-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+[data-feed-view="list"] .feed-grid > .post-card,
+[data-feed-view="list"] .feed-grid > .post-card-placeholder { margin: 0; }
+
+.feed-view {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--bg);
+}
+.feed-view-btn {
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.feed-view-btn .icon { width: 18px; height: 18px; }
+.feed-view-btn:hover { color: var(--violet); }
+.feed-view-btn.is-active { background: var(--surface); color: var(--violet); box-shadow: var(--shadow-sm); }
+
 /* ============================================================
    9. RESPONSIVE
    ============================================================ */
@@ -230,7 +270,10 @@
   .feed-grid { column-count: 2; }
 }
 @media (max-width: 680px) {
-  .feed-grid { column-count: 1; }
+  /* Điện thoại: màn hình hẹp chỉ đủ một cột → ẩn nút chọn kiểu, mọi chế độ đều là một cột */
+  .feed-grid,
+  [data-feed-view="grid2"] .feed-grid { column-count: 1; }
+  .feed-view { display: none; }
   .topic-list { margin-left: 0; }
   .hashtag-head .page-head-actions { margin-left: 0; flex-wrap: wrap; }
 }

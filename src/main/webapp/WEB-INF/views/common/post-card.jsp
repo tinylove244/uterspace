@@ -166,7 +166,9 @@
               aria-label="Thích bài viết"
               onclick="toggleLike(${post.postId}, this)">
         <svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg>
+        <span class="post-action-label" aria-hidden="true">Thích</span>
       </button>
+      <%-- Bình luận: mở hộp xem bài (post-support.jsp, PostViewer) và đặt con trỏ vào ô bình luận --%>
       <button type="button" class="post-action"
               id="comment-btn-${post.postId}"
               aria-expanded="false"
@@ -174,6 +176,7 @@
               aria-label="Bình luận"
               onclick="toggleComments(${post.postId}, this)">
         <svg class="icon" aria-hidden="true"><use href="#i-comment"></use></svg>
+        <span class="post-action-label" aria-hidden="true">Bình luận</span>
       </button>
       <button type="button" class="post-action"
               aria-label="Chia sẻ bài viết kèm bình luận"
@@ -181,6 +184,7 @@
               data-share-state="${empty shareRoot ? 'deleted' : (not empty shareRoot.groupId ? 'group' : (shareRoot.visibility == 'friends' and shareRoot.author.userId != me.userId ? 'friends' : 'ok'))}"
               onclick="openShareModal(this)">
         <svg class="icon" aria-hidden="true"><use href="#i-send"></use></svg>
+        <span class="post-action-label" aria-hidden="true">Chia sẻ</span>
       </button>
       <button type="button"
               class="post-action post-action--save ${isSaved ? 'is-active' : ''}"
@@ -189,6 +193,7 @@
               aria-label="Lưu bài viết"
               onclick="toggleSave(${post.postId}, this)">
         <svg class="icon" aria-hidden="true"><use href="#i-bookmark"></use></svg>
+        <span class="post-action-label" aria-hidden="true">Lưu</span>
       </button>
     </div>
 

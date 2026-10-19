@@ -1694,3 +1694,228 @@ a.user-card-name:hover { text-decoration: underline; }
 @media (max-width: 560px) { .art-panel { grid-template-columns: 1fr; } }
 
 .btn-pill--sm { padding: 5px 12px; font-size: 12.5px; }
+
+/* ============================================================
+   HỘP XEM BÀI VIẾT (kiểu Facebook) — post-support.jsp, PostViewer
+   Thẻ bài được chuyển hẳn vào .post-viewer-body; lưới giữ một ô .post-card-placeholder cùng chiều cao.
+   z-index 950: dưới các hộp thoại con (.modal-overlay 1000: chia sẻ, báo cáo, sửa bài) mở từ trong bài.
+   ============================================================ */
+html.has-post-viewer,
+html.has-post-viewer body { overflow: hidden; }
+
+.post-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: rgba(7, 27, 51, .62);
+  backdrop-filter: blur(3px);
+  animation: fadeIn .2s ease;
+}
+.post-viewer[hidden] { display: none; }
+.post-viewer-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 700px;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: 0 24px 70px rgba(7, 27, 51, .35);
+  animation: fadeInUp .25s ease;
+}
+.post-viewer-head {
+  position: relative;
+  flex: none;
+  padding: 15px 64px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+.post-viewer-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.post-viewer-close {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.post-viewer-close:hover { background: var(--accent-soft); color: var(--accent); }
+.post-viewer-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* Ô bình luận luôn ở đáy hộp, như Facebook */
+.post-viewer-foot {
+  flex: none;
+  padding: 10px 16px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.post-viewer-foot[hidden] { display: none; }
+.post-viewer-foot .comment-input { padding: 10px 16px; background: var(--bg); border-color: transparent; font-size: 14px; }
+.post-viewer-foot .comment-input:focus { background: var(--surface); border-color: var(--violet); }
+
+/* Ô giữ chỗ trong lưới khi thẻ đang mở trong hộp (cùng kích thước khung với .post-card) */
+.post-card-placeholder {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 20px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+}
+.post-card.is-moved { animation: none; }
+
+/* Gợi ý bấm được để mở bài (chỉ ở trang có hộp xem bài) */
+.post-viewable .post-card:not(.is-in-viewer) .post-media > img,
+.post-viewable .post-card:not(.is-in-viewer) .shared-embed-media img,
+.post-viewable .post-card:not(.is-in-viewer) .post-caption-text,
+.post-viewable .post-card:not(.is-in-viewer) .shared-embed-body,
+.post-viewable .post-card:not(.is-in-viewer) .post-likes { cursor: pointer; }
+
+/* Nhãn chữ của nút Thích / Bình luận / Chia sẻ / Lưu: ẩn trong lưới, hiện ở bố cục kiểu Facebook */
+.post-action-label { display: none; }
+
+/* ---------- Bố cục thẻ kiểu Facebook: thẻ trong hộp xem bài + chế độ "Từng bài một" của bảng tin ----------
+   Thứ tự: tác giả → thời gian → chữ → công cụ AI → ảnh/video → số lượt → hàng nút có nhãn → bình luận.
+   <footer> của thẻ dùng display: contents để các phần bên trong xếp thứ tự chung với ảnh. */
+.post-card.is-in-viewer,
+[data-feed-view="list"] .feed-grid > .post-card { display: flex; flex-direction: column; }
+.post-card.is-in-viewer > footer,
+[data-feed-view="list"] .feed-grid > .post-card > footer { display: contents; }
+
+.post-card.is-in-viewer .post-head,
+[data-feed-view="list"] .feed-grid > .post-card .post-head { order: 1; padding: 14px 16px 4px; }
+.post-card.is-in-viewer .post-time-row,
+[data-feed-view="list"] .feed-grid > .post-card .post-time-row { order: 2; padding-left: 48px; }   /* thẳng hàng tên tác giả */
+.post-card.is-in-viewer .post-time,
+[data-feed-view="list"] .feed-grid > .post-card .post-time { padding: 0 0 2px 16px; letter-spacing: .03em; }
+.post-card.is-in-viewer .post-caption,
+[data-feed-view="list"] .feed-grid > .post-card .post-caption { order: 3; padding: 8px 16px 0; font-size: 14.5px; }
+.post-card.is-in-viewer .post-caption-name,
+[data-feed-view="list"] .feed-grid > .post-card .post-caption-name { display: none; }
+.post-card.is-in-viewer .post-ai-tools,
+[data-feed-view="list"] .feed-grid > .post-card .post-ai-tools { order: 4; padding: 0 10px; }
+.post-card.is-in-viewer .post-ai-result,
+[data-feed-view="list"] .feed-grid > .post-card .post-ai-result { order: 5; margin: 6px 16px; }
+.post-card.is-in-viewer > .post-media,
+.post-card.is-in-viewer > .shared-embed,
+[data-feed-view="list"] .feed-grid > .post-card > .post-media,
+[data-feed-view="list"] .feed-grid > .post-card > .shared-embed { order: 6; margin-top: 10px; }
+.post-card.is-in-viewer > .post-media,
+[data-feed-view="list"] .feed-grid > .post-card > .post-media { margin-left: 0; margin-right: 0; border-radius: 0; }
+.post-card.is-in-viewer > .shared-embed,
+[data-feed-view="list"] .feed-grid > .post-card > .shared-embed { margin-left: 16px; margin-right: 16px; }
+.post-card.is-in-viewer .post-likes,
+[data-feed-view="list"] .feed-grid > .post-card .post-likes { order: 7; padding: 10px 16px 8px; color: var(--ink-soft); }
+
+.post-card.is-in-viewer .post-actions,
+[data-feed-view="list"] .feed-grid > .post-card .post-actions {
+  order: 8;
+  gap: 4px;
+  margin: 0 12px;
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
+}
+[data-feed-view="list"] .feed-grid > .post-card .post-actions { margin-bottom: 6px; }
+.post-card.is-in-viewer .post-actions { border-bottom: 1px solid var(--line); }
+.post-card.is-in-viewer .post-action,
+[data-feed-view="list"] .feed-grid > .post-card .post-action {
+  flex: 1 1 0;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: var(--r-sm);
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.post-card.is-in-viewer .post-action .icon,
+[data-feed-view="list"] .feed-grid > .post-card .post-action .icon { width: 21px; height: 21px; }
+.post-card.is-in-viewer .post-action.is-active,
+[data-feed-view="list"] .feed-grid > .post-card .post-action.is-active { color: var(--accent); }
+.post-card.is-in-viewer .post-action--save,
+[data-feed-view="list"] .feed-grid > .post-card .post-action--save { margin-left: 0; }
+.post-card.is-in-viewer .post-action--save.is-active,
+[data-feed-view="list"] .feed-grid > .post-card .post-action--save.is-active { color: var(--violet); }
+.post-card.is-in-viewer .post-action-label,
+[data-feed-view="list"] .feed-grid > .post-card .post-action-label { display: inline; }
+.post-card.is-in-viewer .post-comments,
+[data-feed-view="list"] .feed-grid > .post-card .post-comments { order: 9; }
+
+/* Chế độ "Từng bài một": ảnh tràn ngang thẻ, chữ thu gọn 5 dòng */
+[data-feed-view="list"] .feed-grid > .post-card .post-media > img { max-height: 640px; }
+[data-feed-view="list"] .feed-grid > .post-card .post-caption-text { -webkit-line-clamp: 5; }
+
+/* ---------- Riêng trong hộp xem bài ---------- */
+.post-card.is-in-viewer {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.post-card.is-in-viewer:hover { box-shadow: none; }
+.post-card.is-in-viewer .post-reason { margin: 0; padding: 12px 16px 0; }
+/* Chữ hiện đủ, không cần "Xem thêm" */
+.post-card.is-in-viewer .post-caption-text,
+.post-card.is-in-viewer .shared-embed-text { display: block; overflow: visible; }
+.post-card.is-in-viewer .post-more-text { display: none; }
+/* Ảnh lớn, giữ nguyên tỉ lệ (không cắt), không phóng khi rê chuột */
+.post-card.is-in-viewer .post-media > img {
+  display: block;
+  max-height: 78vh;
+  max-height: 78dvh;
+  object-fit: contain;
+  transform: none;
+}
+.post-card.is-in-viewer .shared-embed-media img { max-height: 70vh; object-fit: contain; background: #000; }
+.post-card.is-in-viewer .post-video video { max-height: min(680px, 72vh); max-height: min(680px, 72dvh); }
+.post-card.is-in-viewer .post-model model-viewer { height: min(480px, 60vh); }
+/* Bình luận: nền trắng liền với bài, ô nhập đã chuyển xuống .post-viewer-foot */
+.post-card.is-in-viewer .post-comments {
+  padding: 4px 16px 16px;
+  border-top: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.post-card.is-in-viewer .comment-list { margin-top: 10px; }
+.post-card.is-in-viewer .comment-bubble { background: var(--bg); border-color: transparent; }
+
+@media (max-width: 680px) {
+  /* Điện thoại: hộp xem bài phủ kín màn hình */
+  .post-viewer { padding: 0; }
+  .post-viewer-dialog { max-width: none; height: 100%; max-height: none; border-radius: 0; }
+  .post-viewer-head { padding: 13px 56px; }
+}

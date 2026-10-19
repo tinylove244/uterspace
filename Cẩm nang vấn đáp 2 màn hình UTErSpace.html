@@ -1,0 +1,1404 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cẩm nang vấn đáp 2 màn hình UTErSpace — Giao diện, Code &amp; CSDL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #F4F6FA;
+  --paper: #FFFFFF;
+  --paper-2: #F8FAFC;
+  --ink: #0E1A2E;
+  --ink-2: #334155;
+  --ink-3: #64748B;
+  --line: #E2E8F0;
+  --navy: #0A3D8F;
+  --navy-soft: #E6EDF8;
+  --blue: #2563EB;
+  --blue-soft: #EFF6FF;
+  --teal: #0D9488;
+  --teal-soft: #F0FDFA;
+  --purple: #7C3AED;
+  --purple-soft: #F5F3FF;
+  --amber: #D97706;
+  --amber-soft: #FFFBEB;
+  --red: #DC2626;
+  --red-soft: #FEF2F2;
+  --green: #16A34A;
+  --green-soft: #F0FDF4;
+  --code-bg: #EEF2F7;
+  --font: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0F17; --paper: #131A26; --paper-2: #1A2232; --ink: #F1F5F9; --ink-2: #CBD5E1; --ink-3: #94A3B8; --line: #242F42;
+    --navy: #60A5FA; --navy-soft: rgba(96,165,250,.14); --blue: #60A5FA; --blue-soft: rgba(96,165,250,.14);
+    --teal: #2DD4BF; --teal-soft: rgba(45,212,191,.13); --purple: #C084FC; --purple-soft: rgba(192,132,252,.14);
+    --amber: #FBBF24; --amber-soft: rgba(251,191,36,.14); --red: #F87171; --red-soft: rgba(248,113,113,.14);
+    --green: #4ADE80; --green-soft: rgba(74,222,128,.14);
+    --code-bg: #1E2738; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0F17; --paper: #131A26; --paper-2: #1A2232; --ink: #F1F5F9; --ink-2: #CBD5E1; --ink-3: #94A3B8; --line: #242F42;
+  --navy: #60A5FA; --navy-soft: rgba(96,165,250,.14); --blue: #60A5FA; --blue-soft: rgba(96,165,250,.14);
+  --teal: #2DD4BF; --teal-soft: rgba(45,212,191,.13); --purple: #C084FC; --purple-soft: rgba(192,132,252,.14);
+  --amber: #FBBF24; --amber-soft: rgba(251,191,36,.14); --red: #F87171; --red-soft: rgba(248,113,113,.14);
+  --green: #4ADE80; --green-soft: rgba(74,222,128,.14);
+  --code-bg: #1E2738; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font: 15px/1.65 var(--font); }
+a { color: var(--navy); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4 { line-height: 1.3; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+pre.codeblock { background: var(--code-bg); padding: 12px 14px; border-radius: 9px; overflow-x: auto; margin: 8px 0 0; font: 13px/1.55 var(--mono); border: 1px solid var(--line); }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Header */
+.top { padding-block: 32px 24px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.top-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.badge-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--red-soft); color: var(--red); display: inline-block; }
+.eyebrow-blue { background: var(--blue-soft); color: var(--blue); }
+.top h1 { font-size: clamp(24px, 3.5vw, 34px); font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.top .lead { margin-top: 10px; color: var(--ink-2); font-size: 15.5px; max-width: 82ch; }
+.stat-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.chip { display: flex; align-items: center; gap: 6px; background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.chip b { color: var(--ink); }
+
+/* Sticky Navbar / Tool Bar */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,.03); }
+.toc-inner { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-block: 8px; flex-wrap: wrap; }
+.nav-pills { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-block: 2px; }
+.pill-btn, .action-btn { flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; text-decoration: none; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper-2); cursor: pointer; font-family: var(--font); transition: all .15s; }
+.pill-btn:hover, .action-btn:hover { color: var(--ink); border-color: var(--navy); }
+.pill-btn.active, .action-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.nav-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.search-box { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); font: 13px var(--font); width: 220px; transition: width .2s; }
+.search-box:focus { width: 270px; outline: none; border-color: var(--navy); }
+
+main { display: grid; gap: 42px; padding-block: 30px 72px; }
+section > h2 { font-size: 23px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 16px; scroll-margin-top: 75px; color: var(--ink); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+section > h2 small { font-size: 13.5px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+h3 { font-size: 17.5px; font-weight: 700; margin: 24px 0 10px; color: var(--ink); }
+h4 { font-size: 15px; font-weight: 700; margin: 0 0 6px; }
+
+/* Callout Box */
+.callout { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--navy); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+.callout-title { font-weight: 700; font-size: 15px; color: var(--navy); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.callout p { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+/* Split Screen Card / Grid */
+.split-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.split-card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.02); transition: transform .15s, border-color .15s; }
+.split-card:hover { border-color: color-mix(in srgb, var(--navy) 40%, var(--line)); }
+.split-header { background: var(--paper-2); padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.split-title { font-weight: 800; font-size: 15.5px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.split-badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
+.b-ui { background: var(--blue-soft); color: var(--blue); }
+.b-code { background: var(--purple-soft); color: var(--purple); }
+.b-db { background: var(--teal-soft); color: var(--teal); }
+
+.split-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+@media (max-width: 960px) {
+  .split-body { grid-template-columns: 1fr; }
+}
+.col-ui, .col-code, .col-db { padding: 16px 18px; }
+.col-ui { border-right: 1px solid var(--line); background: var(--paper); }
+.col-code { border-right: 1px solid var(--line); background: var(--paper-2); }
+.col-db { background: var(--paper); }
+@media (max-width: 960px) {
+  .col-ui, .col-code { border-right: none; border-bottom: 1px solid var(--line); }
+}
+.col-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.col-ui .col-label { color: var(--blue); }
+.col-code .col-label { color: var(--purple); }
+.col-db .col-label { color: var(--teal); }
+
+.split-desc { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.split-desc ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.split-desc b { color: var(--ink); font-weight: 600; }
+
+/* Workflow Box */
+.wf-box { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+.wf-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.wf-title { font-size: 16.5px; font-weight: 800; color: var(--ink); }
+.wf-meta { font-size: 12.5px; color: var(--ink-3); }
+.wf-meta code { font-size: 11.5px; }
+.wf-quick { background: var(--paper-2); border-left: 3px solid var(--teal); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13.5px; color: var(--ink-2); margin-bottom: 14px; }
+.wf-quick b { color: var(--ink); }
+ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-size: 14px; color: var(--ink-2); }
+ol.steps > li { line-height: 1.55; }
+ol.steps > li b { color: var(--ink); font-weight: 600; }
+ol.steps ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 3px; font-size: 13.5px; }
+
+/* Visual Pipeline / Step Boxes */
+.pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
+.pipe-node { background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; position: relative; }
+.pipe-node .num { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 4px; background: var(--navy-soft); color: var(--navy); margin-bottom: 6px; }
+.pipe-node h4 { font-size: 14px; margin-bottom: 4px; color: var(--ink); }
+.pipe-node p { font-size: 12.5px; color: var(--ink-3); line-height: 1.45; }
+
+/* Tables */
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 11px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+thead th { border-top: 0; background: var(--code-bg); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); white-space: nowrap; }
+tr:hover td { background: var(--paper-2); }
+td b { color: var(--ink); font-weight: 600; }
+
+/* Q&A Cards */
+.qa-card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+.qa-q { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; }
+.qa-ans { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+.qa-short { background: var(--paper-2); padding: 8px 12px; border-radius: 8px; font-weight: 600; color: var(--ink); margin-bottom: 8px; border-left: 3px solid var(--amber); }
+.qa-deep { margin-top: 6px; }
+.qa-ref { margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+
+/* Quiz Mode */
+body.quiz-mode .col-code, body.quiz-mode .col-db, body.quiz-mode .qa-ans { filter: blur(5px); opacity: .2; transition: all .2s; cursor: pointer; user-select: none; }
+body.quiz-mode .col-code:hover, body.quiz-mode .col-db:hover, body.quiz-mode .qa-ans:hover,
+body.quiz-mode .col-code.revealed, body.quiz-mode .col-db.revealed, body.quiz-mode .qa-ans.revealed { filter: none; opacity: 1; user-select: text; }
+
+/* Footer */
+footer { border-top: 1px solid var(--line); padding-block: 28px; background: var(--paper); font-size: 13.5px; color: var(--ink-3); text-align: center; }
+
+/* Filter hidden */
+.hidden-item { display: none !important; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-bar">
+      <div>
+        <div class="badge-group">
+          <span class="eyebrow">Cẩm nang vấn đáp 2 màn hình</span>
+          <span class="eyebrow eyebrow-blue">UTErSpace · HCMUTE 2026</span>
+        </div>
+        <h1>Chiến thuật Vấn đáp 2 Màn hình: Giao diện ⟷ Code ⟷ CSDL</h1>
+        <p class="lead">
+          Tài liệu "trực chiến" tại bàn báo cáo: Khi giảng viên yêu cầu <b>mở giao diện (trái) song song với code (phải)</b>, chỉ vào bất kỳ thành phần nào, bạn có thể nói ngay <i>"Dữ liệu này lấy từ đâu trong DB?"</i>, <i>"Được gọi ở đâu trong Code?"</i>, và trình bày rành mạch <i>Workflow của nhóm</i> từ A đến Z.
+        </p>
+      </div>
+    </div>
+    <div class="stat-chips">
+      <div class="chip">💻 <b>Chia 2 màn hình:</b> Chrome (Trái 50%) ⟷ VS Code/Eclipse (Phải 50%)</div>
+      <div class="chip">🗄️ <b>Hạ tầng CSDL:</b> MySQL 8.4 Host Server (~2ms) + HikariCP (20 conn) + Aiven Cloud</div>
+      <div class="chip">🌐 <b>Kiến trúc Web:</b> 22 Servlets + 1 WebSocket Endpoint + 4 Filters + 24 Bảng MySQL</div>
+      <div class="chip">⚡ <b>Quy tắc 3 bước:</b> Chỉ trên UI ➔ Mở dòng trong Code ➔ Đối chiếu cột trong DB</div>
+    </div>
+  </div>
+</header>
+
+<!-- Thanh công cụ học nhanh dính trên đầu -->
+<nav class="toc">
+  <div class="wrap toc-inner">
+    <div class="nav-pills">
+      <button class="pill-btn active" data-filter="all">🌐 Tất cả màn hình</button>
+      <button class="pill-btn" data-filter="feed">📰 Bảng tin &amp; Bài viết</button>
+      <button class="pill-btn" data-filter="chat">💬 Chat &amp; Bạn bè</button>
+      <button class="pill-btn" data-filter="community">👥 Nhóm &amp; Story 24h</button>
+      <button class="pill-btn" data-filter="ai-sec">🤖 AI, DID &amp; Passkey</button>
+      <button class="pill-btn" data-filter="admin-settings">⚙️ Cài đặt &amp; Quản trị</button>
+      <a href="#workflow-chung" class="pill-btn">🔄 Workflow Chung</a>
+      <a href="#database-infra" class="pill-btn">🗄️ Cơ sở Dữ liệu</a>
+      <a href="#kich-ban-van-dap" class="pill-btn">🎯 Kịch bản Trả lời Cô</a>
+    </div>
+    <div class="nav-tools">
+      <input type="text" id="filter-search" class="search-box" placeholder="🔍 Tìm kiếm nút, bảng, file...">
+      <button id="btn-quiz" class="action-btn" title="Bấm để ẩn code và DB tự dò bài">🙈 Tự dò bài</button>
+      <button id="btn-theme" class="action-btn">🌓 Giao diện</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+<main>
+
+<!-- HỘP HƯỚNG DẪN CHIẾN THUẬT 2 MÀN HÌNH -->
+<div class="callout">
+  <div class="callout-title">💡 CHIẾN THUẬT VÀNG KHI GIẢNG VIÊN YÊU CẦU CHIA 2 MÀN HÌNH</div>
+  <p>
+    <b>1. Cách sắp xếp màn hình:</b> Nhấn phím <code>Windows + Phím mũi tên Trái</code> cho trình duyệt Google Chrome (chiếm 50% màn hình, mở sẵn tài khoản đăng nhập), và <code>Windows + Phím mũi tên Phải</code> cho VS Code / Eclipse (chiếm 50% màn hình, mở sẵn các thư mục <code>controller</code>, <code>dao</code>, <code>views</code>).<br>
+    <b>2. Công thức trả lời 3 bước "ĂN TRỌN ĐIỂM 10":</b><br>
+    &bull; <i>Bước 1 (Chỉ tay vào màn hình trái):</i> "Dạ thưa cô, đây là [Tên thành phần UI], người dùng thấy được [dữ liệu gì]..."<br>
+    &bull; <i>Bước 2 (Chỉ vào cơ sở dữ liệu):</i> "Dữ liệu này được lấy từ bảng <b>[Tên bảng]</b> (các cột <code>...</code>) với điều kiện <code>WHERE ...</code>"<br>
+    &bull; <i>Bước 3 (Nhảy chuột sang màn hình phải):</i> "Trong code, request được gửi lên <b>[Tên Servlet dòng Lxx]</b>, gọi qua DAO <b>[Tên DAO dòng Lyy]</b> để thực hiện câu truy vấn, và truyền dữ liệu sang JSP qua biến <code>request.setAttribute(...)</code> để render tại thẻ <code>[Tên file JSP dòng Lzz]</code>."
+  </p>
+</div>
+
+<!-- ============================================================ PHẦN 1 -->
+<section id="ban-do-2-man-hinh">
+  <h2>Phần 1: Bản đồ Đối Chiếu 2 Màn Hình (UI Trái ⟷ Code Phải ⟷ Database)<small>Tra cứu nhanh: Cô chỉ vào bất kỳ chỗ nào trên web, xem ngay file code và bảng CSDL tương ứng</small></h2>
+
+  <div class="split-grid">
+
+    <!-- 1. HEADER & TOPBAR -->
+    <div class="split-card item-card" data-category="feed chat">
+      <div class="split-header">
+        <div class="split-title"><span>🔍 1. Thanh Topbar, Tìm kiếm &amp; Chuông thông báo</span></div>
+        <div>
+          <span class="split-badge b-ui">UI: Header chung</span>
+          <span class="split-badge b-code">Controller: Search, Notification</span>
+          <span class="split-badge b-db">DB: users, notifications</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Thanh header cố định trên cùng ở mọi trang.</li>
+              <li><b>Thành phần:</b>
+                <ul>
+                  <li>Ô tìm kiếm <code>#global-search</code>: gõ chữ không dấu hiện popup gợi ý người dùng, nhóm, hashtag.</li>
+                  <li>Icon Chuông thông báo có chấm đỏ số lượng chưa đọc.</li>
+                  <li>Icon Tin nhắn nhảy số tin nhắn chưa đọc.</li>
+                  <li>Avatar góc phải với dropdown: Trang cá nhân, Cài đặt, Đăng xuất.</li>
+                </ul>
+              </li>
+              <li><b>File JSP hiển thị:</b> <code>WEB-INF/views/common/app-topbar.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Gợi ý tìm kiếm:</b> JS debounce 200ms gọi <code>GET /api/search/suggest?q=...</code>
+                ➔ <code>SearchController.java:105–138</code>
+                ➔ Gọi <code>SearchDAO.suggestUsers()</code>, <code>suggestGroups()</code>.
+              </li>
+              <li><b>Đếm thông báo chưa đọc:</b>
+                ➔ <code>NotificationController.java:35–45</code>
+                ➔ <code>NotificationDAOImpl.countUnread(me.getUserId())</code>.
+                ➔ Khi có thông báo mới, WebSocket bắn gói tin <code>{"type":"notification"}</code>
+                ➔ <code>realtime.js:82–95</code> cập nhật chấm đỏ tức thì không cần reload.
+              </li>
+              <li><b>Csrf Token nhúng:</b> <code>header.jsp:12–15</code> in <code>&lt;meta name="csrf-token"&gt;</code> cho mọi request POST.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>notifications</code>:</b> Cột <code>recipient_id</code>, <code>actor_id</code>, <code>type</code>, <code>is_read</code>.
+                <br>Câu lệnh đếm: <code>SELECT COUNT(n) FROM Notification n WHERE n.recipientId = :uid AND n.isRead = false</code>.
+              </li>
+              <li><b>Bảng <code>users</code> &amp; <code>groups</code>:</b> Tìm kiếm không dấu bằng SQL gốc:
+                <br><code>WHERE full_name COLLATE utf8mb4_0900_ai_ci LIKE :kw</code>.
+              </li>
+              <li><b>Bảng <code>search_history</code>:</b> Ghi lại từ khóa vừa tìm để AI tính điểm gợi ý.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. BẢNG TIN SMART FEED -->
+    <div class="split-card item-card" data-category="feed">
+      <div class="split-header">
+        <div class="split-title"><span>📰 2. Bảng tin (Feed), Danh sách Bài viết &amp; Phân trang</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /feed (Trang chủ)</span>
+          <span class="split-badge b-code">Controller: FeedController:48–90</span>
+          <span class="split-badge b-db">DB: posts, post_likes, post_comments</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Cột giữa trang chủ <code>/feed</code>.</li>
+              <li><b>Thành phần:</b>
+                <ul>
+                  <li>Hàng vòng tròn Story 24h ở trên cùng.</li>
+                  <li>Khung "Bạn đang nghĩ gì?" mở modal tạo bài viết.</li>
+                  <li>Danh sách bài viết được cuộn vô tận (hoặc nút "Xem thêm"): mỗi thẻ có Avatar, Tên, Thời gian, Huy hiệu quyền riêng tư (Công khai/Bạn bè/Nhóm), Nội dung chữ, Media, Nút Like, Comment, Share, 3 chấm menu (Ẩn, Sửa, Báo cáo, Xóa).</li>
+                </ul>
+              </li>
+              <li><b>File JSP hiển thị:</b> <code>WEB-INF/views/feed/feed.jsp</code> nhúng <code>post-card.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Đón request:</b> <code>GET /feed</code> ➔ <code>FeedController.doGet()</code> (L48–90).</li>
+              <li><b>Phân luồng song song:</b> <code>DbParallel.run()</code> (L62) chạy 5 tác vụ nạp đồng thời: Bài viết, Story, Gợi ý bạn bè, Nhóm của tôi, Thông báo.</li>
+              <li><b>Lấy bài &amp; Chấm điểm:</b>
+                ➔ <code>PostDAOImpl.getFeedPosts(viewerId, limit)</code> (L95–130) dùng hằng số JPQL <code>PostDAOImpl.VISIBLE</code>.
+                ➔ <code>RecommendationService.rankFeed(posts, viewerId)</code> (L60–120) chấm điểm dựa trên: Mức độ thân thiết quan hệ bạn bè (+12đ), Tương tác Like/Comment (+8đ), Sở thích hashtag chung (+6đ), Độ tươi mới bài viết (Decay theo giờ).
+              </li>
+              <li><b>Chống N+1 Query:</b> <code>FeedController.preparePosts()</code> (L93–164) nạp theo lô <code>attachComments()</code>, <code>markLikedBy()</code>, <code>attachSharedPosts()</code>, <code>attachGroupNames()</code> chỉ trong 4 câu query cho cả danh sách 20 bài.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>posts</code>:</b> Cột <code>post_id</code>, <code>user_id</code>, <code>content</code>, <code>media_urls</code>, <code>visibility</code>, <code>moderation_status</code>, <code>sentiment</code>, <code>is_hidden_by_owner</code>.
+              </li>
+              <li><b>Điều kiện quyền xem <code>VISIBLE</code> (PostDAOImpl.java:38–54):</b>
+                <br>1. Bài công khai: <code>p.visibility = 'PUBLIC'</code>.
+                <br>2. Bài bạn bè: <code>p.visibility = 'FRIENDS' AND (p.author.userId = :me OR p.author.userId IN (bạn bè))</code>.
+                <br>3. Bài trong nhóm: Người xem phải là thành viên <code>ACTIVE</code> trong <code>group_members</code>.
+                <br>4. Lọc chặn 2 chiều: Không nằm trong bảng <code>blocks</code>.
+                <br>5. Không bị chủ bài ẩn: <code>p.isHiddenByOwner = 0</code>.
+                <br>6. Không bị người xem ẩn: Không có trong bảng <code>post_hidden</code>.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. ĐĂNG BÀI VIẾT ĐA PHƯƠNG TIỆN -->
+    <div class="split-card item-card" data-category="feed">
+      <div class="split-header">
+        <div class="split-title"><span>✍️ 3. Modal Đăng bài Đa Phương Tiện (Ảnh, Video, 360°, 3D GLB, Phụ đề VTT)</span></div>
+        <div>
+          <span class="split-badge b-ui">UI: Modal Tạo Bài Viết</span>
+          <span class="split-badge b-code">Controller: FeedController:261–398</span>
+          <span class="split-badge b-db">DB: posts · Cloud: Cloudinary</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Bấm ô "Bạn đang nghĩ gì?" mở Modal popup.</li>
+              <li><b>Thành phần:</b>
+                <ul>
+                  <li>Ô soạn thảo văn bản, gắn thẻ bạn bè, chọn hashtag.</li>
+                  <li>Bộ chọn quyền riêng tư: Công khai, Bạn bè, Chỉ mình tôi, hoặc Chọn đăng vào Nhóm.</li>
+                  <li>Nút đính kèm: Ảnh thường, Video MP4, Ảnh 360° Panorama, Ảnh 3D Depth, Tệp 3D <code>.glb/.gltf</code>, Phụ đề WebVTT.</li>
+                  <li>Nút trợ lý AI: Tự sinh caption từ ảnh, kiểm tra sắc thái bài viết trước khi đăng.</li>
+                </ul>
+              </li>
+              <li><b>File JSP &amp; JS:</b> <code>views/feed/post-modal.jsp</code>, <code>assets/js/composer-ai.js</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Submit form:</b> Gửi <code>POST /feed/create</code> (Multipart form).</li>
+              <li><b>Controller xử lý:</b> <code>FeedController.handleCreatePost()</code> (L261–398):
+                <br>1. Kiểm tra <code>CsrfFilter</code>.
+                <br>2. Gọi <code>UploadUtil.uploadMedia()</code>: kiểm tra dung lượng, Magic Bytes (chống đổi đuôi file độc hại) và upload thẳng lên Cloudinary lấy URL HTTPS an toàn.
+                <br>3. Tạo đối tượng <code>Post</code>, gán JSON media (kèm loại <code>IMAGE</code>, <code>VIDEO</code>, <code>PANORAMA</code>, <code>MODEL_3D</code>, <code>CAPTIONS_VTT</code>).
+                <br>4. Lưu DB qua <code>postDAO.create(post)</code>.
+                <br>5. Luồng nền: Gọi <code>AiService.analyzePostAsync(post.getPostId(), content)</code> chạy nền để gắn nhãn cảm xúc vào DB.
+                <br>6. Server trả JSON <code>{"success":true,"postId":...}</code> ➔ <code>post-modal.jsp:636–645</code> reload nạp bài mới.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>posts</code>:</b> Thêm dòng mới:
+                <br><code>user_id</code> (người đăng), <code>content</code> (nội dung), <code>media_urls</code> (chuỗi JSON lưu mảng link Cloudinary + metadata 3D/360), <code>visibility</code>, <code>group_id</code> (nếu đăng trong nhóm), <code>created_at</code> (thời điểm hiện tại).
+              </li>
+              <li><b>Cột <code>sentiment</code>, <code>sentiment_score</code>:</b> Ban đầu null, sau vài mili-giây luồng nền AI phân tích xong sẽ <code>UPDATE posts SET sentiment = 'POSITIVE' ... WHERE post_id = ...</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. TƯƠNG TÁC BÀI VIẾT: LIKE, COMMENT, SHARE, HIDE, SAVE -->
+    <div class="split-card item-card" data-category="feed">
+      <div class="split-header">
+        <div class="split-title"><span>❤️ 4. Tương tác Bài viết: Thả tim (Like), Bình luận, Chia sẻ (Quote Share), Ẩn, Lưu</span></div>
+        <div>
+          <span class="split-badge b-ui">UI: Nút dưới mỗi Post Card</span>
+          <span class="split-badge b-code">Controller: FeedController:400–620, SavedController</span>
+          <span class="split-badge b-db">DB: post_likes, post_comments, post_saved, post_hidden</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Nút Thả tim:</b> Bấm chuyển màu đỏ, số like nhảy lên/xuống tức thì.</li>
+              <li><b>Khung Bình luận:</b> Gõ bình luận và ấn gửi ➔ hiện bình luận ngay dưới bài mà không tải lại trang. Hỗ trợ trả lời (reply) phân cấp.</li>
+              <li><b>Nút Chia sẻ:</b> Mở modal "Chia sẻ kèm suy nghĩ (Quote Share)", gắn bài gốc lồng bên trong bài mới.</li>
+              <li><b>Nút 3 chấm ➔ Ẩn bài viết / Lưu bài:</b> Ẩn bài khỏi feed hoặc lưu vào danh mục Đã lưu (<code>/saved</code>).</li>
+              <li><b>File JSP:</b> <code>views/feed/post-card.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Like/Unlike:</b> <code>POST /feed/like</code> ➔ <code>FeedController.handleToggleLike()</code> (L400–435) ➔ <code>likeDAO.toggle(postId, userId)</code>. Nếu thả tim bài người khác ➔ gọi <code>NotificationService.notifyPostLiked()</code> bắn thông báo.</li>
+              <li><b>Bình luận:</b> <code>POST /feed/comment</code> ➔ <code>handleCreateComment()</code> (L437–485) ➔ <code>commentDAO.create()</code> ➔ Trả JSON HTML bình luận chèn ngay vào DOM.</li>
+              <li><b>Chia sẻ:</b> <code>POST /feed/share</code> ➔ <code>handleSharePost()</code> (L487–535) ➔ Tạo Post mới với <code>shared_post_id = id_bài_gốc</code>.</li>
+              <li><b>Ẩn bài:</b> <code>POST /feed/hide</code> ➔ <code>handleHidePost()</code> ➔ Ghi vào bảng <code>post_hidden</code>.</li>
+              <li><b>Lưu bài:</b> <code>POST /saved/toggle</code> ➔ <code>SavedController.java</code> ➔ <code>savedPostDAO.toggle()</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>post_likes</code>:</b> Khóa chính tổng hợp <code>(post_id, user_id)</code>. Toggle: nếu có thì <code>DELETE</code>, chưa có thì <code>INSERT</code>.</li>
+              <li><b>Bảng <code>post_comments</code>:</b> <code>comment_id</code>, <code>post_id</code>, <code>user_id</code>, <code>content</code>, <code>parent_id</code> (nếu là câu trả lời cho comment khác).</li>
+              <li><b>Bảng <code>post_saved</code>:</b> <code>(user_id, post_id, created_at)</code>.</li>
+              <li><b>Bảng <code>post_hidden</code>:</b> <code>(user_id, post_id)</code> ➔ Giúp câu truy vấn <code>VISIBLE</code> lọc bỏ bài này khỏi Bảng tin của riêng người đó.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. CHAT REALTIME 1-1 VÀ NHÓM -->
+    <div class="split-card item-card" data-category="chat">
+      <div class="split-header">
+        <div class="split-title"><span>💬 5. Chat Realtime 1-1, Nhóm, Đang gõ (Typing) &amp; Trạng thái Đã xem</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /chat (và popup góc dưới)</span>
+          <span class="split-badge b-code">RealtimeEndpoint, ChatController, ChatService</span>
+          <span class="split-badge b-db">DB: conversations, conversation_members, chat_messages</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Trang <code>/chat</code> hoặc cửa sổ chat mini bật lên ở góc dưới phải màn hình.</li>
+              <li><b>Thành phần:</b>
+                <ul>
+                  <li>Cột trái: Danh sách các cuộc trò chuyện (hiện avatar, tên bạn bè/nhóm, tin nhắn mới nhất, huy hiệu chưa đọc, chấm xanh online/offline).</li>
+                  <li>Khung giữa: Lịch sử tin nhắn (bong bóng chat, hình ảnh, file đính kèm, icon đã nhận 1 tick / đã xem 2 tick xanh).</li>
+                  <li>Dưới cùng: Thanh nhập tin nhắn, icon emoji, icon đính kèm file, hiệu ứng ba chấm "Đang gõ...".</li>
+                  <li>Menu tin nhắn: Thu hồi (unsend), Xóa phía tôi, Thả cảm xúc emoji, Ghim tin nhắn.</li>
+                </ul>
+              </li>
+              <li><b>File JSP &amp; JS:</b> <code>views/chat/chat.jsp</code>, <code>assets/js/chat.js</code>, <code>assets/js/realtime.js</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Đón kết nối WebSocket:</b> <code>realtime/RealtimeEndpoint.java</code> đón <code>ws://.../ws</code>, đọc <code>userId</code> từ <code>HttpSession</code> trong bước handshake (L21–55).</li>
+              <li><b>Gửi tin nhắn tức thì:</b>
+                ➔ Client bấm gửi: gọi API <code>POST /api/chat/send</code> (<code>ChatController.java:82–120</code>) hoặc gửi qua WebSocket.
+                ➔ <code>ChatService.sendMessage()</code> (L85–140): lưu vào bảng <code>chat_messages</code> trong DB.
+                ➔ Gọi <code>RealtimeHub.sendToUser()</code> hoặc <code>broadcastToRoom()</code> đẩy gói tin <code>CHAT_MESSAGE</code> vào làn ưu tiên <code>CHAT</code> của <code>RealtimeHub</code> (L130–165).
+                ➔ Trình duyệt người nhận qua <code>realtime.js:120–150</code> nhận JSON và vẽ bong bóng chat ngay lập tức!
+              </li>
+              <li><b>Trạng thái Đang gõ (Typing):</b> Gửi trực tiếp qua WebSocket <code>{"action":"typing","convId":...}</code> (không lưu DB để giảm tải), <code>RealtimeHub</code> chuyển tiếp ngay cho người bên kia.</li>
+              <li><b>Đính kèm file an toàn:</b> <code>ChatController.handleFileUpload()</code> (L180–225) kiểm tra cấm file thực thi độc hại (magic bytes <code>MZ</code>, <code>ELF</code>) trước khi upload.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>conversations</code>:</b> <code>conversation_id</code>, <code>is_group</code>, <code>title</code>, <code>avatar_url</code>, <code>last_message_at</code>.</li>
+              <li><b>Bảng <code>conversation_members</code>:</b> <code>(conversation_id, user_id)</code>, <code>role</code> (ADMIN/MEMBER), <code>last_read_message_id</code> (để biết đã xem đến tin nhắn nào).</li>
+              <li><b>Bảng <code>chat_messages</code>:</b> <code>message_id</code>, <code>conversation_id</code>, <code>sender_id</code>, <code>content</code>, <code>attachment_url</code>, <code>attachment_type</code>, <code>is_recalled</code>, <code>created_at</code>.</li>
+              <li><b>Bảng <code>message_hidden</code>:</b> Lưu ai đã bấm "Xóa phía tôi" để khi nạp lại không hiện tin đó cho người xóa.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. BẠN BÈ VÀ CHẶN -->
+    <div class="split-card item-card" data-category="chat">
+      <div class="split-header">
+        <div class="split-title"><span>👥 6. Bạn bè, Gợi ý kết bạn, Quan hệ 7 trạng thái &amp; Chặn 2 chiều</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /friends</span>
+          <span class="split-badge b-code">FriendsController, RelationService, FriendshipDAOImpl</span>
+          <span class="split-badge b-db">DB: friendships, blocks</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Trang <code>/friends</code> với các tab: Bạn bè hiện tại, Lời mời đã nhận, Lời mời đã gửi, Gợi ý kết bạn.</li>
+              <li><b>Thao tác:</b>
+                <ul>
+                  <li>Bấm "Thêm bạn bè" ➔ Nút chuyển thành "Đã gửi lời mời" (Hủy lời mời).</li>
+                  <li>Bên người nhận: Hiện nút "Chấp nhận" và "Từ chối". Bấm "Chấp nhận" ➔ thành bạn bè tức thì.</li>
+                  <li>Nút "Hủy kết bạn" hoặc "Chặn người này".</li>
+                </ul>
+              </li>
+              <li><b>File JSP &amp; JS:</b> <code>views/friends/friends.jsp</code>, <code>assets/js/relation.js</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Nhận request:</b> <code>POST /api/friends/request</code>, <code>/accept</code>, <code>/cancel</code>, <code>/unfriend</code>, <code>/block</code>
+                ➔ <code>FriendsController.java:55–160</code>.
+              </li>
+              <li><b>Quy tắc chuẩn hóa <code>(user_lo, user_hi)</code>:</b>
+                ➔ <code>FriendshipDAOImpl.java:38–106</code>: Luôn đảm bảo <code>user_lo = min(u1, u2)</code> và <code>user_hi = max(u1, u2)</code>.
+                ➔ Chống lỗi Race Condition (2 người cùng gửi kết bạn cho nhau một lúc không bị tạo 2 dòng trùng lặp).
+              </li>
+              <li><b>Chặn 2 chiều:</b> <code>RelationService.block()</code> ghi vào bảng <code>blocks</code>, đồng thời xóa luôn quan hệ bạn bè trong <code>friendships</code> nếu đang có.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>friendships</code>:</b> Cột <code>user_lo</code>, <code>user_hi</code>, <code>action_user_id</code> (ai là người vừa thao tác), <code>status</code> (<code>PENDING</code> / <code>ACCEPTED</code>).
+                <br>Khóa chính: <code>PRIMARY KEY (user_lo, user_hi)</code>.
+              </li>
+              <li><b>Bảng <code>blocks</code>:</b> <code>blocker_id</code>, <code>blocked_id</code>. Khi A chặn B:
+                <br>Cả A và B đều không thể xem trang cá nhân, không thấy bài viết trên feed, không tìm kiếm thấy nhau và không gửi tin nhắn được cho nhau.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. NHÓM (GROUPS) -->
+    <div class="split-card item-card" data-category="community">
+      <div class="split-header">
+        <div class="split-title"><span>🏛️ 7. Cộng đồng Nhóm (Groups), Nhóm Công khai vs Nhóm Kín &amp; Phân quyền</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /groups, /groups/&lt;id&gt;</span>
+          <span class="split-badge b-code">GroupsController, GroupPermission, GroupDAOImpl</span>
+          <span class="split-badge b-db">DB: groups, group_members</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Trang <code>/groups</code> (danh sách nhóm tôi đã vào, nhóm gợi ý) và chi tiết <code>/groups/{id}</code>.</li>
+              <li><b>Khác biệt trực quan:</b>
+                <ul>
+                  <li><b>Nhóm công khai (PUBLIC):</b> Ai vào cũng xem được bài viết; bấm "Tham gia" là thành viên ngay.</li>
+                  <li><b>Nhóm kín (PRIVATE):</b> Chưa vào chỉ thấy ảnh bìa, tên nhóm, mô tả; bài viết bị khóa mờ kèm thông báo "Hãy tham gia để xem nội dung"; bấm "Tham gia" chuyển sang "Chờ duyệt".</li>
+                  <li><b>Tab Quản trị viên:</b> Chỉ Chủ nhóm (ADMIN) mới thấy tab "Duyệt thành viên", "Cài đặt nhóm", "Chuyển quyền chủ nhóm", "Giải tán nhóm".</li>
+                </ul>
+              </li>
+              <li><b>File JSP:</b> <code>views/groups/groups.jsp</code>, <code>views/groups/group-detail.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Đón request:</b> <code>GroupsController.java</code> (GET L54–130, POST L135–280).</li>
+              <li><b>Ma trận phân quyền:</b> <code>util/GroupPermission.java:21–55</code>:
+                <br>&bull; <code>canViewPosts()</code>: <code>!group.isPrivateGroup() || isMember(m)</code>.
+                <br>&bull; <code>canPost()</code>: Chỉ thành viên <code>ACTIVE</code> mới được đăng bài.
+                <br>&bull; <code>canManage()</code>: Chỉ chủ nhóm (<code>role == ADMIN</code>).
+              </li>
+              <li><b>Xóa thành viên (Kick vs Ban):</b> <code>GroupDAOImpl.kick()</code> cập nhật <code>status = 'BANNED'</code> chứ không xóa dòng, để ngăn họ lập tức bấm tham gia lại nhóm công khai.</li>
+              <li><b>Chuyển quyền chủ nhóm an toàn:</b> <code>GroupDAOImpl.transferOwnership()</code> (L248–271) bọc trong 1 giao dịch DB: đổi chủ cũ thành <code>MEMBER</code> và chủ mới thành <code>ADMIN</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>groups</code>:</b> <code>group_id</code>, <code>name</code>, <code>description</code>, <code>privacy</code> (<code>PUBLIC</code> / <code>PRIVATE</code>), <code>avatar_url</code>, <code>cover_url</code>, <code>created_by</code>.</li>
+              <li><b>Bảng <code>group_members</code>:</b> <code>(group_id, user_id)</code>, <code>role</code> (<code>ADMIN</code> / <code>MEMBER</code>), <code>status</code> (<code>ACTIVE</code> / <code>PENDING</code> / <code>BANNED</code>), <code>joined_at</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. TIN 24H (STORIES) -->
+    <div class="split-card item-card" data-category="community">
+      <div class="split-header">
+        <div class="split-title"><span>⏳ 8. Tin 24h (Stories), Lượt xem, Thả tim &amp; Luồng dọn rác nền</span></div>
+        <div>
+          <span class="split-badge b-ui">UI: Hàng tròn trên cùng Feed</span>
+          <span class="split-badge b-code">StoryController, StoryDAOImpl, AppContextListener</span>
+          <span class="split-badge b-db">DB: stories, story_views, story_reactions</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Dãy vòng tròn story trên đầu trang Bảng tin. Vòng có viền gradient đổi màu là có tin mới chưa xem; xem rồi viền chuyển sang màu xám.</li>
+              <li><b>Trình xem Story (Viewer):</b> Mở toàn màn hình, thanh tiến trình chạy tự động 5s/tin, nút bấm tạm dừng, nút Thả tim, ô trả lời gửi thẳng vào chat tin nhắn.</li>
+              <li><b>File JSP:</b> <code>views/feed/story-viewer.jsp</code>, <code>views/feed/story-create-modal.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Tạo Story:</b> <code>POST /stories/create</code> ➔ <code>StoryController.handleCreate()</code>: giới hạn tối đa 15 tin / 24h, kiểm tra magic bytes tệp, tự động đặt <code>expiresAt = now + 24h</code>.</li>
+              <li><b>Ghi nhận lượt xem:</b> Khi xem story, JS gọi <code>POST /stories/view</code> ➔ <code>StoryDAOImpl.recordView()</code> ghi nhận người xem (chính chủ xem không tính).</li>
+              <li><b>Cơ chế biến mất sau 24h:</b> Mọi câu query lấy story đều gắn <code>WHERE s.expiresAt &gt; :now</code> ➔ đúng giây thứ 86.401 là tin tự động biến mất khỏi Feed mà không cần reload!</li>
+              <li><b>Luồng dọn rác nền (AppContextListener:40–54):</b> Luồng <code>story-cleaner</code> chạy mỗi 30 phút một lần. Người dùng nào tắt "Kho lưu trữ tin" trong Cài đặt thì luồng sẽ gọi <code>StoryDAOImpl.purgeExpired()</code> xóa dòng DB và xóa luôn tệp trên Cloudinary.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>stories</code>:</b> <code>story_id</code>, <code>user_id</code>, <code>media_url</code>, <code>media_type</code>, <code>caption</code>, <code>created_at</code>, <code>expires_at</code>.</li>
+              <li><b>Bảng <code>story_views</code>:</b> <code>(story_id, viewer_id, viewed_at)</code>.</li>
+              <li><b>Bảng <code>story_reactions</code>:</b> <code>(story_id, user_id, reaction_type)</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. TÌM KIẾM KHÔNG DẤU 2 BƯỚC -->
+    <div class="split-card item-card" data-category="ai-sec">
+      <div class="split-header">
+        <div class="split-title"><span>🔎 9. Tìm kiếm Không Dấu 2 Bước &amp; Tô vàng từ khóa an toàn XSS</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /search?q=...</span>
+          <span class="split-badge b-code">SearchController, SearchDAO:74–99</span>
+          <span class="split-badge b-db">Collation: utf8mb4_0900_ai_ci</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Trang kết quả tìm kiếm <code>/search?q=...</code>.</li>
+              <li><b>Hiệu quả thực tế:</b>
+                <ul>
+                  <li>Gõ <code>"duc"</code> tìm ra cả <code>"Đức"</code>.</li>
+                  <li>Gõ <code>"do an"</code> tìm ra bài viết có chữ <code>"Đồ án"</code>.</li>
+                  <li>Từ khóa tìm kiếm được tô vàng (highlight) chính xác trong văn bản kết quả.</li>
+                </ul>
+              </li>
+              <li><b>File JSP &amp; JS:</b> <code>views/search/search.jsp:220–256</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Xử lý tìm kiếm 2 bước (SearchDAO.java:74–99):</b>
+                <br>&bull; <i>Bước 1 (SQL gốc Native):</i> Dùng <code>COLLATE utf8mb4_0900_ai_ci</code> (Accent-Insensitive: không phân biệt dấu, Case-Insensitive: không phân biệt hoa thường) để quét nhanh danh sách tối đa 300 <code>post_id</code> khớp từ khóa.
+                <br>&bull; <i>Bước 2 (JPQL lọc quyền xem):</i> Truy vấn lại bằng JPQL với hằng số <code>PostDAOImpl.VISIBLE</code> (<code>WHERE p.postId IN :ids AND ...</code>) để đảm bảo 100% người dùng không bao giờ thấy bài viết riêng tư hoặc bài trong nhóm kín mà họ chưa tham gia.
+              </li>
+              <li><b>Tô vàng an toàn XSS (search.jsp:220–256):</b> Dùng <code>TreeWalker(NodeFilter.SHOW_TEXT)</code> và <code>Text.splitText()</code> để chèn thẻ <code>&lt;mark&gt;</code>, tuyệt đối không dùng <code>innerHTML</code> nên an toàn 100% trước mã độc XSS.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>MySQL 8 Collation:</b> <code>utf8mb4_0900_ai_ci</code> (chuẩn Unicode 9.0 của MySQL 8, coi chữ <code>đ</code> bằng <code>d</code>, <code>ư</code> bằng <code>u</code>).</li>
+              <li><b>Bảng <code>search_history</code>:</b> Lưu lịch sử tìm kiếm phục vụ cá nhân hóa Bảng tin.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. AI PHÂN TÍCH CẢM XÚC & TRỢ LÝ -->
+    <div class="split-card item-card" data-category="ai-sec">
+      <div class="split-header">
+        <div class="split-title"><span>🤖 10. Trí Tuệ Nhân Tạo (AI): Phân tích Cảm xúc, Viết Caption, Tóm tắt &amp; Dịch</span></div>
+        <div>
+          <span class="split-badge b-ui">UI: Huy hiệu sắc thái, Nút AI soạn bài</span>
+          <span class="split-badge b-code">AiService, SentimentAnalyzer, GeminiClient</span>
+          <span class="split-badge b-db">DB: posts.sentiment</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Huy hiệu Cảm xúc:</b> Trên góc bài viết có biểu tượng cảm xúc (😊 Tích cực, 😐 Trung tính, 😔 Tiêu cực).</li>
+              <li><b>Cảnh báo khi soạn bài:</b> Nếu gõ bài viết quá tiêu cực, hệ thống nhắc nhở nhẹ nhàng trước khi đăng.</li>
+              <li><b>Trợ lý AI đa năng:</b> Bấm nút "Viết caption cùng AI" ➔ Gemini/Claude nhìn ảnh và viết chú thích kèm hashtag. Nút "Tóm tắt bài viết" và "Dịch bài viết".</li>
+              <li><b>File JS:</b> <code>assets/js/composer-ai.js</code>, <code>assets/js/post-ai.js</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Thuật toán Từ điển Tiếng Việt Offline (SentimentAnalyzer.java:101–157):</b>
+                <br>&bull; Tách câu theo dấu câu thành các mệnh đề độc lập.
+                <br>&bull; Nếu có từ phủ định đứng trong 2 từ trước từ cảm xúc (<i>không, chẳng, chả, chưa, ko...</i>) ➔ đảo dấu điểm và nhân <code>-0.8</code> (<i>"vui" = +2.0 ➔ "không vui" = -1.6</i>).
+                <br>&bull; Chuẩn hóa VADER: <code>score = sum / √(sum² + 4)</code> đưa về đoạn <code>[-1, 1]</code>.
+              </li>
+              <li><b>Mô hình LLM chạy nền (AiService.java:85–110):</b>
+                <br>&bull; Sau khi lưu bài, luồng nền <code>ai-sentiment</code> gọi Gemini/Claude (nếu có API key) để cập nhật sắc thái mà không làm đơ giao diện.
+                <br>&bull; <b>Cơ chế chịu lỗi (Fault-tolerant):</b> Nếu mất mạng hoặc hết quota API key, thuật toán Offline tự động thay thế 100%, web không bao giờ bị lỗi.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>posts</code>:</b> Cột <code>sentiment</code> (<code>POSITIVE</code> / <code>NEUTRAL</code> / <code>NEGATIVE</code>), <code>sentiment_score</code> (float từ -1.0 đến +1.0), <code>sentiment_source</code> (<code>LEXICON</code> / <code>GEMINI</code> / <code>CLAUDE</code>).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. BẢO MẬT: PASKEY VÀ DID W3C -->
+    <div class="split-card item-card" data-category="ai-sec">
+      <div class="split-header">
+        <div class="split-title"><span>🔐 11. Sinh trắc học Passkey WebAuthn &amp; Danh tính số W3C DID (did:key)</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /security, /did/login, /did/verify</span>
+          <span class="split-badge b-code">WebAuthnService, DidKey, StepUp</span>
+          <span class="split-badge b-db">DB: webauthn_credentials, user_dids</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Đăng nhập bằng DID:</b> Tại <code>/login</code>, bấm "Đăng nhập bằng Danh tính số DID" ➔ Trình duyệt tự xác thực không cần gõ mật khẩu.</li>
+              <li><b>Quét vân tay / Face ID (Passkey):</b> Tại <code>/security</code>, bấm "Thêm khóa Passkey" ➔ Windows Hello / Touch ID hiện popup quét vân tay.</li>
+              <li><b>Cửa sổ bảo vệ StepUp:</b> Khi vào Đổi mật khẩu hoặc Mở Album ẩn ➔ Bắt buộc quét lại vân tay trong vòng 5 phút gần nhất mới cho thực hiện.</li>
+              <li><b>Hồ sơ xác thực (Verifiable Credential):</b> Xuất file <code>.vc.json</code> và kiểm tra chữ ký số tại <code>/did/verify</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Mật mã khóa công khai phi đối xứng:</b> Khóa riêng (Private Key) lưu trong chip bảo mật / IndexedDB của trình duyệt người dùng, máy chủ không bao giờ giữ khóa riêng.</li>
+              <li><b>Xác thực chữ ký Passkey (WebAuthnService.java:84–115):</b>
+                <br>Server kiểm tra 5 lớp: <code>challenge</code> khớp session, <code>rpIdHash</code> khớp tên miền, cờ <code>UV = 1</code> (User Verified qua phần cứng sinh trắc học), bộ đếm <code>signCount</code> tăng dần (chống clone bộ xác thực), và xác minh chữ ký <code>ES256/RS256</code>.
+              </li>
+              <li><b>Danh tính số DID (DidKey.java:31–62):</b> Chuỗi <code>did:key:z6Mk...</code> mã hóa Public Key 32 byte Ed25519 với tiền tố multicodec <code>0xED 0x01</code>. Xác minh chữ ký Ed25519 trên thông điệp ngẫu nhiên dùng 1 lần (hiệu lực 3 phút, dùng xong xóa chống Replay Attack).</li>
+              <li><b>Cửa sổ bảo mật StepUp (StepUp.java:14–40):</b> Mở khóa phiên <code>WINDOW_MS = 300,000ms</code> (5 phút). Có Passkey thì bắt buộc phải dùng vân tay, cấm dùng mật khẩu bypass.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>webauthn_credentials</code>:</b> <code>credential_id</code>, <code>user_id</code>, <code>public_key</code> (DER bytes), <code>sign_count</code>, <code>algorithm</code> (-7 = ES256, -257 = RS256).</li>
+              <li><b>Bảng <code>user_dids</code>:</b> <code>(user_id, did, public_key, created_at)</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. ADMIN QUẢN TRỊ VIÊN -->
+    <div class="split-card item-card" data-category="admin-settings">
+      <div class="split-header">
+        <div class="split-title"><span>🛡️ 12. Quản trị viên (Admin): Dashboard, Báo cáo Vi phạm &amp; Khóa Cắt Phiên Tức Thì</span></div>
+        <div>
+          <span class="split-badge b-ui">URL: /admin</span>
+          <span class="split-badge b-code">AdminController, AdminFilter, ReportDAOImpl</span>
+          <span class="split-badge b-db">DB: reports, admin_logs, users.status</span>
+        </div>
+      </div>
+      <div class="split-body">
+        <div class="col-ui">
+          <div class="col-label">🖥️ MÀN HÌNH TRÁI (GIAO DIỆN WEB)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Vị trí:</b> Trang <code>/admin</code> (chỉ tài khoản có <code>role = 'ADMIN'</code> mới truy cập được).</li>
+              <li><b>Thành phần:</b>
+                <ul>
+                  <li>Dashboard: 4 thẻ thống kê (Tổng người dùng, Bài viết, Nhóm, Báo cáo chờ xử lý).</li>
+                  <li>Quản lý Người dùng: Nút "Khóa tài khoản" / "Mở khóa". Khi bấm Khóa tài khoản của ai, máy bên kia lập tức bị đá văng ra màn hình đăng nhập!</li>
+                  <li>Xử lý Báo cáo vi phạm: Xem bài viết bị báo cáo, nút "Giữ nguyên" hoặc "Xóa nội dung + Phạt người dùng".</li>
+                  <li>Nhật ký hệ thống (Audit Logs): Ghi lại ai đã làm gì vào thời gian nào.</li>
+                </ul>
+              </li>
+              <li><b>File JSP:</b> <code>views/admin/dashboard.jsp</code>, <code>users.jsp</code>, <code>reports.jsp</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-code">
+          <div class="col-label">⚙️ MÀN HÌNH PHẢI (CODE GỌI Ở ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảo vệ quyền Admin:</b> <code>filter/AdminFilter.java</code> chặn mọi request không phải ADMIN (trả HTTP 403 hoặc chuyển hướng).</li>
+              <li><b>Cơ chế Khóa Cắt Phiên Tức Thì (Realtime Kickout):</b>
+                <br>1. Admin bấm Khóa ➔ <code>POST /admin/users/status</code> ➔ <code>AdminController.java</code> cập nhật DB <code>status = 'BANNED'</code>.
+                <br>2. Gọi <code>RealtimeSessionListener.invalidateUserSessions(targetUserId)</code> để hủy ngay lập tức <code>HttpSession</code> của nạn nhân trên server.
+                <br>3. Bắn gói tin WebSocket <code>{"type":"ACCOUNT_BANNED"}</code> ➔ Trình duyệt của nạn nhân nhận tin tự động nhảy về trang đăng nhập với thông báo bị khóa!
+              </li>
+              <li><b>Xử lý báo cáo chống IDOR:</b> <code>ReportController.java:50–73</code> kiểm tra <code>postDAO.canView()</code> trước khi cho báo cáo, ngăn kẻ xấu thay ID phá hoại.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-db">
+          <div class="col-label">🗄️ CƠ SỞ DỮ LIỆU (LẤY TỪ ĐÂU)</div>
+          <div class="split-desc">
+            <ul>
+              <li><b>Bảng <code>reports</code>:</b> <code>report_id</code>, <code>reporter_id</code>, <code>target_type</code> (POST/COMMENT/USER), <code>target_id</code>, <code>reason</code>, <code>status</code> (PENDING/RESOLVED/REJECTED).
+                <br>Khóa UNIQUE: <code>(reporter_id, target_type, target_id)</code> chống 1 người báo cáo trùng lặp.
+              </li>
+              <li><b>Bảng <code>admin_logs</code>:</b> <code>log_id</code>, <code>admin_id</code>, <code>action</code>, <code>target_id</code>, <code>details</code>, <code>ip_address</code>, <code>created_at</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ PHẦN 2 -->
+<section id="workflow-chung">
+  <h2>Phần 2: Workflow Hệ Thống — Chung và Riêng Từng Chức Năng<small>Trình bày rành mạch từ lúc Client gửi request cho đến khi dữ liệu hiện lên màn hình</small></h2>
+
+  <!-- 1. WORKFLOW CHUNG TỔNG THỂ -->
+  <div class="wf-box">
+    <div class="wf-head">
+      <div>
+        <p class="wf-title">2.1. Workflow Chung Của Cả Hệ Thống (Vòng Đời 1 Request HTTP Chuẩn MVC)</p>
+        <span class="wf-meta">Áp dụng cho toàn bộ 22 Servlet Controllers và các trang giao diện trong dự án</span>
+      </div>
+    </div>
+    <div class="wf-quick">
+      <b>Bản chất dễ hiểu:</b> Khi người dùng bấm vào một đường link hay gửi form trên trình duyệt, yêu cầu đi qua <b>Chuỗi 3 Filter bảo vệ</b> (Mã hóa tiếng Việt ➔ Xác thực phiên ➔ Chống giả mạo CSRF) rồi mới vào <b>Servlet Controller</b>. Controller gọi <b>DAO/Service</b> lấy dữ liệu từ <b>MySQL 8.4</b> thông qua <b>Connection Pool HikariCP</b>, sau đó chuyển tiếp sang <b>JSP</b> để render giao diện HTML trả về cho người dùng.
+    </div>
+
+    <!-- Sơ đồ pipeline trực quan 6 bước -->
+    <div class="pipeline">
+      <div class="pipe-node">
+        <span class="num">BƯỚC 1</span>
+        <h4>Client Browser</h4>
+        <p>Người dùng gửi HTTP GET / POST hoặc AJAX <code>fetch()</code> kèm Cookie Session và CSRF token.</p>
+      </div>
+      <div class="pipe-node">
+        <span class="num">BƯỚC 2</span>
+        <h4>Pipeline Filters</h4>
+        <p>1. <code>EncodingFilter</code> (UTF-8)<br>2. <code>AuthFilter</code> (kiểm tra session / login)<br>3. <code>CsrfFilter</code> (chống CSRF).</p>
+      </div>
+      <div class="pipe-node">
+        <span class="num">BƯỚC 3</span>
+        <h4>Servlet Controller</h4>
+        <p>Nhận request, validate tham số, gọi Service / DAO xử lý nghiệp vụ.</p>
+      </div>
+      <div class="pipe-node">
+        <span class="num">BƯỚC 4</span>
+        <h4>Service / DAO</h4>
+        <p>Nhận EntityManager từ <code>JPAUtil</code>, thực thi JPQL hoặc Native Query.</p>
+      </div>
+      <div class="pipe-node">
+        <span class="num">BƯỚC 5</span>
+        <h4>HikariCP ➔ MySQL 8.4</h4>
+        <p>Mượn kết nối từ HikariCP Pool (độ trễ ~2ms), thực thi SQL trên Host Server hoặc Cloud.</p>
+      </div>
+      <div class="pipe-node">
+        <span class="num">BƯỚC 6</span>
+        <h4>View (JSP / JSON)</h4>
+        <p>Đóng kết nối (<code>em.close()</code>), forward sang JSP dùng JSTL render HTML hoặc trả JSON.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. WORKFLOW CHUNG REALTIME WEBSOCKET -->
+  <div class="wf-box">
+    <div class="wf-head">
+      <div>
+        <p class="wf-title">2.2. Workflow Chung Của Hạ Tầng Realtime WebSocket (RealtimeHub 4 Làn Ưu Tiên)</p>
+        <span class="wf-meta">Áp dụng cho: Chat tức thì, Thông báo realtime, Đang gõ (typing), Thả tim, Khóa tài khoản tức thì</span>
+      </div>
+    </div>
+    <div class="wf-quick">
+      <b>Bản chất dễ hiểu:</b> Thay vì trình duyệt phải liên tục gửi request hỏi server (polling gây tốn tài nguyên), hệ thống duy trì 1 đường ống kết nối 2 chiều cố định <b>WebSocket</b>. Máy chủ có bộ điều phối <b>RealtimeHub</b> chia làm <b>4 làn ưu tiên</b> để những tin nhắn khẩn cấp (khóa tài khoản, chat) luôn được gửi đi trước, không bao giờ bị nghẽn bởi các sự kiện phụ.
+    </div>
+    <ol class="steps">
+      <li><b>Bắt tay kết nối (Handshake &amp; Auth):</b> Khi trang web tải xong, <code>realtime.js</code> kết nối tới <code>ws://domain/ws</code>. Trong <code>RealtimeEndpoint.java:21–55</code>, server đọc <code>HttpSession</code> lấy <code>userId</code> của người dùng đăng nhập. Nếu chưa đăng nhập thì từ chối kết nối ngay.</li>
+      <li><b>Hỗ trợ đa thiết bị (Multi-session):</b> <code>RealtimeHub</code> dùng <code>ConcurrentHashMap&lt;Integer, CopyOnWriteArrayList&lt;Session&gt;&gt;</code> lưu trữ các phiên WebSocket của cùng 1 người dùng. Nhờ đó, nếu 1 người mở cả điện thoại và máy tính thì cả 2 thiết bị đều nhận được tin nhắn cùng lúc.</li>
+      <li><b>4 Làn gửi theo độ ưu tiên (RealtimeHub.java:39–263):</b>
+        <ul>
+          <li><code>URGENT</code> (Độ ưu tiên cao nhất): Khóa tài khoản, cảnh báo bảo mật.</li>
+          <li><code>CHAT</code>: Tin nhắn riêng, tin nhắn nhóm, trạng thái đang gõ (typing).</li>
+          <li><code>FEED</code>: Thông báo có bài viết mới, lượt thích, bình luận mới.</li>
+          <li><code>BULK</code>: Cập nhật trạng thái online/offline danh sách bạn bè.</li>
+        </ul>
+      </li>
+      <li><b>Cập nhật giao diện không tải lại trang:</b> Trình duyệt nhận gói JSON qua hàm <code>socket.onmessage</code> trong <code>realtime.js</code>, giải mã trường <code>type</code> và gọi hàm JS tương ứng để cập nhật trực tiếp vào DOM (thêm bong bóng chat, tăng số chuông thông báo, đổi màu chấm online).</li>
+    </ol>
+  </div>
+
+  <!-- 3. BẢNG TỔNG HỢP 16 WORKFLOWS RIÊNG -->
+  <h3>2.3. Bảng Tra Cứu Workflow Riêng Từng Chức Năng (16 Chức Năng Chính)</h3>
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Tên Chức Năng</th>
+          <th>Luồng Xử Lý Chi Tiết (Từng Bước)</th>
+          <th>File &amp; Dòng Code Trọng Tâm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>1. Đăng ký &amp; Kích hoạt</b></td>
+          <td>Client submit form ➔ <code>AuthController.handleRegister()</code> validate email, kiểm tra họ tên an toàn XSS (<code>isSafeName</code>) ➔ Băm mật khẩu bằng <code>PasswordUtil.hashPassword()</code> (BCrypt salt 12 vòng) ➔ Lưu vào bảng <code>users</code> với <code>status = 'ACTIVE'</code> ➔ Tự động tạo bản ghi mặc định trong <code>user_settings</code>.</td>
+          <td><code>AuthController.java:165–240</code><br><code>util/PasswordUtil.java</code></td>
+        </tr>
+        <tr>
+          <td><b>2. Đăng nhập &amp; Phiên</b></td>
+          <td><code>POST /login</code> ➔ Kiểm tra mật khẩu BCrypt ➔ Kiểm tra <code>status != 'BANNED'</code> ➔ Gọi <code>startSession()</code>: đổi Session ID (chống Session Fixation), lưu <code>User</code> vào <code>session.setAttribute("user", u)</code>, sinh CSRF Token 32 byte, cập nhật <code>last_login_at</code> vào DB. Nếu tích "Ghi nhớ" thì tạo cookie <code>remember_token</code> đã ký HMAC-SHA256.</td>
+          <td><code>AuthController.java:85–159</code><br><code>filter/AuthFilter.java:38–119</code></td>
+        </tr>
+        <tr>
+          <td><b>3. Quên mật khẩu (OTP)</b></td>
+          <td><code>POST /forgot-password</code> ➔ Sinh mã OTP ngẫu nhiên 6 chữ số qua <code>SecureRandom</code> (hạn dùng 10 phút, lưu hash BCrypt trong session) ➔ Gửi mail HTML qua <code>MailUtil</code> ➔ Người dùng nhập OTP ➔ Server so khớp hash ➔ Cho phép đặt lại mật khẩu mới ➔ Xóa OTP khỏi session.</td>
+          <td><code>ForgotPasswordController.java</code><br><code>util/MailUtil.java</code></td>
+        </tr>
+        <tr>
+          <td><b>4. Tải Bảng tin (Smart Feed)</b></td>
+          <td><code>GET /feed</code> ➔ <code>FeedController</code> chạy <code>DbParallel</code> 6 luồng nạp song song ➔ <code>PostDAOImpl.getFeedPosts()</code> lọc bằng JPQL <code>VISIBLE</code> ➔ <code>RecommendationService.rankFeed()</code> tính điểm tương tác + sở thích + thời gian ➔ <code>preparePosts()</code> nạp theo lô (Batch query) comments, likes, shares tránh N+1 ➔ <code>ContentFilter.apply()</code> ẩn bài tiêu cực/từ cấm ➔ Forward <code>feed.jsp</code>.</td>
+          <td><code>FeedController.java:48–164</code><br><code>service/RecommendationService.java</code><br><code>dao/PostDAOImpl.java:38–130</code></td>
+        </tr>
+        <tr>
+          <td><b>5. Đăng bài đa phương tiện</b></td>
+          <td><code>POST /feed/create</code> (Multipart) ➔ <code>UploadUtil.uploadMedia()</code> kiểm tra magic bytes, upload Cloudinary ➔ Lưu bài vào bảng <code>posts</code> ➔ Luồng nền <code>AiService.analyzePostAsync()</code> chạy từ điển VADER gắn nhãn cảm xúc vào DB ➔ Trả JSON <code>postId</code> ➔ Trình duyệt reload hiển thị bài viết.</td>
+          <td><code>FeedController.java:261–398</code><br><code>util/UploadUtil.java</code><br><code>ai/AiService.java:85–110</code></td>
+        </tr>
+        <tr>
+          <td><b>6. Thả tim &amp; Bình luận</b></td>
+          <td><code>POST /feed/like</code> ➔ Toggle trong bảng <code>post_likes</code> ➔ Bắn thông báo Realtime nếu thích bài người khác ➔ Trả JSON số like mới, JS đổi màu tim tại chỗ. Với bình luận: <code>POST /feed/comment</code> ➔ Lưu <code>post_comments</code> ➔ Trả HTML thẻ bình luận mới, JS chèn ngay vào DOM.</td>
+          <td><code>FeedController.java:400–485</code><br><code>dao/LikeDAOImpl.java</code><br><code>dao/CommentDAOImpl.java</code></td>
+        </tr>
+        <tr>
+          <td><b>7. Nhắn tin 1-1 &amp; Nhóm</b></td>
+          <td>Client gửi qua <code>POST /api/chat/send</code> hoặc WebSocket ➔ <code>ChatService.sendMessage()</code> lưu vào bảng <code>chat_messages</code> ➔ Đẩy vào làn <code>CHAT</code> của <code>RealtimeHub</code> ➔ Gửi tức thì đến các WebSocket session của người nhận ➔ <code>chat.js</code> vẽ bong bóng chat và phát âm thanh thông báo.</td>
+          <td><code>ChatController.java:82–120</code><br><code>service/ChatService.java</code><br><code>realtime/RealtimeHub.java</code></td>
+        </tr>
+        <tr>
+          <td><b>8. Trạng thái Online (Presence)</b></td>
+          <td>Client định kỳ gửi pulse hoặc giữ kết nối WebSocket ➔ <code>Presence.java</code> ghi nhận mốc thời gian hoạt động. Khi người dùng đóng tab / F5, hệ thống áp dụng <b>cửa sổ ân hạn 8 giây (Grace Period)</b> trước khi thông báo offline để tránh hiện tượng avatar chớp tắt liên tục.</td>
+          <td><code>realtime/Presence.java:36–99</code><br><code>controller/PulseController.java</code></td>
+        </tr>
+        <tr>
+          <td><b>9. Kết bạn &amp; Chặn</b></td>
+          <td>Gửi lời mời kết bạn ➔ <code>FriendshipDAOImpl</code> ghi vào bảng <code>friendships</code> với cặp khóa chuẩn hóa <code>user_lo = min(u1,u2), user_hi = max(u1,u2)</code> chống race condition ➔ Khi chấp nhận, đổi <code>status = 'ACCEPTED'</code> và bắn thông báo Realtime. Chặn người dùng ➔ Ghi bảng <code>blocks</code> và xóa quan hệ bạn bè.</td>
+          <td><code>FriendsController.java:55–160</code><br><code>dao/FriendshipDAOImpl.java:38–106</code></td>
+        </tr>
+        <tr>
+          <td><b>10. Quản lý Nhóm (Groups)</b></td>
+          <td>Tạo nhóm ➔ Lưu bảng <code>groups</code> và tạo chủ nhóm là <code>ADMIN</code> trong <code>group_members</code>. Xin vào nhóm kín ➔ Thành viên ở trạng thái <code>PENDING</code>. Chủ nhóm duyệt ➔ Đổi thành <code>ACTIVE</code>. Xóa thành viên (Kick) ➔ Đổi trạng thái thành <code>BANNED</code> để ngăn bấm xin vào lại.</td>
+          <td><code>GroupsController.java</code><br><code>util/GroupPermission.java</code><br><code>dao/GroupDAOImpl.java</code></td>
+        </tr>
+        <tr>
+          <td><b>11. Đăng &amp; Xem Tin 24h (Stories)</b></td>
+          <td>Đăng story ➔ Đặt <code>expiresAt = now + 24h</code>, giới hạn 15 tin/ngày ➔ Mọi câu truy vấn feed đều có <code>WHERE expiresAt &gt; now</code> nên tự động ẩn đúng giờ ➔ Khi xem story, ghi vào <code>story_views</code> ➔ Luồng nền <code>story-cleaner</code> dọn tệp và bản ghi của người tắt kho lưu trữ.</td>
+          <td><code>StoryController.java</code><br><code>dao/StoryDAOImpl.java</code><br><code>util/AppContextListener.java:40–54</code></td>
+        </tr>
+        <tr>
+          <td><b>12. Báo cáo Vi phạm</b></td>
+          <td><code>POST /report/create</code> ➔ Kiểm tra 7 lý do hợp lệ ➔ Kiểm tra quyền xem <code>postDAO.canView()</code> chống IDOR ➔ Lưu vào <code>reports</code> với ràng buộc <code>UNIQUE(reporter_id, target_type, target_id)</code> chống báo cáo trùng ➔ Hiện trong Dashboard Admin.</td>
+          <td><code>ReportController.java:32–82</code><br><code>dao/ReportDAOImpl.java</code></td>
+        </tr>
+        <tr>
+          <td><b>13. Bộ lọc nội dung cá nhân</b></td>
+          <td>Người dùng nhập từ khóa cấm trong Cài đặt ➔ <code>ContentFilter.java</code> chuyển thành Regex có ranh giới từ Unicode <code>(?&lt;![\p{L}\p{N}])từ(?!\p{L}\p{N})</code> ➔ Khi nạp bài viết trên Bảng tin, bài nào khớp từ khóa cấm hoặc tiêu cực được thu gọn lại kèm nút "Bấm để xem".</td>
+          <td><code>util/ContentFilter.java:24–64</code><br><code>controller/SettingsController.java</code></td>
+        </tr>
+        <tr>
+          <td><b>14. Đăng nhập Danh tính số DID</b></td>
+          <td>Client gọi <code>POST /did/challenge</code> lấy thông điệp ngẫu nhiên 24 byte (hạn 3 phút) ➔ Trình duyệt ký thông điệp bằng Private Key Ed25519 trong IndexedDB ➔ Gửi lên <code>POST /did/login</code> ➔ Server gọi <code>DidKey.verify()</code> kiểm tra chữ ký với Public Key trong <code>user_dids</code> ➔ Bắt đầu phiên đăng nhập.</td>
+          <td><code>DidLoginController.java:102–133</code><br><code>security/DidKey.java:31–62</code></td>
+        </tr>
+        <tr>
+          <td><b>15. Sinh trắc học Passkey &amp; StepUp</b></td>
+          <td>Client gọi <code>navigator.credentials.get()</code> quét vân tay / Face ID ➔ Server xác thực cấu trúc nhị phân <code>authenticatorData</code> (kiểm tra rpIdHash, cờ UV=1, signCount, chữ ký ES256/RS256) ➔ Mở khóa phiên <code>StepUp</code> trong đúng 5 phút để cho phép Đổi mật khẩu hoặc Mở Album ẩn.</td>
+          <td><code>security/WebAuthnService.java:84–115</code><br><code>security/StepUp.java:14–40</code></td>
+        </tr>
+        <tr>
+          <td><b>16. Khóa tài khoản tức thì (Admin)</b></td>
+          <td>Admin bấm Khóa tài khoản ➔ Cập nhật <code>users.status = 'BANNED'</code> ➔ Gọi <code>RealtimeSessionListener.invalidateUserSessions()</code> hủy <code>HttpSession</code> ➔ Bắn WebSocket <code>ACCOUNT_BANNED</code> ➔ Trình duyệt người dùng bị chuyển hướng ra màn hình đăng nhập ngay lập tức.</td>
+          <td><code>AdminController.java</code><br><code>realtime/RealtimeSessionListener.java</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ PHẦN 3 -->
+<section id="database-infra">
+  <h2>Phần 3: Bản Thuyết Minh Cơ Sở Dữ Liệu &amp; Hạ Tầng Kết Nối<small>Trả lời xuất sắc câu hỏi: "Nhóm sử dụng Database từ đâu, kết nối như thế nào, xử lý hiệu năng ra sao?"</small></h2>
+
+  <!-- 1. NGUỒN GỐC CƠ SỞ DỮ LIỆU -->
+  <div class="callout">
+    <div class="callout-title">📌 CÂU HỎI 1: "NHÓM SỬ DỤNG DATABASE GÌ? LẤY TỪ ĐÂU?"</div>
+    <p>
+      <b>Trả lời của sinh viên:</b><br>
+      "Dạ thưa cô, dự án UTErSpace sử dụng <b>Hệ quản trị CSDL MySQL 8.4 Community Server</b> với kiến trúc lai (Hybrid) cực kỳ linh hoạt:<br>
+      &bull; <b>Nguồn chính (Khuyên dùng khi báo cáo &amp; mạng LAN):</b> Chạy trực tiếp phiên bản MySQL 8.4 portable trên Máy Chủ (Host Server) tại thư mục <code>tools/mysql-8.4.9-winx64</code> (cổng 3306), kết nối qua địa chỉ mạng nội bộ hoặc qua mạng riêng ảo <b>Tailscale Mesh VPN</b> (IP: <code>100.119.255.40:3306</code>). Ưu điểm vượt trội là độ trễ chỉ <b>~2ms</b> (so với 200ms khi dùng cloud nước ngoài), giúp Bảng tin và Chat Realtime chạy nhanh như chớp.<br>
+      &bull; <b>Nguồn dự phòng (Cloud Fallback):</b> Cụm máy chủ <b>Aiven Cloud MySQL</b> đặt tại Singapore (<code>uterspace-uterspace.b.aivencloud.com:23135</code>, kết nối bảo mật qua SSL/TLS v1.3). Khi ra ngoài không có VPN, nhóm có thể chuyển đổi sang Cloud chỉ bằng 1 câu lệnh PowerShell <code>.\set-tailscale-db-ip.ps1</code> mà không cần sửa code."
+    </p>
+  </div>
+
+  <!-- 2. KẾT NỐI NHƯ THẾ NÀO -->
+  <div class="callout">
+    <div class="callout-title">📌 CÂU HỎI 2: "KẾT NỐI VÀO DATABASE NHƯ THẾ NÀO TRONG CODE?"</div>
+    <p>
+      <b>Trả lời của sinh viên:</b><br>
+      "Dạ thưa cô, việc kết nối được tổ chức qua 4 lớp chuyên nghiệp theo chuẩn doanh nghiệp:<br>
+      &bull; <b>1. Quản lý cấu hình bảo mật (<code>CloudConfig.java</code>):</b> Thông tin nhạy cảm như URL, tài khoản và mật khẩu DB <b>tuyệt đối không ghi trong mã nguồn</b>. File cấu hình thực tế nằm tại <code>&lt;Thư mục Tomcat&gt;/conf/uterspace-cloud.properties</code> (nằm ngoài thư mục git để không bị lộ khi push code) hoặc qua biến môi trường <code>UTERSPACE_DB_URL</code>.<br>
+      &bull; <b>2. Quản trị vòng đời EntityManagerFactory (<code>JPAUtil.java</code>):</b> Khởi tạo một đối tượng <code>EntityManagerFactory</code> dùng chung duy nhất (Singleton) khi ứng dụng khởi động tại <code>AppContextListener</code>. Mỗi khi cần thao tác dữ liệu, DAO gọi <code>JPAUtil.getEntityManager()</code> và luôn đóng trong khối <code>try ... finally { em.close(); }</code> để giải phóng kết nối.<br>
+      &bull; <b>3. Connection Pool đỉnh cao HikariCP (<code>persistence.xml</code>):</b> Dự án tích hợp HikariCP — thư viện Connection Pool nhanh và nhẹ nhất thế giới hiện nay cho Java. Cấu hình duy trì <b>5 đến 20 kết nối sẵn sàng</b> (<code>minimumIdle=5, maximumPoolSize=20</code>), thiết lập <code>keepaliveTime=30s</code> và <code>aliveBypassWindowMs=10s</code> để kết nối luôn thông suốt, không bao giờ bị lỗi <i>Connection reset</i> khi máy chủ treo lâu.<br>
+      &bull; <b>4. An toàn dữ liệu với <code>hbm2ddl.auto = none</code>:</b> Hệ thống không dùng <code>update</code> hay <code>create</code> của Hibernate để tránh nguy cơ ghi đè làm mất dữ liệu của nhóm. Toàn bộ cấu trúc 24 bảng được kiểm soát chặt chẽ bằng file SQL Migration <code>db/aiven_mysql_migration.sql</code>."
+    </p>
+  </div>
+
+  <!-- 3. GIẢI QUYẾT N+1 VÀ TỐI ƯU HIỆU NĂNG -->
+  <div class="callout">
+    <div class="callout-title">📌 CÂU HỎI 3: "NHÓM LÀM SAO ĐỂ TRUY VẤN NHANH VÀ CHỐNG LỖI N+1 QUERY?"</div>
+    <p>
+      <b>Trả lời của sinh viên:</b><br>
+      "Dạ thưa cô, vì Bảng tin mạng xã hội có rất nhiều dữ liệu liên đới (mỗi bài viết lại có danh sách bình luận, người thả tim, bài chia sẻ, tên nhóm...), nếu viết code theo cách thông thường sẽ bị lỗi <b>N+1 Query</b> (truy vấn 20 bài viết thì tốn thêm 20x4 = 80 câu SQL phụ, làm web bị chậm đơ). Nhóm em đã giải quyết triệt để bằng 3 kỹ thuật:<br>
+      &bull; <b>1. Truy vấn nạp theo lô (Batch Fetching) trong <code>FeedController.preparePosts()</code>:</b> Gom toàn bộ 20 <code>postId</code> lại, chỉ thực hiện đúng 1 câu query <code>SELECT c FROM Comment c WHERE c.post.postId IN :ids</code> và 1 câu query <code>SELECT l.post.postId FROM Like l WHERE l.user.userId = :me AND l.post.postId IN :ids</code>. Nhờ đó, thay vì tốn 100 câu query, trang Feed chỉ tốn đúng <b>4 câu query cố định</b>.<br>
+      &bull; <b>2. Chạy song song đa luồng với <code>DbParallel.java</code>:</b> Trang chủ có 5 khối dữ liệu độc lập (Feed, Stories, Gợi ý bạn bè, Danh sách nhóm, Thông báo). Nhóm dùng <code>ExecutorService</code> (pool 6 luồng) để bắn 5 câu truy vấn này cùng một lúc xuống Database, thời gian tải trang giảm từ 500ms xuống còn đúng bằng thời gian của câu query dài nhất (~60ms).<br>
+      &bull; <b>3. Dùng <code>JOIN FETCH</code> trong JPQL:</b> Ví dụ <code>SELECT p FROM Post p JOIN FETCH p.author</code> giúp nạp luôn thông tin người đăng bài trong cùng 1 câu SELECT duy nhất, Hibernate không phải chạy thêm câu SELECT phụ để lấy User."
+    </p>
+  </div>
+
+  <!-- 4. TỪ ĐIỂN 24 BẢNG CƠ SỞ DỮ LIỆU -->
+  <h3>3.4. Bảng Tra Cứu 24 Bảng Cơ Sở Dữ Liệu MySQL 8.4 Của UTErSpace</h3>
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Tên Bảng (Table)</th>
+          <th>Khóa Chính &amp; Khóa Ngoại Quan Trọng</th>
+          <th>Ý Nghĩa Nghiệp Vụ &amp; Cột Cốt Lõi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>users</code></td>
+          <td>PK: <code>user_id</code> (INT AUTO_INCREMENT)</td>
+          <td>Tài khoản: <code>username</code>, <code>email</code>, <code>password_hash</code>, <code>full_name</code>, <code>avatar_url</code>, <code>cover_url</code>, <code>bio</code>, <code>role</code> (USER/ADMIN), <code>status</code> (ACTIVE/BANNED).</td>
+        </tr>
+        <tr>
+          <td><code>user_settings</code></td>
+          <td>PK &amp; FK: <code>user_id</code> ➔ <code>users</code></td>
+          <td>Cài đặt: <code>who_can_friend</code>, <code>who_can_message</code>, <code>show_online</code>, <code>content_filter</code> (từ khóa lọc), <code>hide_negative</code>, <code>archive_stories</code>.</td>
+        </tr>
+        <tr>
+          <td><code>user_dids</code></td>
+          <td>PK: <code>(user_id, did)</code></td>
+          <td>Danh tính số W3C: chuỗi <code>did</code> (<code>did:key:z6Mk...</code>), <code>public_key</code> (32 byte Ed25519) dùng đăng nhập không mật khẩu.</td>
+        </tr>
+        <tr>
+          <td><code>webauthn_credentials</code></td>
+          <td>PK: <code>credential_id</code> (VARCHAR 255)</td>
+          <td>Khóa sinh trắc học Passkey: <code>user_id</code>, <code>public_key</code> (DER bytes), <code>sign_count</code>, <code>algorithm</code> (ES256/RS256).</td>
+        </tr>
+        <tr>
+          <td><code>friendships</code></td>
+          <td>PK: <code>(user_lo, user_hi)</code></td>
+          <td>Quan hệ bạn bè: <code>user_lo = min(u1,u2)</code>, <code>user_hi = max(u1,u2)</code>, <code>action_user_id</code>, <code>status</code> (PENDING/ACCEPTED).</td>
+        </tr>
+        <tr>
+          <td><code>blocks</code></td>
+          <td>PK: <code>(blocker_id, blocked_id)</code></td>
+          <td>Chặn 2 chiều giữa 2 người dùng.</td>
+        </tr>
+        <tr>
+          <td><code>posts</code></td>
+          <td>PK: <code>post_id</code> · FK: <code>user_id</code>, <code>group_id</code></td>
+          <td>Bài viết: <code>content</code>, <code>media_urls</code> (JSON mảng media/3D/360), <code>visibility</code>, <code>shared_post_id</code>, <code>sentiment</code>, <code>is_hidden_by_owner</code>.</td>
+        </tr>
+        <tr>
+          <td><code>post_likes</code></td>
+          <td>PK: <code>(post_id, user_id)</code></td>
+          <td>Lượt thả tim bài viết, lưu thời gian <code>created_at</code>.</td>
+        </tr>
+        <tr>
+          <td><code>post_comments</code></td>
+          <td>PK: <code>comment_id</code> · FK: <code>post_id</code>, <code>user_id</code></td>
+          <td>Bình luận: <code>content</code>, <code>parent_id</code> (tự trỏ vào chính nó để hỗ trợ trả lời phân cấp).</td>
+        </tr>
+        <tr>
+          <td><code>post_saved</code></td>
+          <td>PK: <code>(user_id, post_id)</code></td>
+          <td>Danh mục bài viết đã lưu của từng người dùng.</td>
+        </tr>
+        <tr>
+          <td><code>post_hidden</code></td>
+          <td>PK: <code>(user_id, post_id)</code></td>
+          <td>Lưu bài viết mà người dùng đã bấm "Ẩn bài này" khỏi Bảng tin của mình.</td>
+        </tr>
+        <tr>
+          <td><code>groups</code></td>
+          <td>PK: <code>group_id</code> · FK: <code>created_by</code></td>
+          <td>Hội nhóm: <code>name</code>, <code>description</code>, <code>privacy</code> (PUBLIC/PRIVATE), <code>avatar_url</code>, <code>cover_url</code>.</td>
+        </tr>
+        <tr>
+          <td><code>group_members</code></td>
+          <td>PK: <code>(group_id, user_id)</code></td>
+          <td>Thành viên nhóm: <code>role</code> (ADMIN/MEMBER), <code>status</code> (ACTIVE/PENDING/BANNED).</td>
+        </tr>
+        <tr>
+          <td><code>stories</code></td>
+          <td>PK: <code>story_id</code> · FK: <code>user_id</code></td>
+          <td>Tin 24h: <code>media_url</code>, <code>media_type</code> (IMAGE/VIDEO), <code>caption</code>, <code>created_at</code>, <code>expires_at</code>.</td>
+        </tr>
+        <tr>
+          <td><code>story_views</code></td>
+          <td>PK: <code>(story_id, viewer_id)</code></td>
+          <td>Lịch sử người đã xem tin 24h và thời điểm xem.</td>
+        </tr>
+        <tr>
+          <td><code>story_reactions</code></td>
+          <td>PK: <code>(story_id, user_id)</code></td>
+          <td>Cảm xúc thả trên tin 24h (tim, cười, khóc...).</td>
+        </tr>
+        <tr>
+          <td><code>conversations</code></td>
+          <td>PK: <code>conversation_id</code></td>
+          <td>Phòng chat: <code>is_group</code> (0 = 1-1, 1 = nhóm), <code>title</code>, <code>avatar_url</code>, <code>last_message_at</code>.</td>
+        </tr>
+        <tr>
+          <td><code>conversation_members</code></td>
+          <td>PK: <code>(conversation_id, user_id)</code></td>
+          <td>Thành viên trong phòng chat, lưu <code>last_read_message_id</code> để xác định tin nhắn "Đã xem".</td>
+        </tr>
+        <tr>
+          <td><code>chat_messages</code></td>
+          <td>PK: <code>message_id</code> · FK: <code>conversation_id</code></td>
+          <td>Tin nhắn: <code>sender_id</code>, <code>content</code>, <code>attachment_url</code>, <code>attachment_type</code>, <code>is_recalled</code> (đã thu hồi).</td>
+        </tr>
+        <tr>
+          <td><code>message_reactions</code></td>
+          <td>PK: <code>(message_id, user_id)</code></td>
+          <td>Biểu tượng cảm xúc thả vào từng tin nhắn trong phòng chat.</td>
+        </tr>
+        <tr>
+          <td><code>message_hidden</code></td>
+          <td>PK: <code>(message_id, user_id)</code></td>
+          <td>Ghi nhận người đã bấm "Xóa tin nhắn ở phía tôi".</td>
+        </tr>
+        <tr>
+          <td><code>notifications</code></td>
+          <td>PK: <code>notification_id</code> · FK: <code>recipient_id</code></td>
+          <td>Thông báo: <code>actor_id</code>, <code>type</code> (LIKE, COMMENT, FRIEND_REQ...), <code>target_id</code>, <code>is_read</code>.</td>
+        </tr>
+        <tr>
+          <td><code>reports</code></td>
+          <td>PK: <code>report_id</code> · UNIQUE: <code>(reporter_id, target_type, target_id)</code></td>
+          <td>Báo cáo vi phạm: <code>reason</code>, <code>detail</code>, <code>status</code> (PENDING/RESOLVED/REJECTED).</td>
+        </tr>
+        <tr>
+          <td><code>admin_logs</code></td>
+          <td>PK: <code>log_id</code> · FK: <code>admin_id</code></td>
+          <td>Nhật ký thao tác của quản trị viên: <code>action</code>, <code>target_id</code>, <code>details</code>, <code>ip_address</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ PHẦN 4 -->
+<section id="kich-ban-van-dap">
+  <h2>Phần 4: Kịch Bản Mẫu Vấn Đáp Thực Chiến Trước Giảng Viên<small>Các câu hỏi xoáy kinh điển của cô và cách sinh viên vừa trả lời vừa thao tác trên màn hình</small></h2>
+
+  <!-- TÌNH HUỐNG 1 -->
+  <div class="qa-card">
+    <div class="qa-q">❓ Tình huống 1: Cô chỉ vào Bảng tin và hỏi: "Làm sao trang web biết được bài viết nào được hiện lên cho tài khoản này xem? Em mở code và DB chỉ cho cô xem."</div>
+    <div class="qa-ans">
+      <div class="qa-short">👉 Câu trả lời nhanh: Thưa cô, hệ thống dựa vào hằng số JPQL <code>PostDAOImpl.VISIBLE</code> kết hợp 6 điều kiện an toàn, lọc trực tiếp trong cơ sở dữ liệu chứ không tải hết về bộ nhớ rồi mới lọc.</div>
+      <div class="qa-deep">
+        <b>Các bước thao tác trên màn hình:</b><br>
+        1. <i>Chỉ màn hình trái (Web):</i> "Cô thấy ở đây tài khoản Nguyễn Văn A chỉ nhìn thấy bài viết của bạn bè và nhóm A đã tham gia, hoàn toàn không thấy bài viết riêng tư của người lạ."<br>
+        2. <i>Chuyển sang màn hình phải (VS Code):</i> Mở ngay file <code>src/main/java/com/uterspace/dao/PostDAOImpl.java</code> tại <b>dòng 38 đến 54</b>.<br>
+        3. <i>Giải thích từng dòng code:</i> "Dạ đây là mệnh đề <code>VISIBLE</code>. Dòng 40 kiểm tra bài PUBLIC; Dòng 41 kiểm tra bài FRIENDS (chỉ hiện nếu tác giả là chính mình hoặc nằm trong bảng <code>friendships</code>); Dòng 42–44 kiểm tra nếu là bài trong nhóm thì người xem phải có trạng thái <code>ACTIVE</code> trong <code>group_members</code>; Dòng 46 loại bỏ người dùng nằm trong bảng <code>blocks</code>; và Dòng 48 loại bỏ bài nằm trong bảng <code>post_hidden</code>."
+      </div>
+      <div class="qa-ref">📁 File dẫn chứng: <code>dao/PostDAOImpl.java:38–54</code> · Bảng CSDL: <code>posts</code>, <code>friendships</code>, <code>group_members</code>, <code>blocks</code>, <code>post_hidden</code>.</div>
+    </div>
+  </div>
+
+  <!-- TÌNH HUỐNG 2 -->
+  <div class="qa-card">
+    <div class="qa-q">❓ Tình huống 2: Cô bảo: "Bây giờ em thử bấm gửi 1 tin nhắn chat. Giải thích dữ liệu chạy qua những đâu từ lúc bấm nút gửi đến khi máy bên kia nhận được?"</div>
+    <div class="qa-ans">
+      <div class="qa-short">👉 Câu trả lời nhanh: Thưa cô, luồng đi qua 4 trạm: Client gửi AJAX ➔ ChatController gọi ChatService lưu tin vào bảng <code>chat_messages</code> ➔ RealtimeHub đưa gói tin vào làn ưu tiên CHAT của WebSocket ➔ Browser bên kia nhận JSON qua <code>realtime.js</code> và vẽ bong bóng chat.</div>
+      <div class="qa-deep">
+        <b>Các bước thao tác trên màn hình:</b><br>
+        1. <i>Thao tác trên web:</i> Đặt 2 trình duyệt song song (Chrome nick A, Edge nick B). Nick A gõ "Xin chào" và bấm gửi ➔ Nick B nhảy tin nhắn ngay kèm tiếng ting.<br>
+        2. <i>Mở màn hình phải (VS Code):</i><br>
+        &bull; Mở <code>controller/ChatController.java</code> dòng 82–105: chỉ hàm <code>handleSendMessage()</code> nhận request.<br>
+        &bull; Mở <code>service/ChatService.java</code> dòng 105–125: chỉ lệnh <code>messageDAO.create(msg)</code> lưu vào bảng <code>chat_messages</code> trong DB.<br>
+        &bull; Mở <code>realtime/RealtimeHub.java</code> dòng 130–155: chỉ hàm <code>sendToUser(recipientId, packet, Priority.CHAT)</code> đẩy tin nhắn qua WebSocket.<br>
+        &bull; Mở <code>assets/js/realtime.js</code> dòng 120–135: chỉ sự kiện <code>socket.onmessage</code> gọi hàm <code>appendMessageToDOM()</code>.
+      </div>
+      <div class="qa-ref">📁 File dẫn chứng: <code>ChatController.java:82</code>, <code>ChatService.java:105</code>, <code>RealtimeHub.java:130</code>.</div>
+    </div>
+  </div>
+
+  <!-- TÌNH HUỐNG 3 -->
+  <div class="qa-card">
+    <div class="qa-q">❓ Tình huống 3: Cô hỏi: "Khi Admin bấm nút Khóa tài khoản, làm sao tài khoản của người đó đang lướt web trên máy khác bị văng ra ngay lập tức mà không cần họ bấm F5?"</div>
+    <div class="qa-ans">
+      <div class="qa-short">👉 Câu trả lời nhanh: Thưa cô, nhờ cơ chế phối hợp kép giữa WebSocket và Servlet Session: Server cập nhật DB ➔ Hủy session trên server qua <code>RealtimeSessionListener</code> ➔ Bắn gói tin WebSocket cắt phiên tức thì.</div>
+      <div class="qa-deep">
+        <b>Các bước thao tác trên màn hình:</b><br>
+        1. <i>Chỉ code màn hình phải:</i> Mở file <code>src/main/java/com/uterspace/controller/AdminController.java</code> tại hàm cập nhật trạng thái user.<br>
+        2. <i>Giải thích logic 3 bước:</i><br>
+        &bull; <i>Bước 1:</i> Cập nhật vào DB <code>UPDATE users SET status = 'BANNED' WHERE user_id = :id</code>.<br>
+        &bull; <i>Bước 2:</i> Gọi <code>RealtimeSessionListener.invalidateUserSessions(targetUserId)</code>. Bộ lắng nghe này lưu danh sách các <code>HttpSession</code> đang hoạt động trong RAM, khi gọi hàm này thì session của nạn nhân bị <code>session.invalidate()</code> ngay lập tức, kẻ xấu không thể gửi thêm bất kỳ request nào nữa.<br>
+        &bull; <i>Bước 3:</i> Bắn một gói tin qua WebSocket <code>RealtimeHub.sendToUser(targetUserId, "ACCOUNT_BANNED", Priority.URGENT)</code>. Ở trình duyệt nạn nhân, <code>realtime.js</code> nhận tín hiệu sẽ tự động chạy lệnh <code>window.location.href = '/login?banned=1'</code>.
+      </div>
+      <div class="qa-ref">📁 File dẫn chứng: <code>controller/AdminController.java</code>, <code>realtime/RealtimeSessionListener.java</code>.</div>
+    </div>
+  </div>
+
+  <!-- TÌNH HUỐNG 4 -->
+  <div class="qa-card">
+    <div class="qa-q">❓ Tình huống 4: Cô hỏi: "Dự án của em có chức năng gì nổi bật và khác biệt so với các bài tập lớn thông thường?"</div>
+    <div class="qa-ans">
+      <div class="qa-short">👉 Câu trả lời nhanh: Thưa cô, UTErSpace tích hợp 4 công nghệ đột phá của kỷ nguyên Web hiện đại: (1) Đăng nhập không mật khẩu bằng Danh tính số phi tập trung W3C <code>did:key</code> Ed25519; (2) Sinh trắc học vân tay Passkey WebAuthn; (3) Phân tích cảm xúc bài viết kết hợp từ điển tiếng Việt offline VADER và LLM; (4) Tìm kiếm không dấu 2 bước an toàn XSS.</div>
+      <div class="qa-deep">
+        <b>Cách diễn giải ăn điểm:</b><br>
+        "Dạ thưa cô, ở tính năng Danh tính số DID và Passkey, toàn bộ mã hóa đều dùng <b>mật mã phi đối xứng (Asymmetric Cryptography)</b> chuẩn W3C thế giới. Khóa bí mật không bao giờ rời khỏi thiết bị của người dùng, nên kể cả khi Database của máy chủ bị tấn công thì kẻ xấu cũng không bao giờ lấy được mật khẩu hay giả mạo được tài khoản của sinh viên. Còn ở tính năng AI, nhóm thiết kế theo chuẩn <b>Fault-tolerant</b>: luôn có thuật toán từ điển tiếng Việt tự viết chạy offline dự phòng, đảm bảo khi phòng thi mất mạng thì toàn bộ đồ án vẫn chạy mượt mà 100%!"
+      </div>
+      <div class="qa-ref">📁 File dẫn chứng: <code>security/DidKey.java</code>, <code>security/WebAuthnService.java</code>, <code>ai/SentimentAnalyzer.java</code>.</div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    Cẩm nang vấn đáp 2 màn hình UTErSpace — Khoa CNTT Trường Đại học Sư phạm Kỹ thuật TP.HCM (HCMUTE).<br>
+    Đồng bộ 100% với kiến trúc: <b>22 Servlets · 1 WebSocket Endpoint · 4 Filters · 24 Bảng CSDL MySQL 8.4 · HikariCP Pool</b>.
+  </div>
+</footer>
+
+<script>
+(function() {
+  // 1. Chuyển đổi giao diện Sáng / Tối
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('btn-theme');
+  var savedTheme = localStorage.getItem('ut-screen2-theme');
+  if (savedTheme) root.setAttribute('data-theme', savedTheme);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function() {
+      var isDark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ut-screen2-theme', next);
+    });
+  }
+
+  // 2. Chế độ tự dò bài (Ẩn code & DB để ôn tập)
+  var quizBtn = document.getElementById('btn-quiz');
+  if (quizBtn) {
+    quizBtn.addEventListener('click', function() {
+      var active = document.body.classList.toggle('quiz-mode');
+      quizBtn.classList.toggle('active', active);
+      quizBtn.textContent = active ? '👁️ Đang ẩn gợi ý' : '🙈 Tự dò bài';
+    });
+  }
+  document.querySelectorAll('.col-code, .col-db, .qa-ans').forEach(function(el) {
+    el.addEventListener('click', function() {
+      if (document.body.classList.contains('quiz-mode')) {
+        el.classList.toggle('revealed');
+      }
+    });
+  });
+
+  // 3. Bộ lọc nhanh theo Danh mục màn hình
+  var filterBtns = document.querySelectorAll('.pill-btn[data-filter]');
+  var cards = document.querySelectorAll('.item-card');
+  filterBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var cat = btn.getAttribute('data-filter');
+      filterBtns.forEach(function(b) { b.classList.toggle('active', b === btn); });
+      cards.forEach(function(card) {
+        var cardCat = card.getAttribute('data-category') || '';
+        if (cat === 'all' || cardCat.indexOf(cat) !== -1) {
+          card.classList.remove('hidden-item');
+        } else {
+          card.classList.add('hidden-item');
+        }
+      });
+    });
+  });
+
+  // 4. Tìm kiếm tức thì trong toàn bộ cẩm nang
+  var searchInput = document.getElementById('filter-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var q = (this.value || '').trim().toLowerCase();
+      document.querySelectorAll('.item-card, .qa-card, tr').forEach(function(item) {
+        if (!q) {
+          item.classList.remove('hidden-item');
+          return;
+        }
+        var text = (item.textContent || '').toLowerCase();
+        if (text.indexOf(q) !== -1) {
+          item.classList.remove('hidden-item');
+        } else {
+          item.classList.add('hidden-item');
+        }
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

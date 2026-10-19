@@ -35,6 +35,7 @@ function afterPrivacyChange(postId, hidden) {
     setTimeout(function () { location.reload(); }, 600);
     return;
   }
+  if (hidden && window.PostViewer) PostViewer.closeIfShowing(postId);   // bài đang mở trong hộp xem bài (post-support.jsp)
   var card = findPostCard(postId);
   if (hidden && card) {
     card.style.transition = 'opacity .3s ease, transform .3s ease';
