@@ -22,10 +22,12 @@
     <class>com.uterspace.model.MessageReaction</class>
     <class>com.uterspace.model.MessageHidden</class>
     <properties>
-      <!-- Database Connection: MySQL 8.4 trên Máy Chủ (Host Server qua Tailscale IP 100.119.255.40, Port 3306).
-           Tài khoản + mật khẩu đọc từ <thư mục Tomcat>/conf/uterspace-cloud.properties (JPAUtil.java). -->
+      <!-- Database Connection: MySQL 8.x Local Server (Cổng 3306, database 'defaultdb').
+           Tự động nạp dữ liệu mẫu bởi DatabaseAutoSeeder khi khởi động. -->
       <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://100.119.255.40:3306/defaultdb?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;characterEncoding=UTF-8&amp;connectionTimeZone=Asia/Ho_Chi_Minh&amp;forceConnectionTimeZoneToSession=true&amp;useLocalSessionState=true" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/defaultdb?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;characterEncoding=UTF-8&amp;connectionTimeZone=Asia/Ho_Chi_Minh&amp;forceConnectionTimeZoneToSession=true&amp;useLocalSessionState=true" />
+      <property name="javax.persistence.jdbc.user" value="root" />
+      <property name="javax.persistence.jdbc.password" value="" />
       <!-- Pool kết nối HikariCP tối ưu cho MySQL 8.4 trên Host Server -->
       <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider" />
       <property name="hibernate.hikari.poolName" value="uterspace-db" />

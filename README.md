@@ -1,62 +1,78 @@
-# UTErSpace
-
-Mạng xã hội dành cho sinh viên HCMUTE – Đồ án môn học Web Programming.
-
-## Tech Stack
-- **Backend:** Java Servlet / JSP (Jakarta EE-style MVC)
-- **Build tool:** Maven
-- **Server:** Apache Tomcat 9.x
-- **Database:** MySQL 8 (Cloud trên Aiven — trước đây là SQL Server trên SmarterASP)
-- **Media Storage:** Cloudinary (Tự động upload và đồng bộ)
+# UTErSpace — Mạng Xã Hội Sinh Viên HCMUTE
+> **Đồ án môn học:** Lập trình Web (Web Programming)  
+> **Khoa:** Công nghệ Thông tin — Trường ĐH Sư phạm Kỹ thuật TP.HCM (HCMUTE)
 
 ---
 
-## 🚀 Hướng Dẫn Chạy Dự Án (Dành Cho Nhóm)
-
-Dự án này đã được cấu hình **100% Cloud**. Bạn **KHÔNG CẦN** phải cài đặt MySQL / SQL Server tại máy hay cấu hình thư mục lưu trữ ảnh. Chỉ cần khai báo tài khoản Cloud một lần (Bước 2) là chạy được.
-
-### Bước 1: Chuẩn Bị
-1. Clone dự án về máy.
-2. Mở thư mục dự án bằng **VS Code**.
-3. Cài đặt các Extension cần thiết:
-   - **Extension Pack for Java** (Của Microsoft).
-   - **Community Server Connector** (Của Red Hat - Để chạy Tomcat).
-
-### Bước 2: Khai Báo Tài Khoản Cloud (Làm 1 lần)
-Mật khẩu database và API secret của Cloudinary **không nằm trong code** (repo có thể để Public mà không lộ tài khoản).
-1. Chép file mẫu `db/uterspace-cloud.properties.example` vào thư mục `conf` của Tomcat và đổi tên thành
-   `uterspace-cloud.properties` (vd: `C:\ApacheTomcat\conf\uterspace-cloud.properties`).
-2. Điền `db.user`, `db.password`, `cloudinary.cloudName`, `cloudinary.apiKey`, `cloudinary.apiSecret` theo file
-   `docs/CLOUD_CREDENTIALS.md` (nhóm trưởng gửi riêng, file này không có trên GitHub).
-3. Khởi động lại Tomcat nếu đang chạy.
-
-Thiếu file này thì web không khởi động, log Tomcat ghi rõ: `[JPAUtil] Chưa cấu hình tài khoản database...`.
-
-### Bước 3: Build Dự Án (Bắt buộc)
-> **Lưu ý cực kỳ quan trọng:** Extension Tomcat của VS Code đôi khi không nhận diện đúng các thư viện Maven (như jdbc, cloudinary). Để tránh lỗi HTTP 404 hoặc ClassNotFound, bạn **bắt buộc** phải build file .war thủ công.
-
-1. Mở Terminal trong VS Code (Ctrl + ~).
-2. Chạy lệnh sau để Maven tải thư viện và đóng gói dự án:
-   ```bash
-   mvn clean package
-   ```
-3. Đợi đến khi báo BUILD SUCCESS. Lúc này, trong thư mục `target/` sẽ xuất hiện file **uterspace.war** (khoảng 45MB).
-
-### Bước 4: Chạy Web (Debug)
-1. Mở thanh Explorer bên trái của VS Code.
-2. Mở thư mục **`target/`**.
-3. **Click chuột phải** vào file **uterspace.war**.
-4. Chọn **Run on Server** (hoặc Debug on Server).
-5. Chọn Tomcat của bạn.
-
-Tomcat sẽ tự động khởi động, giải nén toàn bộ code và thư viện, sau đó mở trang web tại http://localhost:8080/uterspace.
+## 🛠️ Công Nghệ Sử Dụng (Tech Stack)
+- **Backend:** Java Servlet / JSP (Mô hình MVC chuẩn Jakarta EE / `javax.*`)
+- **ORM / Database Access:** JPA 2.2 / Hibernate 5.6 & HikariCP Connection Pool
+- **Cơ sở dữ liệu:** MySQL 8.x (24 bảng quan hệ chuẩn hóa, UTF-8 MB4)
+- **Quản lý dự án & Thư viện:** Apache Maven
+- **Web Server:** Apache Tomcat 9.x
+- **Bảo mật:** Mã hóa mật khẩu chuẩn BCrypt (Cost 12), Bộ lọc CSRF Token, XSS Sanitizer, Session Fixation Protection
 
 ---
 
-## 📂 Cơ Sở Dữ Liệu & Ảnh
-- **Database:** Mọi dữ liệu (tài khoản, bài đăng, comment...) đều được đọc/ghi trực tiếp vào MySQL trên Aiven (`uterspace-uterspace.b.aivencloud.com:23135`, database `defaultdb`). Xem file docs/CLOUD_CREDENTIALS.md để biết tài khoản nếu cần mở bằng MySQL Workbench / DBeaver (bật SSL).
-- **Script DB:** `db/aiven_mysql_migration.sql` bổ sung cho DB Aiven phần migration 090 (Story nâng cao, AI, passkey, DID) và gắn link ảnh / video mẫu trên Cloudinary — chạy lại nhiều lần không sao. `db/all_migrations_cloud.sql` là bản T-SQL cũ cho SQL Server, chỉ để tham khảo.
-- **Ảnh & Video:** Khi bạn đăng ảnh mới trên trang web, ảnh sẽ tự động được đẩy lên **Cloudinary** và mọi người trong nhóm đều có thể thấy. Xóa bài / đổi ảnh đại diện / đổi ảnh bìa thì file cũ trên Cloudinary cũng tự xóa theo.
-- **Ảnh / video mẫu** của dữ liệu seed nằm ở gốc thư mục `uterspace_uploads/` trên Cloudinary (gắn vào DB bởi mục 4 trong `db/aiven_mysql_migration.sql`) và không bao giờ bị app tự xóa.
+## 🚀 Hướng Dẫn Cài Đặt & Chạy Dự Án
 
-Chúc các bạn code vui vẻ và đạt điểm cao! 🎉
+### 1. Yêu cầu môi trường
+- **Java Development Kit (JDK):** **JDK 17 trở lên** *(Bắt buộc, `pom.xml` biên dịch ở mức Java 17)*.
+- **Web Server:** Apache Tomcat 9.0.x
+- **Database:** MySQL 8.x (hoặc MySQL trong XAMPP / Laragon đang bật cổng `3306`).
+- **IDE khuyên dùng:** Eclipse IDE for Enterprise Java / IntelliJ IDEA Ultimate.
+
+---
+
+### 2. Các bước chuẩn bị & chạy Web
+
+#### ⚠️ Bước 1 (Bắt buộc - Chỉ làm 1 lần): Tạo thư mục upload cho Tomcat
+Do dự án được cấu hình lưu trữ file đa phương tiện (ảnh, video) ở thư mục ngoài webapp để tránh bị xóa mất khi redeploy file WAR, Tomcat yêu cầu thư mục này phải tồn tại trước khi khởi động:
+- **Tên thư mục cần tạo:** **`uterspace-uploads`**
+- **Vị trí tạo:** Nằm ngay tại thư mục gốc cài đặt của Tomcat (ngang hàng với `bin`, `conf`, `webapps`).  
+  *(Ví dụ nếu Tomcat của bạn nằm tại `C:\ApacheTomcat` hoặc `D:\Tomcat9\apache-tomcat-9.0.x`, hãy tạo thư mục: `C:\ApacheTomcat\uterspace-uploads`)*.
+- **Minh họa cấu trúc thư mục Tomcat sau khi tạo:**
+  ```text
+  apache-tomcat-9.0.x/
+   ├── bin/
+   ├── conf/
+   ├── lib/
+   ├── webapps/
+   └── uterspace-uploads/   <--- [Tạo thư mục rỗng này ở đây]
+  ```
+
+#### Bước 2: Đảm bảo dịch vụ MySQL đang chạy
+- Khởi động MySQL cục bộ (cổng mặc định `3306`).
+- *(Bạn không cần mở MySQL Workbench tạo database hay gõ câu lệnh SQL nào, hệ thống sẽ tự làm).*
+
+#### Bước 3: Mở dự án trong IDE & Khởi chạy
+1. Trong Eclipse (hoặc IntelliJ): Chọn `File` ➔ `Open Projects from File System...` (hoặc `Open...`) ➔ Chọn thư mục chứa file `pom.xml`.
+2. Click chuột phải vào dự án ➔ Chọn **`Run As`** ➔ **`Run on Server`** (Chọn Apache Tomcat 9).
+3. **Cơ chế Auto-Seed tự động:** Khi Tomcat khởi động, `DatabaseAutoSeeder` sẽ tự động kết nối MySQL, tạo database `defaultdb` và nạp toàn bộ **24 bảng, 70 bài viết thật, 33 tài khoản người dùng** trong vòng 2 - 3 giây.
+4. Trình duyệt sẽ tự động mở trang web tại: **`http://localhost:8080/uterspace/`**
+
+> **Ghi chú (Nếu muốn import Database thủ công):**  
+> Trong thư mục `db/` có sẵn file master: **`db/uterspace_database.sql`**. Bạn có thể mở file này bằng MySQL Workbench / DBeaver và bấm Execute để nạp thủ công nếu muốn.
+
+---
+
+## 👥 Danh Sách Tài Khoản Mẫu Để Chấm Điểm & Test
+
+*(Tất cả tài khoản mẫu trong hệ thống đều dùng chung một mật khẩu duy nhất)*:
+
+| Vai trò | Họ và tên | Email đăng nhập | Mật khẩu |
+| :--- | :--- | :--- | :--- |
+| **Quản trị viên (ADMIN)** | Quản trị UTEr | **`admin@uterspace.edu.vn`** | **`12345678`** |
+| **Admin Test** | Test Admin | **`admin@test.com`** | **`12345678`** |
+| **Sinh viên (USER - Nhiều bài viết)** | Nguyễn Đức Huy | **`duy@student.hcmute.edu.vn`** | **`12345678`** |
+| **Sinh viên (USER)** | Trần Lan Anh | **`lananh@student.hcmute.edu.vn`** | **`12345678`** |
+| **Sinh viên (USER)** | Võ Diễm Quỳnh | **`diemquynh@student.hcmute.edu.vn`** | **`12345678`** |
+
+---
+
+## ✨ Các Tính Năng Nổi Bật Sẵn Sàng Trải Nghiệm
+1. **Bảng tin (Newsfeed):** Bài viết đa phương tiện (Ảnh sắc nét, Video MP4 có trình phát tua mượt mà), Thích (Like), Bình luận (Comment), Chia sẻ bài viết (Quote Share), Lưu bài viết.
+2. **Kênh Video UTErTube:** Trang dành riêng để xem video ngắn và vlog đời sống sinh viên.
+3. **Trang cá nhân (Profile):** Cắt ảnh đại diện Cropper, Đổi ảnh bìa, Quản lý danh sách bài viết cá nhân, Bộ lọc ảnh/video.
+4. **Nhắn tin Thời gian thực (Chat):** Trò chuyện cá nhân 1-1, gửi sticker/ảnh qua WebSocket.
+5. **Bảo mật & Cài đặt:** Đổi mật khẩu, Khóa/mở tài khoản, Đăng nhập bảo mật.

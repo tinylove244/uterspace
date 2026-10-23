@@ -15,6 +15,9 @@ public class AppContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        // Tự động kiểm tra và khởi tạo Database + nạp dữ liệu mẫu nếu DB chưa có
+        DatabaseAutoSeeder.checkAndSeed();
+
         // Khởi tạo Hibernate/JPA khi server start để tránh bị chậm ở request đầu tiên
         JPAUtil.init();
         System.out.println("JPA EntityManagerFactory initialized.");

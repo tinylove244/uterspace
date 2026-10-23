@@ -32,13 +32,23 @@ public class JPAUtil {
         }
     }
 
-    /** Tài khoản DB và địa chỉ / số kết nối ghi đè lên persistence.xml (nếu có khai báo trong CloudConfig) */
+    /** Tài khoản DB và địa chỉ / số kết nối ghi đè lên persistence.xml (nếu có khai báo trong CloudConfig hoặc auto-detected) */
     static Map<String, Object> overrides() {
         Map<String, Object> props = new HashMap<>();
         String user = CloudConfig.get("db.user");
-        if (!user.isEmpty()) props.put("javax.persistence.jdbc.user", user);
+        if (!user.isEmpty()) {
+            props.put("javax.persistence.jdbc.user", user);
+        } else if (DatabaseAutoSeeder.getDetectedUser() != null) {
+            props.put("javax.persistence.jdbc.user", DatabaseAutoSeeder.getDetectedUser());
+        }
+
         String password = CloudConfig.get("db.password");
-        if (!password.isEmpty()) props.put("javax.persistence.jdbc.password", password);
+        if (!password.isEmpty()) {
+            props.put("javax.persistence.jdbc.password", password);
+        } else if (DatabaseAutoSeeder.getDetectedPassword() != null) {
+            props.put("javax.persistence.jdbc.password", DatabaseAutoSeeder.getDetectedPassword());
+        }
+
         String url = CloudConfig.get("db.url");
         if (!url.isEmpty()) props.put("javax.persistence.jdbc.url", url);
         String pool = CloudConfig.get("db.poolSize");
